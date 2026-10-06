@@ -69,6 +69,19 @@ function defineProto(target, name, value) {
   return true;
 }
 
+/** Names of the ES2025 built-ins this realm is missing (before shimming). */
+export function missingEngineShims() {
+  const checks = [
+    ['Uint8Array.prototype.toHex', () => typeof Uint8Array.prototype.toHex === 'function'],
+    ['Uint8Array.prototype.toBase64', () => typeof Uint8Array.prototype.toBase64 === 'function'],
+    ['Uint8Array.fromBase64', () => typeof Uint8Array.fromBase64 === 'function'],
+    ['Map.prototype.getOrInsertComputed', () => typeof Map.prototype.getOrInsertComputed === 'function'],
+    ['Map.prototype.getOrInsert', () => typeof Map.prototype.getOrInsert === 'function'],
+    ['Math.sumPrecise', () => typeof Math.sumPrecise === 'function'],
+  ];
+  return checks.filter(([, present]) => !present()).map(([name]) => name);
+}
+
 const B64_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 const B64_URL_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
 
@@ -157,6 +170,25 @@ export function installEngineShims() {
     this.set(key, value);
     return value;
   })) installed.push('Map.prototype.getOrInsert');
+
+  // Math.sumPrecise (ES2025) is called on the password/fingerprint paths.
+  // Neumaier compensated summation: same result as the spec for the small
+  // numeric arrays pdf.js passes, without needing 128-bit intermediates.
+  if (defineProto(Math, 'sumPrecise', function sumPrecise(values) {
+    if (values === null || values === undefined || typeof values[Symbol.iterator] !== 'function') {
+      throw new TypeError('Math.sumPrecise requires an iterable of numbers');
+    }
+    let sum = 0;
+    let compensation = 0;
+    for (const raw of values) {
+      const value = typeof raw === 'bigint' ? Number(raw) : raw;
+      if (typeof value !== 'number') throw new TypeError('Math.sumPrecise requires numbers');
+      const next = sum + value;
+      compensation += Math.abs(sum) >= Math.abs(value) ? (sum - next) + value : (value - next) + sum;
+      sum = next;
+    }
+    return sum + compensation;
+  })) installed.push('Math.sumPrecise');
 
   shimsInstalled = true;
   return installed;

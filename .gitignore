@@ -23,3 +23,9 @@ Desktop.ini
 .chrome.err.log
 .chrome.out.log
 
+.e2e-fixture-*.pdf
+.e2e-test.png
+.diag-fixture.pdf
+.chrome-diag*
+.chrome-dbg*
+

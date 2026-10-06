@@ -100,12 +100,37 @@ for (const k of enKeys) {
 
 /* -------------------------------------------------------------- js syntax -- */
 
+/**
+ * `node --check` through a temp FILE rather than a pipe: under a confined
+ * sandbox, spawning a child with piped stdio fails with EPERM, which would
+ * turn every file into a false positive. File descriptors always work.
+ */
 function checkJsSyntax(file) {
-  const r = spawnSync(process.execPath, ['--check', file], { stdio: 'pipe', encoding: 'utf8' });
-  if (r.error) { ok(false, 'js', `${file}: could not run node --check (${r.error.code})`); return; }
-  if (r.status !== 0) {
-    const line = (r.stderr || '').split('\n').find((l) => l.includes('SyntaxError'));
-    ok(false, 'js', `${file}: ${line ? line.trim() : 'syntax error'}`);
+  checks++;
+  const tmp = path.join(ROOT, '.cache', `syntax-${path.basename(file)}.log`);
+  fs.mkdirSync(path.dirname(tmp), { recursive: true });
+  let fd;
+  try {
+    fd = fs.openSync(tmp, 'w');
+    const r = spawnSync(process.execPath, ['--check', file], {
+      stdio: ['ignore', fd, fd],
+    });
+    fs.closeSync(fd);
+    fd = null;
+    if (r.error) {
+      problems.push(`[js] ${file}: could not run node --check (${r.error.code})`);
+      return;
+    }
+    if (r.status !== 0) {
+      const out = fs.readFileSync(tmp, 'utf8');
+      const line = out.split('\n').find((l) => /Error|error/.test(l));
+      problems.push(`[js] ${file}: ${line ? line.trim() : 'syntax error'}`);
+    }
+  } catch (err) {
+    if (fd !== null && fd !== undefined) { try { fs.closeSync(fd); } catch { /* ignore */ } }
+    problems.push(`[js] ${file}: syntax check crashed (${err.message})`);
+  } finally {
+    fs.rmSync(tmp, { force: true });
   }
 }
 

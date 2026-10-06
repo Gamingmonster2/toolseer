@@ -262,7 +262,237 @@ async function checkPage(cdp, route) {
   return r;
 }
 
-/* -------------------------------------------------- real conversion test --- */
+/* -------------------------------------------------- real conversion tests -- */
+
+/** Build a real multi-page PDF with text, using the vendored pdf-lib. */
+async function makeTestPdf(pages = 2, label = 'PAGE') {
+  const { pathToFileURL } = await import('node:url');
+  const pdfLibUrl = pathToFileURL(path.join(WEB, 'vendor', 'pdf-lib', 'pdf-lib.esm.min.js')).href;
+  const { PDFDocument, StandardFonts, rgb } = await import(pdfLibUrl);
+  const doc = await PDFDocument.create();
+  const font = await doc.embedFont(StandardFonts.Helvetica);
+  for (let i = 0; i < pages; i++) {
+    const page = doc.addPage([595, 842]);
+    page.drawText(`${label} ${i + 1}`, { x: 60, y: 760, size: 28, font, color: rgb(0, 0, 0) });
+  }
+  const bytes = await doc.save();
+  const file = path.join(ROOT, `.e2e-fixture-${pages}p.pdf`);
+  fs.writeFileSync(file, bytes);
+  return file;
+}
+
+/** Read page count + encryption flag straight from the bytes, no engine involved. */
+async function inspectPdfBytes(file) {
+  const buf = fs.readFileSync(file);
+  const head = buf.subarray(0, 5).toString('ascii');
+  const raw = buf.toString('latin1');
+  return {
+    head,
+    bytes: buf.length,
+    encrypted: /\/Encrypt\b/.test(raw),
+  };
+}
+
+async function countPdfPages(file) {
+  const { pathToFileURL } = await import('node:url');
+  const pdfLibUrl = pathToFileURL(path.join(WEB, 'vendor', 'pdf-lib', 'pdf-lib.esm.min.js')).href;
+  const { PDFDocument } = await import(pdfLibUrl);
+  const doc = await PDFDocument.load(fs.readFileSync(file), { ignoreEncryption: true });
+  return doc.getPageCount();
+}
+
+/** Shared browser-side helpers injected with Runtime.evaluate. */
+const JS_SET_INPUT = (sel, value, index = 0) => `(() => {
+  const el = document.querySelectorAll(${JSON.stringify(sel)})[${index}];
+  if (!el) return 'missing';
+  el.value = ${JSON.stringify(value)};
+  el.dispatchEvent(new Event('input', { bubbles: true }));
+  el.dispatchEvent(new Event('change', { bubbles: true }));
+  return el.value;
+})()`;
+
+async function attachFiles(cdp, files) {
+  const doc = await cdp.send('DOM.getDocument', { depth: -1 });
+  const input = await cdp.send('DOM.querySelector', { nodeId: doc.root.nodeId, selector: '#ts-tool input[type=file]' });
+  if (!input.nodeId) return false;
+  await cdp.send('DOM.setFileInputFiles', { files, nodeId: input.nodeId });
+  return true;
+}
+
+async function waitForResult(cdp, tries = 240) {
+  for (let i = 0; i < tries; i++) {
+    if (await cdp.eval(`!!document.querySelector('#ts-tool .ts-result, #ts-tool .ts-card')`)) return true;
+    if (await cdp.eval(`!!document.querySelector('.ts-alert--error')`)) return false;
+    await sleep(250);
+  }
+  return false;
+}
+
+async function grabDownload(cdp, dl, ext) {
+  await cdp.eval(`document.querySelector('.ts-result .ts-btn--primary')?.click()`);
+  for (let i = 0; i < 60; i++) {
+    await sleep(250);
+    const files = fs.existsSync(dl) ? fs.readdirSync(dl).filter((f) => f.endsWith(ext)) : [];
+    if (files.length) return path.join(dl, files[0]);
+  }
+  return null;
+}
+
+function freshDownloadDir() {
+  const dl = path.join(ROOT, '.e2e-downloads');
+  fs.rmSync(dl, { recursive: true, force: true, maxRetries: 3, retryDelay: 300 });
+  fs.mkdirSync(dl, { recursive: true });
+  return dl;
+}
+
+async function openTool(port, slug) {
+  const tab = await openTab(port, 'about:blank');
+  const cdp = new Cdp(tab.webSocketDebuggerUrl);
+  await cdp.send('Page.enable');
+  await cdp.send('Runtime.enable');
+  await cdp.send('DOM.enable');
+  await cdp.send('Page.navigate', { url: `http://127.0.0.1:4173/${slug}` });
+  for (let i = 0; i < 60; i++) {
+    if (await cdp.eval(`!!document.querySelector('#ts-tool .ts-drop')`)) break;
+    await sleep(200);
+  }
+  return cdp;
+}
+
+/* -------------------------------------------- image-to-pdf (pdf-lib path) -- */
+
+async function convertImageToPdf(port) {
+  const r = { label: 'image-to-pdf (conversion)', ok: [], fail: [], warnings: [] };
+  const ok = (cond, name, detail = '') => cond ? r.ok.push(name) : r.fail.push(`${name}${detail ? ' — ' + detail : ''}`);
+
+  const png = await makeTestPng();
+  const cdp = await openTool(port, 'image-to-pdf');
+  ok(await attachFiles(cdp, [png]), 'file input found');
+  await sleep(800);
+  ok((await cdp.eval(`document.querySelectorAll('#ts-tool .ts-file').length`)) === 1, 'file card rendered');
+
+  const dl = freshDownloadDir();
+  await cdp.send('Browser.setDownloadBehavior', { behavior: 'allow', downloadPath: dl, eventsEnabled: true });
+  ok(await cdp.eval(`!!document.querySelector('#ts-run')`), 'run button present');
+  await cdp.eval(`document.querySelector('#ts-run').click()`);
+  ok(await waitForResult(cdp), 'conversion finished');
+  ok(/toolseer-images\.pdf/.test(await cdp.eval(`document.querySelector('.ts-result')?.innerText || ''`)), 'result names the output');
+
+  const file = await grabDownload(cdp, dl, '.pdf');
+  ok(file !== null, 'download produced a file');
+  if (file) {
+    const info = await inspectPdfBytes(file);
+    ok(info.head === '%PDF-', 'downloaded bytes are a real PDF', info.head);
+    ok(info.bytes > 1000, 'PDF has plausible size', `${info.bytes} bytes`);
+    ok((await countPdfPages(file)) === 1, 'PDF contains exactly one page');
+  }
+  cdp.close();
+  results.push(r);
+}
+
+/* ------------------------------------------------ merge-pdf (pdf-lib ops) -- */
+
+async function convertMergePdf(port) {
+  const r = { label: 'merge-pdf (conversion)', ok: [], fail: [], warnings: [] };
+  const ok = (cond, name, detail = '') => cond ? r.ok.push(name) : r.fail.push(`${name}${detail ? ' — ' + detail : ''}`);
+
+  const a = await makeTestPdf(2, 'ALPHA');
+  const b = await makeTestPdf(3, 'BETA');
+  const cdp = await openTool(port, 'merge-pdf');
+  ok(await attachFiles(cdp, [a, b]), 'file input found');
+  await sleep(900);
+  const rows = await cdp.eval(`document.querySelectorAll('#ts-tool .ts-row').length`);
+  ok(rows === 2, 'two inputs listed', `${rows} rows`);
+
+  const dl = freshDownloadDir();
+  await cdp.send('Browser.setDownloadBehavior', { behavior: 'allow', downloadPath: dl, eventsEnabled: true });
+  await cdp.eval(`document.querySelector('#ts-run').click()`);
+  ok(await waitForResult(cdp), 'merge finished');
+  const file = await grabDownload(cdp, dl, '.pdf');
+  ok(file !== null, 'download produced a file');
+  if (file) {
+    const info = await inspectPdfBytes(file);
+    ok(info.head === '%PDF-', 'merged bytes are a real PDF', info.head);
+    ok((await countPdfPages(file)) === 5, 'merged PDF has 2 + 3 = 5 pages', String(await countPdfPages(file)));
+  }
+  cdp.close();
+  results.push(r);
+}
+
+/* ------------------------------------ protect-pdf (qpdf-wasm in browser) -- */
+
+async function convertProtectPdf(port) {
+  const r = { label: 'protect-pdf (qpdf in browser)', ok: [], fail: [], warnings: [] };
+  const ok = (cond, name, detail = '') => cond ? r.ok.push(name) : r.fail.push(`${name}${detail ? ' — ' + detail : ''}`);
+
+  const src = await makeTestPdf(2, 'SECRET');
+  const cdp = await openTool(port, 'protect-pdf');
+  ok(await attachFiles(cdp, [src]), 'file input found');
+  await sleep(800);
+
+  const pwFields = await cdp.eval(`document.querySelectorAll('#ts-rail-body input[type=password]').length`);
+  ok(pwFields >= 2, 'password fields rendered', `${pwFields} fields`);
+  await cdp.eval(JS_SET_INPUT('#ts-rail-body input[type=password]', 'CorrectHorse1', 0));
+  await cdp.eval(JS_SET_INPUT('#ts-rail-body input[type=password]', 'CorrectHorse1', 1));
+
+  const dl = freshDownloadDir();
+  await cdp.send('Browser.setDownloadBehavior', { behavior: 'allow', downloadPath: dl, eventsEnabled: true });
+  await cdp.eval(`document.querySelector('#ts-run').click()`);
+  const finished = await waitForResult(cdp);
+  ok(finished, 'protect finished (this proves qpdf-wasm loaded as a classic script)',
+    finished ? '' : await cdp.eval(`document.querySelector('.ts-alert--error')?.innerText || ''`));
+
+  if (finished) {
+    const file = await grabDownload(cdp, dl, '.pdf');
+    ok(file !== null, 'download produced a file');
+    if (file) {
+      const info = await inspectPdfBytes(file);
+      ok(info.head === '%PDF-', 'protected bytes are a real PDF', info.head);
+      ok(info.encrypted, 'output carries an /Encrypt dictionary (really encrypted)');
+    }
+  }
+  cdp.close();
+  results.push(r);
+}
+
+/* ------------------------------------------- extract-text (pdf.js in browser) */
+
+async function convertExtractText(port) {
+  const r = { label: 'extract-text-pdf (pdf.js in browser)', ok: [], fail: [], warnings: [] };
+  const ok = (cond, name, detail = '') => cond ? r.ok.push(name) : r.fail.push(`${name}${detail ? ' — ' + detail : ''}`);
+
+  const src = await makeTestPdf(3, 'WORD');
+  const cdp = await openTool(port, 'extract-text-pdf');
+  ok(await attachFiles(cdp, [src]), 'file input found');
+  await sleep(800);
+  await cdp.eval(`document.querySelector('#ts-run').click()`);
+  const finished = await waitForResult(cdp);
+  ok(finished, 'extraction finished (this proves the pdf.js worker ran in a real browser)',
+    finished ? '' : await cdp.eval(`document.querySelector('.ts-alert--error')?.innerText || ''`));
+  if (finished) {
+    const text = await cdp.eval(`document.querySelector('.ts-card pre')?.innerText || ''`);
+    ok(/WORD\s*1/.test(text) && /WORD\s*2/.test(text) && /WORD\s*3/.test(text),
+      'extracted text contains every page marker', JSON.stringify(text.slice(0, 80)));
+  }
+  cdp.close();
+  results.push(r);
+}
+
+const CONVERTERS = {
+  'image-to-pdf': convertImageToPdf,
+  'merge-pdf': convertMergePdf,
+  'protect-pdf': convertProtectPdf,
+  'extract-text-pdf': convertExtractText,
+};
+
+async function conversionTest(port, slug) {
+  const fn = CONVERTERS[slug];
+  if (!fn) {
+    results.push({ label: `${slug} (conversion)`, ok: [], fail: [], warnings: [`no conversion test implemented for ${slug}`] });
+    return;
+  }
+  await fn(port);
+}
 
 async function makeTestPng() {
   const file = path.join(ROOT, '.e2e-test.png');
@@ -299,76 +529,6 @@ async function makeTestPng() {
   return file;
 }
 
-async function conversionTest(port, slug) {
-  const label = `${slug} (conversion)`;
-  const r = { label, ok: [], fail: [], warnings: [] };
-  const ok = (cond, name, detail = '') => cond ? r.ok.push(name) : r.fail.push(`${name}${detail ? ' — ' + detail : ''}`);
-
-  if (slug !== 'image-to-pdf') {
-    r.warnings.push('--convert only implements image-to-pdf; skipping');
-    results.push(r);
-    return;
-  }
-
-  const png = await makeTestPng();
-  const tab = await openTab(port, 'about:blank');
-  const cdp = new Cdp(tab.webSocketDebuggerUrl);
-  await cdp.send('Page.enable');
-  await cdp.send('Runtime.enable');
-  await cdp.send('DOM.enable');
-  await cdp.send('Page.navigate', { url: 'http://127.0.0.1:4173/image-to-pdf' });
-  await sleep(2500);
-
-  /* inject the file into the page's <input type=file> */
-  const doc = await cdp.send('DOM.getDocument', { depth: -1 });
-  const input = await cdp.send('DOM.querySelector', { nodeId: doc.root.nodeId, selector: '#ts-tool input[type=file]' });
-  ok(input.nodeId !== 0, 'file input found');
-  if (input.nodeId) {
-    await cdp.send('DOM.setFileInputFiles', { files: [png], nodeId: input.nodeId });
-    await sleep(800);
-    const count = await cdp.eval(`document.querySelectorAll('#ts-tool .ts-file').length`);
-    ok(count === 1, 'file card rendered', `${count} cards`);
-
-    /* prepare to capture the download */
-    const dl = path.join(ROOT, '.e2e-downloads');
-    fs.rmSync(dl, { recursive: true, force: true });
-    fs.mkdirSync(dl, { recursive: true });
-    await cdp.send('Browser.setDownloadBehavior', { behavior: 'allow', downloadPath: dl, eventsEnabled: true });
-
-    const run = await cdp.eval(`!!document.querySelector('#ts-run')`);
-    ok(run, 'run button present');
-    if (run) {
-      await cdp.eval(`document.querySelector('#ts-run').click()`);
-      let done = false;
-      for (let i = 0; i < 200 && !done; i++) {
-        done = !!(await cdp.eval(`!!document.querySelector('.ts-result')`));
-        if (!done) await sleep(250);
-      }
-      ok(done, 'conversion finished within timeout');
-
-      const resultText = await cdp.eval(`document.querySelector('.ts-result')?.innerText || ''`);
-      ok(/toolseer-images\.pdf/.test(resultText), 'result names the output', resultText.split('\n')[0]);
-
-      /* click the download button */
-      await cdp.eval(`document.querySelector('.ts-result .ts-btn--primary')?.click()`);
-      let file = null;
-      for (let i = 0; i < 40 && !file; i++) {
-        await sleep(250);
-        const files = fs.existsSync(dl) ? fs.readdirSync(dl).filter((f) => f.endsWith('.pdf')) : [];
-        if (files.length) file = path.join(dl, files[0]);
-      }
-      ok(file !== null, 'download produced a file');
-      if (file) {
-        const head = Buffer.from(fs.readFileSync(file).subarray(0, 5)).toString('ascii');
-        ok(head === '%PDF-', 'downloaded bytes are a real PDF', head);
-        ok(fs.statSync(file).size > 1000, 'PDF has plausible size', `${fs.statSync(file).size} bytes`);
-      }
-    }
-  }
-  cdp.close();
-  results.push(r);
-}
-
 /* ------------------------------------------------------------------ main -- */
 
 const server = await startServer();
@@ -385,7 +545,11 @@ try {
     cdp.close();
   }
 
-  if (CONVERT) await conversionTest(browser.port, CONVERT);
+  if (CONVERT) {
+    for (const slug of CONVERT.split(',').map((s) => s.trim()).filter(Boolean)) {
+      await conversionTest(browser.port, slug);
+    }
+  }
 } finally {
   /* Tree-kill: headless Chrome spawns many children that survive kill(). */
   if (browser && browser.child && browser.child.pid) {

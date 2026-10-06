@@ -559,9 +559,15 @@ function itemGeometry(item) {
 /**
  * Rebuild readable text from pdf.js text items.
  *
- * Both modes rebuild line breaks from item positions; `layout: true`
- * additionally reproduces horizontal gaps as multiple spaces, which keeps
- * tabular text aligned.
+ * pdf.js 6 no longer offers `disableCombineTextItems`; instead it emits a
+ * separate whitespace item whose `width` *is* the horizontal gap it detected
+ * (a 14pt run followed by a 146pt gap comes back as `"LEFT"`, `" "` with
+ * width 146, `"RIGHT"`). That is exactly what this function needs:
+ *
+ *   - both modes rebuild line breaks from item positions
+ *   - `layout: false` collapses every gap to a single space
+ *   - `layout: true` expands a wide whitespace item into the matching number of
+ *     spaces, so tabular text keeps its columns
  *
  * @param {any[]} items pdf.js TextItem[]
  * @param {boolean} layout
@@ -570,34 +576,61 @@ function itemGeometry(item) {
 function reconstructText(items, layout) {
   let out = '';
   let previous = null;
+  let pendingSpace = false;
+
   for (const item of items) {
     if (!item || typeof item.str !== 'string') continue; // TextMarkedContent markers
     const geometry = itemGeometry(item);
+
     if (item.str === '') {
       if (item.hasEOL && out && !out.endsWith('\n')) out += '\n';
       continue;
     }
+
+    if (/^\s+$/.test(item.str)) {
+      if (layout) {
+        const reference = previous ? previous.height : (geometry.height || 10);
+        const spaceWidth = Math.max(0.5, reference * 0.28);
+        const spaces = Math.max(1, Math.min(60, Math.round((geometry.width || spaceWidth) / spaceWidth)));
+        out += ' '.repeat(spaces);
+        // Treat the whitespace run as consumed space so the next item does not
+        // add a second gap for the same distance.
+        previous = {
+          x: geometry.x + geometry.width,
+          y: previous ? previous.y : geometry.y,
+          width: 0,
+          height: reference,
+        };
+      } else {
+        pendingSpace = true;
+      }
+      continue;
+    }
+
     if (previous) {
       const lineHeight = Math.max(previous.height, geometry.height);
       const moved = Math.abs(geometry.y - previous.y) > Math.max(2, lineHeight * 0.4);
       if (item.hasEOL || moved) {
         out += '\n';
+        pendingSpace = false;
       } else {
         const gap = geometry.x - (previous.x + previous.width);
         const spaceWidth = Math.max(0.5, geometry.height * 0.25);
-        if (gap > spaceWidth) {
-          if (layout) {
-            const spaces = Math.max(1, Math.min(24, Math.round(gap / spaceWidth)));
-            out += ' '.repeat(spaces);
+        if ((pendingSpace || gap > spaceWidth) && !out.endsWith('\n') && !out.endsWith(' ')) {
+          if (layout && !pendingSpace) {
+            out += ' '.repeat(Math.max(1, Math.min(24, Math.round(gap / spaceWidth))));
           } else {
             out += ' ';
           }
         }
       }
     }
+
     out += item.str;
     previous = geometry;
+    pendingSpace = false;
   }
+
   return out
     .replace(/[ \t]+$/gm, '')
     .replace(/\n{3,}/g, '\n\n')
@@ -657,7 +690,7 @@ export async function extractText(bytes, opts = {}) {
       let origin = 'text';
       if (wantsOcr && !text.trim()) {
         try {
-          text = await ocrPage(page, pageNumber, { engine: ocrEngine, lang: ocrLang, dpi: opts.ocrDpi, io: opts.io });
+          text = await ocrPage(page, { engine: ocrEngine, lang: ocrLang, dpi: opts.ocrDpi, io: opts.io });
           origin = 'ocr';
           warnings.push(`ocr-used:page-${pageNumber}`);
         } catch (cause) {
@@ -689,7 +722,7 @@ export async function extractText(bytes, opts = {}) {
   }
 }
 
-async function ocrPage(page, pageNumber, { engine, lang, dpi, io }) {
+async function ocrPage(page, { engine, lang, dpi, io }) {
   const factory = resolveFactory(io);
   if (!factory) {
     throw new ToolError('unsupported', 'OCR needs a canvas to rasterise the page, and this environment has none.');

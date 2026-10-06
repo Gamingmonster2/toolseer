@@ -4,18 +4,68 @@
  */
 
 import { test, assert } from './harness.mjs';
-import { makeMetadataPdf, makePdf } from './fixtures.mjs';
+import { makeMetadataPdf, makePdf, makePng } from './fixtures.mjs';
 import {
   ERROR_CODES,
   ToolError,
   formatBytes,
   installEngineShims,
   isToolError,
+  missingEngineShims,
   parsePageRanges,
   pdfInfo,
   safeBaseName,
   toBytes,
 } from '../apps/web/assets/js/core/index.js';
+
+test('the public surface matches the frozen contract in docs/ARCHITECTURE.md §4', async () => {
+  const core = await import('../apps/web/assets/js/core/index.js');
+  const required = {
+    ToolError: 'function',
+    mergePdfs: 'function',
+    splitPdf: 'function',
+    organizePdf: 'function',
+    imagesToPdf: 'function',
+    compressPdf: 'function',
+    protectPdf: 'function',
+    unlockPdf: 'function',
+    extractText: 'function',
+    pdfToImages: 'function',
+    pdfInfo: 'function',
+    parsePageRanges: 'function',
+    formatBytes: 'function',
+    safeBaseName: 'function',
+    // Additions agreed with the Lead after the document was frozen:
+    zipFiles: 'function',
+    setCanvasFactory: 'function',
+    renderThumbnails: 'function',
+  };
+  for (const [name, type] of Object.entries(required)) {
+    assert.equal(typeof core[name], type, `core must export ${name}()`);
+  }
+  assert.equal(core.mergePdfs.length >= 1, true, 'mergePdfs takes inputs');
+  assert.equal(core.pdfToImages.length >= 1, true, 'pdfToImages takes bytes');
+  assert.equal(core.extractText.length >= 1, true, 'extractText takes bytes');
+  assert.equal(core.parsePageRanges.length, 2, 'parsePageRanges(spec, maxPage)');
+  assert.equal(core.formatBytes.length, 1, 'formatBytes(n)');
+
+  // Warnings must always be an array on every operation result, even when empty.
+  const bytes = await makePdf({ pages: 1 });
+  const results = [
+    await core.mergePdfs([{ name: 'a.pdf', bytes }]),
+    await core.splitPdf(bytes, { mode: 'each' }),
+    await core.organizePdf(bytes, {}),
+    await core.imagesToPdf([{ name: 'i.png', bytes: makePng(8, 8, { alpha: false }) }], {}),
+    await core.compressPdf(bytes, {}),
+    await core.protectPdf(bytes, { userPassword: 'pw' }),
+    await core.unlockPdf(bytes, {}),
+    await core.extractText(bytes),
+    await core.pdfInfo(bytes),
+  ];
+  for (const result of results) {
+    assert.ok(Array.isArray(result.warnings), 'every operation result must carry warnings: string[]');
+  }
+});
 
 test('ToolError carries a stable code, message and hint', () => {
   const error = new ToolError('need-password', 'locked', 'unlock it first');
@@ -156,16 +206,20 @@ test('pdfInfo rejects non-PDF and truncated input instead of guessing', async ()
 });
 
 test('installEngineShims fills ES2025 gaps once and never replaces natives', () => {
+  const missing = missingEngineShims();
+  assert.ok(Array.isArray(missing), 'the missing-built-in probe must work');
   const first = installEngineShims();
   assert.equal(typeof Uint8Array.prototype.toHex, 'function');
   assert.equal(typeof Uint8Array.prototype.toBase64, 'function');
   assert.equal(typeof Uint8Array.fromBase64, 'function');
   assert.equal(typeof Map.prototype.getOrInsertComputed, 'function');
+  assert.equal(typeof Math.sumPrecise, 'function');
   const hexImplementation = Uint8Array.prototype.toHex;
   const second = installEngineShims();
   assert.equal(second.length, 0, 'a second call must install nothing');
   assert.equal(Uint8Array.prototype.toHex, hexImplementation, 'the native/stdlib value must not be replaced');
-  assert.ok(first.length >= 0, 'the first call reports what it installed');
+  assert.deepEqual(missingEngineShims(), [], 'nothing is missing once the shims are installed');
+  assert.equal(missing.length, first.length, 'the probe must agree with what the install reports');
 });
 
 test('the ES2025 shims behave like the real methods', () => {
@@ -182,4 +236,8 @@ test('the ES2025 shims behave like the real methods', () => {
   assert.equal(map.getOrInsertComputed('key', () => 99), 41, 'existing values are kept');
   assert.equal(map.getOrInsert('other', 7), 7);
   assert.equal(map.getOrInsert('other', 8), 7);
+  assert.equal(Math.sumPrecise([0.1, 0.2, 0.3]), 0.6, 'compensated summation avoids the floating point drift');
+  assert.equal(Math.sumPrecise([1, 2, 3, 4]), 10);
+  assert.equal(Math.sumPrecise([]), 0);
+  assert.equal(Math.sumPrecise(new Uint8Array([1, 2, 3])), 6);
 });

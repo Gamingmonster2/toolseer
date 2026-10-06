@@ -99,11 +99,23 @@ export async function unlockPdf(bytes, opts)                  // → { bytes, wa
 export async function extractText(bytes, opts)                // → { text, pages: [{page,text}], meta }
 export async function pdfToImages(bytes, opts, io)            // → { outputs: [{name, bytes}], pageCount }
 export async function pdfInfo(bytes)                          // → { pageCount, encrypted, version, meta }
+export async function zipFiles(outputs)                       // → Uint8Array (real .zip)
+
+/* browser-only helpers; throw ToolError('unsupported') instead of crashing in Node */
+export function setCanvasFactory(factory)
+export async function renderThumbnails(bytes, { maxWidth = 220, pages } = {})
 
 export function parsePageRanges(spec, maxPage)                // 'all' | '1-3,5' → number[] (1-based)
 export function formatBytes(n)                                // 1536 → '1.5 KB'  (binary units)
 export function safeBaseName(name, fallback)                  // strips path + unsafe chars + .pdf
 ```
+
+**Warning codes are part of the contract.** Operations that degrade return stable codes in
+`warnings`, and the UI localises them centrally (`describeWarning` in `toolkit.js`); an unmapped code
+is shown verbatim so nothing is hidden. Known set:
+`compression-ineffective:<pct>%`, `image-recompression-unavailable:<level>`, `not-encrypted`,
+`weak-encryption:<algo>`, `ocr-failed:page-<n>`, `metadata-unavailable`, `outline-unavailable`,
+`reencoded:<name>`, `text-layer-lost`, `password-removed`.
 
 **Required option shapes** (exact key names — the UI writes these):
 

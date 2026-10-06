@@ -860,8 +860,23 @@ function mount(cfg) {
       const pre = document.createElement('pre');
       pre.style.cssText = 'white-space:pre-wrap;word-break:break-word;max-height:420px;overflow:auto;' +
         'background:var(--ts-surface-2);padding:14px;border-radius:12px;font-size:13px;margin:0;font-family:var(--ts-mono)';
-      pre.textContent = result.text;
-      card.append(pre);
+      /* The engine separates pages with \f (the pdftotext convention). HTML
+         collapses form feeds, so multi-page results would read as one run-on
+         paragraph — render the break visibly instead. */
+      const parts = String(result.text).split('\f');
+      if (parts.length > 1) {
+        pre.textContent = parts
+          .map((part, i) => (i === 0 ? part : `\n\n───── ${t('progress.page')} ${i + 1} ─────\n\n${part}`))
+          .join('');
+        const note = document.createElement('div');
+        note.className = 'ts-field__hint';
+        note.style.marginTop = '8px';
+        note.textContent = `${parts.length} ${t('units.pages')}`;
+        card.append(pre, note);
+      } else {
+        pre.textContent = String(result.text);
+        card.append(pre);
+      }
       const row = document.createElement('div');
       row.className = 'ts-files__tools';
       row.style.marginTop = '12px';

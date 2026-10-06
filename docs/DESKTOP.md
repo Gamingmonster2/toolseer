@@ -1,5 +1,11 @@
 # ToolSeer Desktop — why, how big, how it ships, and what could go wrong
 
+> ## ✅ OWNER DECISION (recorded, Phase 1)
+> The owner reviewed the licensing paths in §1 and chose **the clean permissively-licensed stack —
+> Tauri v2 + qpdf + PDFium + Rust image→PDF (Path iii)**. Stirling-PDF is not bundled, vendored or
+> linked from the product. This document's recommended architecture is therefore the plan of record;
+> the alternatives are kept in §1 for the record only.
+
 > **Status: design + unbuilt scaffold.** `Rust`/`cargo` is not installed on the machine this was
 > written on and installing it was not approved, so **no part of `apps/desktop/` has been compiled,
 > built, installed or run.** Every Rust file there is an unverified scaffold, and every size and time

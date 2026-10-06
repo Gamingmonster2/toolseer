@@ -70,6 +70,7 @@ export {
   vendorUrl,
   isNodeRuntime,
   installEngineShims,
+  missingEngineShims,
   areEngineShimsInstalled,
   loadPdfLib,
   loadPdfJs,

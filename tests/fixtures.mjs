@@ -461,6 +461,25 @@ export async function oracleQpdfCheck(bytes) {
   });
 }
 
+/**
+ * A PDF with every stream stripped of its compression, produced by qpdf itself.
+ *
+ * pdf-lib already Flate-compresses the content streams it writes, so a
+ * pdf-lib fixture gives a lossless compressor almost nothing to win. This oracle
+ * creates the realistic case (an uncompressed export from some other tool) where
+ * the lossless path has real work to do, and it is still a genuine PDF.
+ */
+export async function oracleUncompressStreams(bytes) {
+  return withQpdfFile(bytes, async ({ run, inputPath, put, read }) => {
+    const outputPath = put('raw', new Uint8Array(0));
+    const code = run(['--decode-level=all', '--compress-streams=n', '--object-streams=disable', inputPath, outputPath]);
+    if (code !== 0) throw new Error(`qpdf could not uncompress the fixture (exit ${code})`);
+    const result = read('raw');
+    if (!result || !result.length) throw new Error('qpdf produced no uncompressed fixture');
+    return result;
+  });
+}
+
 /** True when qpdf can decrypt the file with no password at all. */
 export async function oracleOpensWithoutPassword(bytes) {
   return withQpdfFile(bytes, async ({ run, inputPath, read, put }) => {

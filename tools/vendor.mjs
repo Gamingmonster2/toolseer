@@ -57,6 +57,7 @@ export const MANIFEST = [
     dirs: [
       { from: 'standard_fonts/', to: 'standard_fonts/' },
       { from: 'wasm/', to: 'wasm/' },
+      { from: 'cmaps/', to: 'cmaps/' },
     ],
   },
   {
