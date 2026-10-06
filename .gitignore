@@ -20,3 +20,6 @@ Desktop.ini
 .cdp-*.png
 .cdp-*.log
 
+.chrome.err.log
+.chrome.out.log
+

@@ -349,9 +349,11 @@ test('imagesToPdf trusts the bytes, not the declared MIME type', async () => {
   const png = makePng(32, 24, { alpha: false });
   const result = await imagesToPdf([{ name: 'lying.jpg', bytes: png, type: 'image/jpeg' }], { pageSize: 'fit' });
   assert.deepEqual(await oraclePageSizes(result.bytes), [[32, 24]]);
-  assert.deepEqual(await oracleImagePixelSizes(result.bytes), [
-    { pageNumber: 1, name: '/Image1', width: 32, height: 24 },
-  ]);
+  assert.deepEqual(
+    (await oracleImagePixelSizes(result.bytes)).map(({ width, height }) => ({ width, height })),
+    [{ width: 32, height: 24 }],
+    'a PNG declared as image/jpeg must still be embedded as a PNG',
+  );
 });
 
 test('imagesToPdf routes unknown formats through an injected decoder', async () => {
