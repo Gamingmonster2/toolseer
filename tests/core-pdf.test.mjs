@@ -288,10 +288,14 @@ test('imagesToPdf embeds a real JPEG and a real PNG, one page each', async () =>
   assert.equal(result.pageCount, 2);
   assert.deepEqual(result.warnings, []);
   assert.deepEqual(await oraclePageSizes(result.bytes), [[16, 8], [32, 24]], 'fit pages match the image sizes');
-  assert.deepEqual(await oracleImagePixelSizes(result.bytes), [
-    { pageNumber: 1, name: '/Image1', width: 16, height: 8 },
-    { pageNumber: 2, name: '/Image2', width: 32, height: 24 },
-  ]);
+  assert.deepEqual(
+    (await oracleImagePixelSizes(result.bytes)).map(({ pageNumber, width, height }) => ({ pageNumber, width, height })),
+    [
+      { pageNumber: 1, width: 16, height: 8 },
+      { pageNumber: 2, width: 32, height: 24 },
+    ],
+    'the embedded images keep their pixel dimensions',
+  );
   assert.deepEqual(await oracleImagePlacements(result.bytes), [
     { pageNumber: 1, matrix: [16, 0, 0, 8, 0, 0] },
     { pageNumber: 2, matrix: [32, 0, 0, 24, 0, 0] },

@@ -13,3 +13,10 @@
 # OS noise
 Thumbs.db
 Desktop.ini
+
+# legacy sandbox probes
+.chrome-profile/
+.cp-*/
+.cdp-*.png
+.cdp-*.log
+
