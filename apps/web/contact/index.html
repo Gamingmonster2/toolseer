@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contact — ToolSeer</title>
+<meta name="description" content="How to reach the ToolSeer team: support questions, bug reports, and feature ideas.">
+<link rel="canonical" href="https://toolseer.com/contact">
+<meta name="robots" content="index,follow">
+<meta name="theme-color" content="#0040ff">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/toolseer.css">
+<script>
+(function(){try{var t=localStorage.getItem('toolseer:theme');
+if(t!=='light'&&t!=='dark'){t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}
+document.documentElement.dataset.theme=t;
+if(localStorage.getItem('toolseer:lang')==='ar'){document.documentElement.lang='ar';document.documentElement.dir='rtl';}}catch(e){}})();
+</script>
+</head>
+<body>
+<a class="ts-skip-link" href="#ts-main">Skip to content</a>
+<div class="ts-app">
+  <aside class="ts-rail" id="ts-rail" aria-label="Tool list"></aside>
+  <div class="ts-main">
+    <header class="ts-header" id="ts-header"></header>
+    <main class="ts-view" id="ts-main">
+      <section class="ts-hero">
+        <h1 class="ts-hero__title">Contact</h1>
+        <p class="ts-hero__sub">Bug reports, ideas, and questions — we read everything.</p>
+      </section>
+      <section class="ts-prose">
+        <h2>Before you write</h2>
+        <p>
+          If a tool misbehaved, tell us which tool, which browser and version, and roughly how large the
+          file was. Never send us the file itself — remember, we have no way to receive it, and you
+          should not share documents with anyone. A screenshot of the page is usually enough.
+        </p>
+        <h2>Channels</h2>
+        <ul>
+          <li><strong>Support &amp; bugs:</strong> open an issue in the project repository (link at the page footer of the repository).</li>
+          <li><strong>Feature ideas:</strong> the same issue tracker, labelled “feature request”.</li>
+          <li><strong>Partnerships and press:</strong> mention “partnership” in the subject.</li>
+        </ul>
+        <h2>Support the project</h2>
+        <p>
+          The tools are free and will stay free. If you find them useful, consider supporting development
+          through the support link at the top of the page.
+        </p>
+      </section>
+      <footer class="ts-footer" id="ts-footer"></footer>
+    </main>
+  </div>
+</div>
+<script type="module">
+  import { renderShell } from '/assets/js/ui/shell.js';
+  renderShell({ slug: 'contact' });
+</script>
+</body>
+</html>

@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Merge PDF Files — Combine PDFs Free, Offline | ToolSeer</title>
+<meta name="description" content="Combine two or more PDFs into one file in your browser. Drag to set the page order, add bookmarks per source file, then download. No upload, no signup, no watermark.">
+<link rel="canonical" href="https://toolseer.com/merge-pdf">
+<meta name="theme-color" content="#0040ff">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ToolSeer">
+<meta property="og:title" content="Merge PDF Files — Free, offline, no upload">
+<meta property="og:description" content="Combine PDFs into one file inside your browser. Set the page order, add bookmarks per source file. Nothing is uploaded.">
+<meta property="og:url" content="https://toolseer.com/merge-pdf">
+<meta property="og:image" content="https://toolseer.com/assets/img/og/toolseer-og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Merge PDF Files — Free, offline, no upload">
+<meta name="twitter:description" content="Combine several PDFs into one in your browser. Order the pages, add bookmarks. Nothing leaves your device.">
+<meta name="twitter:image" content="https://toolseer.com/assets/img/og/toolseer-og.png">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
+<link rel="stylesheet" href="/assets/css/toolseer.css">
+<script>
+/* Applied before first paint: prevents a theme flash and fixes RTL early. */
+(function () {
+  try {
+    var t = localStorage.getItem('toolseer:theme');
+    if (t !== 'light' && t !== 'dark') {
+      t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    document.documentElement.dataset.theme = t;
+    if (localStorage.getItem('toolseer:lang') === 'ar') {
+      document.documentElement.lang = 'ar';
+      document.documentElement.dir = 'rtl';
+    }
+  } catch (e) { document.documentElement.dataset.theme = 'light'; }
+})();
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "name": "ToolSeer Merge PDF",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Any (web browser)",
+      "url": "https://toolseer.com/merge-pdf",
+      "description": "Combine two or more PDF files into one document locally in the browser, with control over page order and bookmarks per source file.",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "featureList": [
+        "Combine any number of PDFs into one file",
+        "Page order follows the file list",
+        "One bookmark per source file",
+        "Pages copied without re-encoding",
+        "No upload — everything runs in the browser"
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://toolseer.com/" },
+        { "@type": "ListItem", "position": 2, "name": "Merge PDF", "item": "https://toolseer.com/merge-pdf" }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Are my PDFs uploaded to a server?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. The merge runs entirely in your browser. Your files are read from disk, their pages are copied into a new PDF in memory, and the result is handed back as a download. Nothing is transmitted anywhere, and the page keeps working with your network disconnected once it has loaded." }
+        },
+        {
+          "@type": "Question",
+          "name": "Does merging change my pages?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. Page content — text, fonts, images and vector drawings — is copied into the new file exactly as stored in the sources. Nothing is re-encoded, so pages look identical to the originals. Interactive features such as form fields, links and annotations are not carried over." }
+        },
+        {
+          "@type": "Question",
+          "name": "What order do the pages end up in?",
+          "acceptedAnswer": { "@type": "Answer", "text": "The order of the file list: the first file's pages come first, then the next file's, and so on. Drag the rows, or use the arrow buttons, to change that order. The Sorting setting can also order the files by name, size or date modified when the merge runs." }
+        },
+        {
+          "@type": "Question",
+          "name": "What happens if one file is password-protected?",
+          "acceptedAnswer": { "@type": "Answer", "text": "The merge stops and tells you a file needs its password, instead of silently leaving it out. Use the Unlock PDF tool to remove the password from that file first, then merge the unlocked copy." }
+        },
+        {
+          "@type": "Question",
+          "name": "What are bookmarks in the merged file?",
+          "acceptedAnswer": { "@type": "Answer", "text": "With the Add bookmarks option on, the merged PDF gets an outline with one entry per source file, named after the file, jumping to its first page. Most readers show it in a side panel, which makes long merged documents easier to navigate." }
+        }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<a class="ts-skip-link" href="#ts-main">Skip to content</a>
+
+<div class="ts-app">
+  <div class="ts-support" id="ts-support"></div>
+
+  <aside class="ts-rail" id="ts-rail" aria-label="Tool settings"></aside>
+
+  <div class="ts-main">
+    <header class="ts-header" id="ts-header"></header>
+
+    <main class="ts-view" id="ts-main">
+      <section class="ts-hero">
+        <img class="ts-hero__mascot" src="/assets/img/mascot/merge-pdf.svg" alt=""
+             aria-hidden="true" width="96" height="96" onerror="this.style.display='none'">
+        <h1 class="ts-hero__title" data-i18n="tool.merge-pdf.title">Merge PDF Files</h1>
+        <p class="ts-hero__sub">
+          Combine any number of PDFs into a single file. Order them exactly how you want, optionally add a
+          bookmark per source file, and download the result — all on your device.
+        </p>
+      </section>
+
+      <!-- The toolkit renders the drop zone, file grid, progress and results here. -->
+      <div id="ts-tool" style="display:contents"></div>
+
+      <section class="ts-prose">
+        <h2>How PDF merging works here</h2>
+        <p>
+          Merging copies pages. ToolSeer reads each PDF you add, extracts its pages, and copies them into
+          one new document, in list order. Page content — text, fonts, images and vector drawings — is
+          carried across as stored in the source files, not decoded and re-encoded. Nothing is converted
+          to images and content is never re-encoded, so the pixels you put in are the pixels you get
+          out.
+        </p>
+        <p>
+          The page order is simply the list order. The top file in the list contributes the first pages of
+          the result, the next file follows, and so on. Drag a row by its handle, or use the up and down
+          arrow buttons, to change that order. The <strong>Sorting</strong> setting offers an automatic
+          alternative: by file name, by file size, or by date modified. With the default
+          <strong>Original order</strong>, the result follows exactly what you see in the list.
+        </p>
+        <p>
+          The <strong>Add bookmarks</strong> option writes an outline into the merged file: one bookmark
+          per source file, named after that file, jumping to its first page. Bookmarks appear in your
+          reader's outline or table-of-contents panel and make a long merged document much easier to
+          navigate.
+        </p>
+
+        <h3>What a merge cannot carry over</h3>
+        <p>
+          Interactive features do not survive a merge. Form fields, hyperlinks and annotations are
+          page-level structures that the copy operation does not carry into the new document, so a merged
+          file is for reading and printing rather than for filling forms. If one of your inputs is
+          password-protected, the merge stops with a clear message instead of silently leaving it out —
+          open the protected file in <a href="/unlock-pdf">Unlock PDF</a> first, then merge the unlocked
+          copy.
+        </p>
+
+        <h3>When a browser is the wrong tool</h3>
+        <p>
+          A browser tab keeps every input file and the output in memory at the same time, so the practical
+          limit is a few hundred megabytes or a few thousand pages on a desktop browser. The merged file is
+          roughly the size of its parts plus a little structure overhead, and it is produced entirely on
+          your device — no bytes are sent anywhere. For jobs measured in gigabytes, the ToolSeer desktop
+          app does the same work on disk.
+        </p>
+      </section>
+
+      <section class="ts-faq" aria-label="Frequently asked questions">
+        <h2 style="font-size:21px;margin-bottom:2px">Frequently asked questions</h2>
+        <details open>
+          <summary>Are my PDFs uploaded to a server?</summary>
+          <p>No. The merge runs entirely in your browser. Your files are read from disk, their pages are copied into a new PDF in memory, and the result is handed back as a download. Nothing is transmitted anywhere, and the page keeps working with your network disconnected once it has loaded.</p>
+        </details>
+        <details>
+          <summary>Does merging change my pages?</summary>
+          <p>No. Page content — text, fonts, images and vector drawings — is copied into the new file exactly as stored in the sources. Nothing is re-encoded, so pages look identical to the originals. Interactive features such as form fields, links and annotations are not carried over.</p>
+        </details>
+        <details>
+          <summary>What order do the pages end up in?</summary>
+          <p>The order of the file list: the first file's pages come first, then the next file's, and so on. Drag the rows, or use the arrow buttons, to change that order. The Sorting setting can also order the files by name, size or date modified when the merge runs.</p>
+        </details>
+        <details>
+          <summary>What happens if one file is password-protected?</summary>
+          <p>The merge stops and tells you a file needs its password, instead of silently leaving it out. Use the Unlock PDF tool to remove the password from that file first, then merge the unlocked copy.</p>
+        </details>
+        <details>
+          <summary>What are bookmarks in the merged file?</summary>
+          <p>With the Add bookmarks option on, the merged PDF gets an outline with one entry per source file, named after the file, jumping to its first page. Most readers show it in a side panel, which makes long merged documents easier to navigate.</p>
+        </details>
+      </section>
+
+      <section class="ts-prose">
+        <h2>Other ToolSeer tools</h2>
+        <p>
+          Working with one document instead? Use <a href="/split-pdf">Split PDF</a> to break a file apart,
+          <a href="/organize-pdf">Organize PDF Pages</a> to reorder, rotate or delete pages,
+          <a href="/compress-pdf">Compress PDF</a> to shrink the result, or <a href="/pdf-to-images">PDF to
+          Images</a> to render pages as PNG or JPEG.
+        </p>
+      </section>
+
+      <footer class="ts-footer" id="ts-footer"></footer>
+    </main>
+  </div>
+</div>
+
+<script type="module">
+  import { defineTool } from '/assets/js/ui/toolkit.js';
+
+  defineTool({
+    slug: 'merge-pdf',
+    accept: 'application/pdf,.pdf',
+    multiple: true,
+    minFiles: 2,
+    preview: 'rows',
+    dropIcon: 'stack',
+    emptyIcon: 'files',
+    actionIcon: 'stack',
+    dropHint: 'Add two or more PDFs — the list order becomes the page order',
+
+    settings: [
+      {
+        id: 'sorting', type: 'select', default: 'original',
+        hintKey: 'setting.sorting.hint',
+        options: [{ value: 'original' }, { value: 'name' }, { value: 'size' }, { value: 'date' }],
+      },
+      { id: 'bookmarks', type: 'switch', default: true },
+    ],
+
+    async run({ files, settings, onProgress }) {
+      // Apply the chosen automatic ordering before anything is read.
+      const ordered = files.slice();
+      if (settings.sorting === 'name') {
+        ordered.sort((a, b) =>
+          a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
+      } else if (settings.sorting === 'size') {
+        ordered.sort((a, b) => a.size - b.size);
+      } else if (settings.sorting === 'date') {
+        ordered.sort((a, b) => (a.file.lastModified || 0) - (b.file.lastModified || 0));
+      }
+
+      // Reading N files advances the bar per file, never all at once.
+      const inputs = [];
+      for (let i = 0; i < ordered.length; i++) {
+        onProgress({ value: 0.05 + (0.45 * (i + 1)) / ordered.length, label: `Reading file ${i + 1} of ${ordered.length}…` });
+        inputs.push(await ordered[i].asInput());
+      }
+
+      const { mergePdfs } = await import('/assets/js/core/index.js');
+      onProgress({ value: 0.6, label: 'Merging PDFs…' });
+
+      const { bytes, warnings } = await mergePdfs(inputs, {
+        addBookmarks: settings.bookmarks === true,
+      });
+
+      onProgress({ value: 0.95, label: 'Writing the merged file…' });
+      onProgress({ value: 1, label: 'Done' });
+      return {
+        outputs: [{ name: 'toolseer-merged.pdf', bytes, type: 'application/pdf' }],
+        warnings: warnings || [],
+      };
+    },
+  });
+</script>
+</body>
+</html>

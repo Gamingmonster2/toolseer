@@ -1,0 +1,73 @@
+# ⚠ UNVERIFIED SCAFFOLD — this file has NEVER been compiled.
+# Rust/cargo is not installed on the machine where it was written and installing it was not approved,
+# so `cargo check`, `cargo build`, `cargo tauri dev` and `cargo tauri build` have not run even once.
+# Versions marked "verified" were read from the registries named in engine-manifest.json; everything
+# else is the conventional Tauri v2 shape and must be reconciled by a machine that has Rust.
+
+[package]
+name = "toolseer-desktop"
+# Keep in sync with tauri.conf.json "version" and app.version in engine-manifest.json.
+version = "1.0.0"
+description = "ToolSeer Desktop - PDF tooling for very large jobs, running entirely on the user's machine"
+authors = ["ToolSeer"]
+edition = "2021"
+license = "MIT"
+# tauri 2.12.1 declares rust_version = 1.90 (verified on crates.io), and image 0.25.10 and
+# printpdf 0.12.8 both declare 1.88, so 1.90 is the real floor.
+rust-version = "1.90"
+publish = false
+
+[lib]
+name = "toolseer_desktop_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+# verified: 2.12.1 is the latest stable `tauri` crate (crates.io, 2026-09-30). Do NOT move to 3.x:
+# 3.0.0-alpha.4 exists and is an alpha.
+tauri = { version = "2.12.1", features = [] }
+
+tauri-plugin-dialog = "2"          # open/save/folder pickers
+tauri-plugin-opener = "2"          # "show in folder"
+tauri-plugin-single-instance = "2" # a second launch focuses the first window instead of starting a rival job
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+sha2 = "0.10"
+hex = "0.4"
+uuid = { version = "1", features = ["v4"] }   # job ids
+futures-util = "0.3"                          # streamed downloads in engine/fetch.rs
+
+tokio = { version = "1", features = ["fs", "io-util", "sync", "time", "process", "rt-multi-thread", "macros"] }
+
+# Verified: pdfium-render 0.9.4, MIT OR Apache-2.0. Its `pdfium_latest` feature resolves to
+# pdfium_7881, which is why the pinned pdfium.dll is the chromium/7881 build and NOT the newer
+# chromium/8086 one. Bump the crate and the DLL together or not at all.
+# default-features = false because the default `image_latest` alias is not needed - we ask for
+# image_025 explicitly, matching the image crate version below.
+pdfium-render = { version = "0.9.4", default-features = false, features = ["pdfium_latest", "thread_safe", "image_025"] }
+
+# Verified: image 0.25.10, MIT OR Apache-2.0. Only the codecs a PDF tool actually sees; the AVIF and
+# EXR encoders pull in extra native code for no benefit here.
+image = { version = "0.25.10", default-features = false, features = ["jpeg", "png", "webp", "tiff", "bmp", "gif", "rayon"] }
+
+# Verified: printpdf 0.12.8, MIT. CRITICAL: its default feature is `html`, which drags in a whole
+# layout engine (azul-layout, azul-css, rust-fontconfig) for rendering HTML into PDF. We only build
+# image pages, so default features must stay off.
+printpdf = { version = "0.12.8", default-features = false, features = ["images", "jpeg", "png", "rayon"] }
+
+# Used by engine/fetch.rs for the optional "repair the payload" path, which re-downloads a missing or
+# hash-mismatched engine from the pinned URL. If that path is ever dropped, this dependency goes too.
+# Reconcile the minor version with `cargo tree -i reqwest` so the binary does not ship two HTTP stacks.
+reqwest = { version = "0.12", default-features = false, features = ["stream", "rustls-tls"] }
+
+[profile.release]
+# The installer is dominated by native engine binaries, so these buy a few MB on the app side only.
+codegen-units = 1
+lto = true
+opt-level = "s"
+panic = "abort"
+strip = true

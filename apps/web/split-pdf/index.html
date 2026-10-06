@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Split PDF — Extract Pages into Separate Files | ToolSeer</title>
+<meta name="description" content="Split one PDF into separate files by page, by page range or every N pages. Optionally also get one combined copy. Runs in your browser — nothing is uploaded.">
+<link rel="canonical" href="https://toolseer.com/split-pdf">
+<meta name="theme-color" content="#0040ff">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ToolSeer">
+<meta property="og:title" content="Split PDF — Extract pages, free and offline">
+<meta property="og:description" content="Split a PDF into separate files by page, range or every N pages, plus an optional combined copy. Nothing is uploaded.">
+<meta property="og:url" content="https://toolseer.com/split-pdf">
+<meta property="og:image" content="https://toolseer.com/assets/img/og/toolseer-og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Split PDF — Free, offline, no upload">
+<meta name="twitter:description" content="Break one PDF into many files in your browser: per page, per range, or every N pages. Nothing leaves your device.">
+<meta name="twitter:image" content="https://toolseer.com/assets/img/og/toolseer-og.png">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
+<link rel="stylesheet" href="/assets/css/toolseer.css">
+<script>
+/* Applied before first paint: prevents a theme flash and fixes RTL early. */
+(function () {
+  try {
+    var t = localStorage.getItem('toolseer:theme');
+    if (t !== 'light' && t !== 'dark') {
+      t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    document.documentElement.dataset.theme = t;
+    if (localStorage.getItem('toolseer:lang') === 'ar') {
+      document.documentElement.lang = 'ar';
+      document.documentElement.dir = 'rtl';
+    }
+  } catch (e) { document.documentElement.dataset.theme = 'light'; }
+})();
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "name": "ToolSeer Split PDF",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Any (web browser)",
+      "url": "https://toolseer.com/split-pdf",
+      "description": "Split one PDF into separate files locally in the browser — one per page, per custom range, or every N pages, with an optional combined copy.",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "featureList": [
+        "One PDF per page, per range or every N pages",
+        "Optional combined copy of all selected pages",
+        "Zero-padded, predictable file names",
+        "Download all results as a ZIP",
+        "No upload — everything runs in the browser"
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://toolseer.com/" },
+        { "@type": "ListItem", "position": 2, "name": "Split PDF", "item": "https://toolseer.com/split-pdf" }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Are my files uploaded to a server?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. Splitting runs entirely in your browser. The PDF is read from disk, the selected pages are copied into new files in memory, and nothing is transmitted anywhere." }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I write a page range?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Use the form 1-3, 5, 8-12. Each comma-separated segment becomes its own PDF, so 1-3, 7 produces one file with pages 1 to 3 and one file with page 7. A reversed range like 5-3 is read as 3-5, and a segment that selects no existing page — for example one past the end of the document — is rejected with a clear message." }
+        },
+        {
+          "@type": "Question",
+          "name": "What does every N pages do?",
+          "acceptedAnswer": { "@type": "Answer", "text": "It cuts the document into files of a fixed size. With 5 pages per file, a 12-page document becomes three files of 5, 5 and 2 pages. Set N with the Pages per file field." }
+        },
+        {
+          "@type": "Question",
+          "name": "Does splitting change my original file?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. Your PDF is only read. Every output is a brand-new file containing copies of the selected pages; the original on your disk is never modified." }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I download all the pieces at once?",
+          "acceptedAnswer": { "@type": "Answer", "text": "When the split produces more than one file, the result panel shows a Download all (.zip) button alongside individual download buttons. The ZIP is assembled in your browser, not on a server." }
+        }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<a class="ts-skip-link" href="#ts-main">Skip to content</a>
+
+<div class="ts-app">
+  <div class="ts-support" id="ts-support"></div>
+
+  <aside class="ts-rail" id="ts-rail" aria-label="Tool settings"></aside>
+
+  <div class="ts-main">
+    <header class="ts-header" id="ts-header"></header>
+
+    <main class="ts-view" id="ts-main">
+      <section class="ts-hero">
+        <img class="ts-hero__mascot" src="/assets/img/mascot/split-pdf.svg" alt=""
+             aria-hidden="true" width="96" height="96" onerror="this.style.display='none'">
+        <h1 class="ts-hero__title" data-i18n="tool.split-pdf.title">Split PDF</h1>
+        <p class="ts-hero__sub">
+          Turn one PDF into many: one file per page, files for custom page ranges, or fixed-size chunks.
+          Optionally also produce one combined copy of everything you selected.
+        </p>
+      </section>
+
+      <!-- The toolkit renders the drop zone, file grid, progress and results here. -->
+      <div id="ts-tool" style="display:contents"></div>
+
+      <section class="ts-prose">
+        <h2>How splitting works here</h2>
+        <p>
+          Splitting copies pages out of your PDF into new files. In <strong>One file per page</strong>
+          mode every page becomes its own PDF. <strong>Custom ranges</strong> lets you type which pages
+          you want, and <strong>Every N pages</strong> cuts the document into fixed-size chunks. In every
+          mode the original file is only read — it is never modified — and each output is a brand-new
+          document containing copies of the selected pages, without re-encoding their content.
+        </p>
+        <p>
+          Ranges use the form <strong>1-3, 5, 8-12</strong>. Each comma-separated segment becomes its own
+          output file, so 1-3, 7 produces one PDF holding pages 1 to 3 and another holding page 7. A
+          reversed range such as 5-3 is read as 3-5, and anything that cannot be read as a page number or
+          range — including a segment that selects no existing page — is rejected with a clear message
+          before any work starts.
+        </p>
+        <p>
+          The <strong>Also produce one combined PDF</strong> switch adds a first output named
+          toolseer-all-pages.pdf containing every selected page in order. If a range lists the same page
+          twice, the combined file keeps its first occurrence. Individual split files are named
+          toolseer-part-01.pdf, toolseer-part-02.pdf and so on, with zero-padded numbers so the names
+          stay a uniform length.
+        </p>
+        <p>
+          When the split produces several files, the result panel shows a download button per file plus a
+          <strong>Download all (.zip)</strong> button. The ZIP is built in your browser from the files it
+          just created — the page never sends your document anywhere.
+        </p>
+
+        <h3>When a browser is the wrong tool</h3>
+        <p>
+          A browser tab must hold the source PDF, every output and the ZIP in memory at the same time. A
+          thousand-page document split into one file per page means a thousand tiny PDFs plus a large ZIP,
+          which can exhaust a tab. For documents of that size, the ToolSeer desktop app does the same
+          split on disk with no memory ceiling.
+        </p>
+      </section>
+
+      <section class="ts-faq" aria-label="Frequently asked questions">
+        <h2 style="font-size:21px;margin-bottom:2px">Frequently asked questions</h2>
+        <details open>
+          <summary>Are my files uploaded to a server?</summary>
+          <p>No. Splitting runs entirely in your browser. The PDF is read from disk, the selected pages are copied into new files in memory, and nothing is transmitted anywhere.</p>
+        </details>
+        <details>
+          <summary>How do I write a page range?</summary>
+          <p>Use the form 1-3, 5, 8-12. Each comma-separated segment becomes its own PDF, so 1-3, 7 produces one file with pages 1 to 3 and one file with page 7. A reversed range like 5-3 is read as 3-5, and a segment that selects no existing page — for example one past the end of the document — is rejected with a clear message.</p>
+        </details>
+        <details>
+          <summary>What does every N pages do?</summary>
+          <p>It cuts the document into files of a fixed size. With 5 pages per file, a 12-page document becomes three files of 5, 5 and 2 pages. Set N with the Pages per file field.</p>
+        </details>
+        <details>
+          <summary>Does splitting change my original file?</summary>
+          <p>No. Your PDF is only read. Every output is a brand-new file containing copies of the selected pages; the original on your disk is never modified.</p>
+        </details>
+        <details>
+          <summary>How do I download all the pieces at once?</summary>
+          <p>When the split produces more than one file, the result panel shows a Download all (.zip) button alongside individual download buttons. The ZIP is assembled in your browser, not on a server.</p>
+        </details>
+      </section>
+
+      <section class="ts-prose">
+        <h2>Other ToolSeer tools</h2>
+        <p>
+          Working with more than one document? Use <a href="/merge-pdf">Merge PDF</a> to combine several
+          files, <a href="/organize-pdf">Organize PDF Pages</a> to reorder or rotate pages before
+          splitting, <a href="/pdf-to-images">PDF to Images</a> to render pages as PNG or JPEG, or
+          <a href="/extract-text-pdf">Extract Text from PDF</a> to pull the text out instead.
+        </p>
+      </section>
+
+      <footer class="ts-footer" id="ts-footer"></footer>
+    </main>
+  </div>
+</div>
+
+<script type="module">
+  import { defineTool } from '/assets/js/ui/toolkit.js';
+
+  defineTool({
+    slug: 'split-pdf',
+    accept: 'application/pdf,.pdf',
+    multiple: false,
+    minFiles: 1,
+    preview: 'rows',
+    dropIcon: 'scissors',
+    emptyIcon: 'scissors',
+    actionIcon: 'scissors',
+    dropHint: 'One PDF in — one file per page, per range, or every N pages',
+
+    settings: [
+      {
+        id: 'mode', type: 'pills', default: 'each',
+        options: [
+          { value: 'each', hintKey: 'opt.each.hint' },
+          { value: 'ranges', hintKey: 'opt.ranges.hint' },
+          { value: 'every-n', hintKey: 'opt.every-n.hint' },
+        ],
+      },
+      {
+        id: 'ranges', type: 'text', default: '',
+        labelKey: 'setting.range.label',
+        hintKey: 'setting.range.hint',
+        placeholderKey: 'setting.range.placeholder',
+      },
+      { id: 'everyN', type: 'number', default: 2, min: 1, max: 999 },
+      { id: 'mergeToOne', type: 'switch', default: false },
+    ],
+
+    async run({ files, settings, onProgress }) {
+      onProgress({ value: 0.05, label: 'Reading file…' });
+      const input = await files[0].asInput();
+
+      const { splitPdf, pdfInfo, parsePageRanges } = await import('/assets/js/core/index.js');
+
+      const mode = settings.mode;
+      const everyN = mode === 'every-n' ? Number(settings.everyN) : undefined;
+      let ranges;
+      if (mode === 'ranges') {
+        // Validate early: parsePageRanges throws ToolError('range-invalid') or
+        // ToolError('range-empty'), which the toolkit turns into localised text.
+        // The engine groups outputs per comma segment, so each segment is
+        // validated the same way the engine will consume it.
+        const info = await pdfInfo(input.bytes);
+        const spec = String(settings.ranges || '');
+        parsePageRanges(spec, info.pageCount);
+        for (const token of spec.split(',')) {
+          if (!token.trim()) continue;
+          parsePageRanges(token, info.pageCount);
+        }
+        ranges = spec.trim();
+      }
+
+      const base = { mode, ranges, everyN };
+      const outputs = [];
+      const warnings = [];
+
+      if (settings.mergeToOne) {
+        onProgress({ value: 0.15, label: 'Building the combined file…' });
+        const merged = await splitPdf(input.bytes, { ...base, mergeToOne: true });
+        warnings.push(...(merged.warnings || []));
+        outputs.push({
+          name: 'toolseer-all-pages.pdf',
+          bytes: merged.outputs[0].bytes,
+          type: 'application/pdf',
+        });
+      }
+
+      onProgress({ value: settings.mergeToOne ? 0.55 : 0.15, label: 'Splitting pages…' });
+      const split = await splitPdf(input.bytes, { ...base, mergeToOne: false });
+      warnings.push(...(split.warnings || []));
+      split.outputs.forEach((part, index) => {
+        outputs.push({
+          name: `toolseer-part-${String(index + 1).padStart(2, '0')}.pdf`,
+          bytes: part.bytes,
+          type: 'application/pdf',
+        });
+      });
+
+      onProgress({ value: 1, label: 'Done' });
+      return { outputs, warnings };
+    },
+  });
+</script>
+</body>
+</html>

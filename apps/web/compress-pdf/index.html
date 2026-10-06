@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compress PDF — Reduce PDF Size Free, Offline | ToolSeer</title>
+<meta name="description" content="Shrink a PDF in your browser with lossless structural recompression, and see exactly how many bytes you saved. Nothing is uploaded and nothing is re-encoded.">
+<link rel="canonical" href="https://toolseer.com/compress-pdf">
+<meta name="theme-color" content="#0040ff">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ToolSeer">
+<meta property="og:title" content="Compress PDF — Smaller PDFs Without Uploading">
+<meta property="og:description" content="Lossless repacking with an exact size report. Nothing is re-encoded and nothing leaves your browser.">
+<meta property="og:url" content="https://toolseer.com/compress-pdf">
+<meta property="og:image" content="https://toolseer.com/assets/img/og/toolseer-og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Compress PDF — free, offline, no upload">
+<meta name="twitter:description" content="An honest before-and-after size report with no quality loss, inside your browser tab. Nothing leaves your device.">
+<meta name="twitter:image" content="https://toolseer.com/assets/img/og/toolseer-og.png">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
+<link rel="stylesheet" href="/assets/css/toolseer.css">
+<script>
+/* Applied before first paint: prevents a theme flash and fixes RTL early. */
+(function () {
+  try {
+    var t = localStorage.getItem('toolseer:theme');
+    if (t !== 'light' && t !== 'dark') {
+      t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    document.documentElement.dataset.theme = t;
+    if (localStorage.getItem('toolseer:lang') === 'ar') {
+      document.documentElement.lang = 'ar';
+      document.documentElement.dir = 'rtl';
+    }
+  } catch (e) { document.documentElement.dataset.theme = 'light'; }
+})();
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "name": "ToolSeer Compress PDF",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Any (web browser)",
+      "url": "https://toolseer.com/compress-pdf",
+      "description": "Reduce the size of a PDF locally in the browser with lossless structural recompression, reporting the exact before and after size and never returning a file larger than the original.",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "featureList": [
+        "Structural recompression that never re-encodes page content",
+        "Optional removal of title, author and producer metadata",
+        "Text and vector graphics are never re-encoded",
+        "Before and after byte counts shown for every run",
+        "Returns the original file instead of a larger one",
+        "No upload, no account, no watermark"
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://toolseer.com/" },
+        { "@type": "ListItem", "position": 2, "name": "Compress PDF", "item": "https://toolseer.com/compress-pdf" }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Does compressing a PDF reduce its quality?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Not in this browser build. All three levels currently run the same lossless rebuild, so the file is repacked into tighter internal structures and nothing is re-encoded: images, text and vectors keep exactly their original data. Balanced and strong are designed to resample images above a resolution threshold and re-encode them as JPEG once that step ships, and that kind of loss would be permanent." }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I get the original quality back after compressing?",
+          "acceptedAnswer": { "@type": "Answer", "text": "There is nothing to restore at the moment, because this build never re-encodes your pages. When image downsampling is available its loss will be permanent, since no operation puts discarded pixels back. Keep the original file and compress a copy of it, and do not re-compress an already compressed file hoping to recover detail." }
+        },
+        {
+          "@type": "Question",
+          "name": "Which compression level should I choose?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Today the choice changes nothing in the output: lossless, balanced and strong all run the same lossless rebuild, so the safest label is lossless. The levels will start to differ when image resampling ships, and strong will then mean visibly softer images on scans in exchange for a smaller file." }
+        },
+        {
+          "@type": "Question",
+          "name": "Will the text stay selectable and searchable?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes. This tool never rasterises text or vector artwork, at any level, so letters stay selectable, searchable and sharp when zoomed in. Only raster images are resampled, and only at the balanced and strong levels." }
+        },
+        {
+          "@type": "Question",
+          "name": "What does removing metadata actually do?",
+          "acceptedAnswer": { "@type": "Answer", "text": "It removes the document information fields a PDF carries alongside its pages: title, author, subject, keywords, producer and timestamps. That removes identifying traces and usually saves a few kilobytes. It is not redaction, so any name or number printed visibly on a page is still readable afterwards." }
+        },
+        {
+          "@type": "Question",
+          "name": "Is my PDF uploaded to a server?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. The file is read from your disk, recompressed by code running in this browser tab, and handed back to you as a download. Nothing is transmitted anywhere, and the page keeps working with your network disconnected once it has loaded." }
+        }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<a class="ts-skip-link" href="#ts-main">Skip to content</a>
+
+<div class="ts-app">
+  <div class="ts-support" id="ts-support"></div>
+
+  <aside class="ts-rail" id="ts-rail" aria-label="Tool settings"></aside>
+
+  <div class="ts-main">
+    <header class="ts-header" id="ts-header"></header>
+
+    <main class="ts-view" id="ts-main">
+      <section class="ts-hero">
+        <img class="ts-hero__mascot" src="/assets/img/mascot/compress-pdf.svg" alt=""
+             aria-hidden="true" width="96" height="96" onerror="this.style.display='none'">
+        <h1 class="ts-hero__title" data-i18n="tool.compress-pdf.title">Compress PDF</h1>
+        <p class="ts-hero__sub">
+          Drop in a PDF and get back a smaller file with an exact before-and-after size report.
+          This build compresses losslessly: every pixel, glyph and vector line is kept, and a file
+          that cannot be shrunk is handed back unchanged. Nothing is ever uploaded.
+        </p>
+      </section>
+
+      <!-- The toolkit renders the drop zone, file rows, progress and results here. -->
+      <div id="ts-tool" style="display:contents"></div>
+
+      <section class="ts-prose">
+        <h2>What compression actually changes</h2>
+        <p>
+          Compressing a PDF is not one operation, it is two, and they cost you different things.
+          <strong>Lossless</strong> compression rebuilds the file's internal packaging: streams are
+          re-compressed, objects are packed into object streams, the cross-reference table is
+          rewritten, and the leftovers of earlier incremental saves are left out of the new single
+          revision.
+          Nothing on the pages is re-encoded, so every glyph, vector line and image pixel survives
+          unchanged. <strong>Balanced</strong> and <strong>strong</strong> are the lossy levels by
+          design: they are meant to resample raster images above a resolution threshold and re-encode
+          them as JPEG, which is where the largest savings come from.
+        </p>
+        <p>
+          <strong>This browser build ships the lossless path only.</strong> Choosing balanced or
+          strong today performs the same lossless rebuild as the lossless level, so the three labels
+          describe a design goal for image resampling rather than a difference you will see in your
+          file here and now. The practical consequence is a smaller saving on some documents; the
+          worst case is never a PDF whose images were quietly degraded behind your back.
+        </p>
+        <p>
+          That difference decides what you should expect. A PDF exported from Word, LibreOffice or a
+          browser print dialog is usually full of slack, and the lossless rebuild can take somewhere
+          between a few percent and a quarter of its size. A PDF that is already just a wrapper
+          around one large JPEG has almost nothing left to squeeze, and the pass may save less than
+          one percent. Once image resampling is available, the lossy levels will help exactly where
+          the weight is: scanned pages and photo-heavy documents.
+        </p>
+
+        <h3>Text and vector graphics stay sharp</h3>
+        <p>
+          At every level, text stays text. Letters remain selectable, searchable and crisp at any
+          zoom because they were never turned into pixels, and the same is true of vector line art,
+          thin rules and charts. Only raster images would ever be resampled, and only if this build
+          included the lossy path: as it stands, nothing on your pages is re-encoded at any level.
+        </p>
+
+        <h2>Compression is a one-way door</h2>
+        <p>
+          Lossy compression cannot be undone: once image pixels have been downsampled, the discarded
+          detail is gone, and re-compressing an already compressed file adds another generation of
+          loss instead of recovering anything. That is the trade the lossy levels make by design.
+          Because this build only performs the lossless rebuild, nothing on your pages is degraded
+          today — and keeping your original is still the right habit, so that a later, stronger
+          attempt always starts from the untouched source.
+        </p>
+
+        <h3>Honest limits of this page</h3>
+        <ul>
+          <li>
+            <strong>It never hands you a bigger file.</strong> The page compares the recompressed
+            bytes with your original; if the result is not smaller, it returns the original
+            unchanged and tells you so instead of quietly wasting your time.
+          </li>
+          <li>
+            <strong>Metadata removal is real but small.</strong> The <em>Remove metadata</em> switch
+            drops the document information fields a PDF carries alongside its pages — title, author,
+            subject, keywords and the software that produced it — which usually saves a few
+            kilobytes and removes the obvious identifying traces. Verify the result if you need
+            certainty, because metadata can also sit in places a switch like this does not reach.
+            It is not redaction: nothing printed on a page changes.
+          </li>
+          <li>
+            <strong>The structure is rebuilt.</strong> The output is a valid PDF with the same
+            pages, but its internal layout differs from the original. Do not rely on byte-for-byte
+            comparison, and expect a digital signature to be invalidated by the pass, because a
+            signature covers the exact bytes it was created over.
+          </li>
+          <li>
+            <strong>Your tab holds the whole file in memory.</strong> A few hundred megabytes of
+            scanned pages can exhaust a browser tab. The <a href="/desktop">desktop app</a> runs the
+            same compression on disk instead.
+          </li>
+        </ul>
+
+        <h3>When compression will not get you under the limit</h3>
+        <p>
+          If a scan is already stored as modest-resolution JPEG, no compressor can shrink it
+          without visibly degrading it. The honest options then are to rescan at a lower resolution,
+          split the document into smaller files with <a href="/split-pdf">Split PDF</a>, or send a
+          link instead of an attachment. Beware of tools that promise sixty percent savings on every
+          file: the only way to reach that on a scan is to throw away resolution your readers may
+          need.
+        </p>
+      </section>
+
+      <section class="ts-faq" aria-label="Frequently asked questions">
+        <h2 style="font-size:21px;margin-bottom:2px">Frequently asked questions</h2>
+        <details open>
+          <summary>Does compressing a PDF reduce its quality?</summary>
+          <p>Not in this browser build. All three levels currently run the same lossless rebuild, so the file is repacked into tighter internal structures and nothing is re-encoded: images, text and vectors keep exactly their original data. Balanced and strong are designed to resample images above a resolution threshold and re-encode them as JPEG once that step ships, and that kind of loss would be permanent.</p>
+        </details>
+        <details>
+          <summary>Can I get the original quality back after compressing?</summary>
+          <p>There is nothing to restore at the moment, because this build never re-encodes your pages. When image downsampling is available its loss will be permanent, since no operation puts discarded pixels back. Keep the original file and compress a copy of it, and do not re-compress an already compressed file hoping to recover detail.</p>
+        </details>
+        <details>
+          <summary>Which compression level should I choose?</summary>
+          <p>Today the choice changes nothing in the output: lossless, balanced and strong all run the same lossless rebuild, so the safest label is lossless. The levels will start to differ when image resampling ships, and strong will then mean visibly softer images on scans in exchange for a smaller file.</p>
+        </details>
+        <details>
+          <summary>Will the text stay selectable and searchable?</summary>
+          <p>Yes. This tool never rasterises text or vector artwork, at any level, so letters stay selectable, searchable and sharp when zoomed in. Only raster images are resampled, and only at the balanced and strong levels.</p>
+        </details>
+        <details>
+          <summary>What does removing metadata actually do?</summary>
+          <p>It removes the document information fields a PDF carries alongside its pages: title, author, subject, keywords, producer and timestamps. That removes identifying traces and usually saves a few kilobytes. It is not redaction, so any name or number printed visibly on a page is still readable afterwards.</p>
+        </details>
+        <details>
+          <summary>Is my PDF uploaded to a server?</summary>
+          <p>No. The file is read from your disk, recompressed by code running in this browser tab, and handed back to you as a download. Nothing is transmitted anywhere, and the page keeps working with your network disconnected once it has loaded.</p>
+        </details>
+      </section>
+
+      <section class="ts-prose">
+        <h2>Other ToolSeer tools</h2>
+        <p>
+          Need to change the document rather than its size? Use <a href="/merge-pdf">Merge PDF</a>
+          to combine several files, <a href="/split-pdf">Split PDF</a> to break one apart,
+          <a href="/organize-pdf">Organize PDF</a> to reorder or rotate pages, or
+          <a href="/pdf-to-images">PDF to Images</a> to export pages as pictures. If a password is
+          in the way, <a href="/unlock-pdf">Unlock PDF</a> removes protection you already know the
+          password for, and <a href="/protect-pdf">Protect PDF</a> adds it back with AES encryption.
+          Looking for the text instead? <a href="/extract-text-pdf">Extract Text</a> pulls it out,
+          with optional OCR for scans.
+        </p>
+      </section>
+
+      <footer class="ts-footer" id="ts-footer"></footer>
+    </main>
+  </div>
+</div>
+
+<script type="module">
+  import { defineTool } from '/assets/js/ui/toolkit.js';
+
+  defineTool({
+    slug: 'compress-pdf',
+    accept: 'application/pdf,.pdf',
+    multiple: false,
+    minFiles: 1,
+    preview: 'rows',
+    dropIcon: 'gauge',
+    emptyIcon: 'file-pdf',
+    actionIcon: 'gauge',
+    dropHint: 'One PDF at a time · recompressed inside your browser',
+    bigJobHint: 80 * 1024 * 1024,
+
+    settings: [
+      {
+        id: 'level', type: 'pills', default: 'balanced',
+        /* Only the lossless hint is rendered: it is true of this build. The balanced and
+           strong hints in i18n.js describe image downsampling the engine does not ship yet,
+           so they are left off rather than shown next to copy that says otherwise. */
+        options: [
+          { value: 'lossless', hintKey: 'setting.level.lossless.hint' },
+          { value: 'balanced' },
+          { value: 'strong' },
+        ],
+      },
+      {
+        id: 'removeMetadata', type: 'switch', default: false,
+      },
+      {
+        id: 'filename', type: 'text', default: 'toolseer-compressed',
+        placeholderKey: 'setting.filename.label',
+      },
+    ],
+
+    async run({ files, settings, onProgress }) {
+      onProgress({ value: 0.08, label: 'Reading the PDF…' });
+      const input = await files[0].asInput();
+
+      const { compressPdf } = await import('/assets/js/core/index.js');
+      onProgress({ value: 0.3, label: 'Recompressing…' });
+
+      const result = await compressPdf(input.bytes, {
+        level: settings.level,
+        removeMetadata: !!settings.removeMetadata,
+      });
+
+      const { t, hasKey } = await import('/assets/js/ui/i18n.js');
+
+      const before = Number.isFinite(result.before) && result.before > 0
+        ? result.before
+        : input.bytes.length;
+
+      let bytes = result.bytes;
+      let after = bytes.length;
+      const warnings = [];
+
+      /* Engine warnings are stable codes, never sentences: translate them or drop them,
+         because anything put here is shown to the reader verbatim. */
+      for (const code of result.warnings || []) {
+        if (typeof code !== 'string') continue;
+        if (code.startsWith('compression-ineffective:')) {
+          warnings.push(t('result.grew'));
+        } else if (code.startsWith('image-recompression-unavailable:') && hasKey('warning.imageRecompression')) {
+          warnings.push(t('warning.imageRecompression'));
+        }
+      }
+
+      /* Never hand back a file that grew: keep the smaller one and say so, once. */
+      if (after >= before) {
+        bytes = input.bytes;
+        after = before;
+        if (!warnings.includes(t('result.grew'))) warnings.push(t('result.grew'));
+      }
+
+      onProgress({ value: 1, label: 'Done' });
+      const base = String(settings.filename || '').replace(/\.pdf$/i, '') || 'toolseer-compressed';
+      return {
+        outputs: [{ name: `${base}.pdf`, bytes, type: 'application/pdf' }],
+        before,
+        after,
+        warnings,
+      };
+    },
+  });
+</script>
+</body>
+</html>

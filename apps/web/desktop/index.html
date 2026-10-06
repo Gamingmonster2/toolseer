@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ToolSeer Desktop for Windows — PDF tools for very large files</title>
+<meta name="description" content="The ToolSeer desktop app runs the same ten PDF tools on your own disk, with no memory ceiling. Built for thousands of pages and images that a browser tab cannot hold.">
+<link rel="canonical" href="https://toolseer.com/desktop">
+<meta name="theme-color" content="#0040ff">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ToolSeer">
+<meta property="og:title" content="ToolSeer Desktop for Windows — PDF tools for very large files">
+<meta property="og:description" content="The same ten PDF tools, running on your disk. For jobs too large for a browser tab.">
+<meta property="og:url" content="https://toolseer.com/desktop">
+<meta property="og:image" content="https://toolseer.com/assets/img/og/toolseer-og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="ToolSeer Desktop for Windows">
+<meta name="twitter:description" content="The same ten PDF tools, running on your disk. For jobs too large for a browser tab.">
+<meta name="twitter:image" content="https://toolseer.com/assets/img/og/toolseer-og.png">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
+<link rel="stylesheet" href="/assets/css/toolseer.css">
+<script>
+(function () {
+  try {
+    var t = localStorage.getItem('toolseer:theme');
+    if (t !== 'light' && t !== 'dark') {
+      t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    document.documentElement.dataset.theme = t;
+    if (localStorage.getItem('toolseer:lang') === 'ar') {
+      document.documentElement.lang = 'ar';
+      document.documentElement.dir = 'rtl';
+    }
+  } catch (e) { document.documentElement.dataset.theme = 'light'; }
+})();
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "name": "ToolSeer Desktop",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Windows 10 / Windows 11",
+      "url": "https://toolseer.com/desktop",
+      "description": "The ToolSeer Windows desktop app runs the same ten PDF tools on local disk with no memory ceiling, for files too large to process in a browser tab.",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "featureList": [
+        "Same ten tools as the website",
+        "Processes files of any size, streaming to disk",
+        "Fully offline — no server, no account",
+        "Distributed as a signed installer via GitHub Releases"
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://toolseer.com/" },
+        { "@type": "ListItem", "position": 2, "name": "Desktop app", "item": "https://toolseer.com/desktop" }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Why do I need a desktop app when the website already works?",
+          "acceptedAnswer": { "@type": "Answer", "text": "A browser tab must hold an entire document in memory while it works. A few hundred pages are fine; a thousand-page PDF or a thousand high-resolution photos can exhaust the tab. The desktop app streams page by page to disk, so the size of the job stops mattering." }
+        },
+        {
+          "@type": "Question",
+          "name": "Does the desktop app upload my files?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. It works entirely offline on your computer. There is no server, no account and no network requirement after installation." }
+        },
+        {
+          "@type": "Question",
+          "name": "Which tools are included?",
+          "acceptedAnswer": { "@type": "Answer", "text": "The same ten tools as the website: image to PDF, merge, compress, split, protect, unlock, PDF to images, organise pages, extract text, plus batch operation across folders." }
+        },
+        {
+          "@type": "Question",
+          "name": "Which Windows versions are supported?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Windows 10 and Windows 11, 64-bit. WebView2 runtime is required and ships with Windows 10 21H2 and later." }
+        },
+        {
+          "@type": "Question",
+          "name": "Is the desktop app free?",
+          "acceptedAnswer": { "@type": "Answer", "text": "The core tools are free, the same as the website. The installer is published on GitHub Releases with a pinned version and checksums." }
+        }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<a class="ts-skip-link" href="#ts-main">Skip to content</a>
+
+<div class="ts-app">
+  <div class="ts-support" id="ts-support"></div>
+
+  <aside class="ts-rail" id="ts-rail" aria-label="Tool list"></aside>
+
+  <div class="ts-main">
+    <header class="ts-header" id="ts-header"></header>
+
+    <main class="ts-view" id="ts-main">
+      <section class="ts-hero">
+        <img class="ts-hero__mascot" src="/assets/img/mascot/desktop.svg" alt=""
+             aria-hidden="true" width="96" height="96" onerror="this.style.display='none'">
+        <h1 class="ts-hero__title">ToolSeer Desktop for Windows</h1>
+        <p class="ts-hero__sub">
+          The same ten PDF tools — but running on your disk instead of inside a browser tab.
+          Built for the jobs a tab cannot hold: a thousand images, a seven-hundred-page PDF,
+          a whole folder at once.
+        </p>
+        <p>
+          <a class="ts-btn ts-btn--primary ts-btn--lg" id="ts-download" href="#download" rel="noopener">
+            <span>Download for Windows</span>
+          </a>
+        </p>
+      </section>
+
+      <section class="ts-steps" aria-label="Why the desktop app exists">
+        <div class="ts-step">
+          <span class="ts-step__n">1</span>
+          <span class="ts-step__title">No memory ceiling</span>
+          <span class="ts-step__text">Work streams page by page to disk. If the file fits on your hard drive, the app can process it.</span>
+        </div>
+        <div class="ts-step">
+          <span class="ts-step__n">2</span>
+          <span class="ts-step__title">Fully offline</span>
+          <span class="ts-step__text">No server, no account, no upload. After installation, the app works with the network disconnected.</span>
+        </div>
+        <div class="ts-step">
+          <span class="ts-step__n">3</span>
+          <span class="ts-step__title">Batch work</span>
+          <span class="ts-step__text">Point it at a folder of a thousand scans and walk away. The same ten tools, applied in bulk.</span>
+        </div>
+      </section>
+
+      <section class="ts-prose" id="download">
+        <h2>Download</h2>
+        <p>
+          The installer is published on <strong>GitHub Releases</strong>, with a pinned version and
+          checksums for every build. The download link will activate here the moment the first
+          release is published.
+        </p>
+        <p class="ts-note" style="justify-content:center">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.5"/><circle cx="12" cy="16" r="1"/></svg>
+          <span>First release is in progress — the download link activates automatically when it is live.</span>
+        </p>
+
+        <h2>Browser or desktop: which one do I need?</h2>
+        <p>
+          The website processes files inside a browser tab, which must keep the whole document in
+          memory at once. That is why it is instant and private for everyday documents — and why it
+          has a practical ceiling. A few hundred pages are comfortable; a thousand-page PDF or a
+          thousand high-resolution photos can slow the tab to a crawl or be killed by the browser.
+        </p>
+        <p>
+          The desktop app removes that ceiling by design. It reads the source file once, writes
+          intermediate results to a temporary folder on disk, and streams the output file
+          page by page. Memory use stays roughly constant whether the job is ten pages or ten
+          thousand. The rule of thumb: if your job is larger than a few hundred megabytes, or you
+          want to convert an entire folder unattended, use the desktop app.
+        </p>
+
+        <h2>How it is built</h2>
+        <p>
+          The app is a thin native shell around the same permissively-licensed engines the website
+          uses. Rendering and text extraction run through PDFium; merging, splitting, encryption and
+          structural compression run through qpdf. The interface is the same ToolSeer design system
+          you are using right now — one product, two places to run it.
+        </p>
+        <ul>
+          <li><strong>Windows 10 / 11, 64-bit</strong> — WebView2 included with modern Windows.</li>
+          <li><strong>Installer size:</strong> in the tens of megabytes — a fraction of the Java-based
+              suites it replaces, because it ships no virtual machine and no local web server.</li>
+          <li><strong>Updates:</strong> versioned releases with checksums; no background updater that
+              phones home.</li>
+        </ul>
+      </section>
+
+      <section class="ts-faq" aria-label="Frequently asked questions">
+        <h2 style="font-size:21px;margin-bottom:2px">Frequently asked questions</h2>
+        <details open>
+          <summary>Why do I need a desktop app when the website already works?</summary>
+          <p>A browser tab must hold an entire document in memory while it works. A few hundred pages are fine; a thousand-page PDF or a thousand high-resolution photos can exhaust the tab. The desktop app streams page by page to disk, so the size of the job stops mattering.</p>
+        </details>
+        <details>
+          <summary>Does the desktop app upload my files?</summary>
+          <p>No. It works entirely offline on your computer. There is no server, no account and no network requirement after installation.</p>
+        </details>
+        <details>
+          <summary>Which tools are included?</summary>
+          <p>The same ten tools as the website: image to PDF, merge, compress, split, protect, unlock, PDF to images, organise pages, extract text — plus batch operation across folders.</p>
+        </details>
+        <details>
+          <summary>Which Windows versions are supported?</summary>
+          <p>Windows 10 and Windows 11, 64-bit. WebView2 runtime is required and ships with Windows 10 21H2 and later.</p>
+        </details>
+        <details>
+          <summary>Is the desktop app free?</summary>
+          <p>The core tools are free, the same as the website. The installer is published on GitHub Releases with a pinned version and checksums.</p>
+        </details>
+      </section>
+
+      <section class="ts-prose">
+        <h2>Prefer the browser?</h2>
+        <p>
+          For everyday documents the <a href="/">browser tools</a> are the fastest option — they
+          need nothing installed and nothing uploads. Use the desktop app when the job is big.
+        </p>
+      </section>
+
+      <footer class="ts-footer" id="ts-footer"></footer>
+    </main>
+  </div>
+</div>
+
+<script type="module">
+  import { renderShell } from '/assets/js/ui/shell.js';
+  renderShell({ slug: 'desktop' });
+
+  /* The real download URL is injected when the first release is published.
+     Until then the button scrolls to the honest "in progress" note above. */
+  const RELEASE = null; // e.g. 'https://github.com/<owner>/<repo>/releases/latest'
+  const btn = document.getElementById('ts-download');
+  if (RELEASE && btn) {
+    btn.href = RELEASE;
+    btn.target = '_blank';
+  }
+</script>
+</body>
+</html>

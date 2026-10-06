@@ -1,0 +1,19 @@
+# ⚠ SCAFFOLD. Never built. The .exe/.dll files here are produced by tools/fetch-engines.mjs.
+#
+# The engine payload is ~32 MB of third-party binaries. It is fetched into src-tauri/payload and must
+# never be committed: it is not ours to keep in source control when an immutable upstream URL plus a
+# sha256 already pins it, and GitHub's per-file limits are a poor place to find that out.
+src-tauri/payload/
+
+# Rust build output. Huge, machine specific.
+src-tauri/target/
+
+# Local scratch and logs if anyone runs the app from a working copy.
+scratch/
+logs/
+
+# Signing material must never live in the repository, and not in CI either: keep the certificate in a
+# secret store and pass it to signtool at release time.
+*.pfx
+*.p12
+*.snk

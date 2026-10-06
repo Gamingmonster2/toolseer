@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy — ToolSeer</title>
+<meta name="description" content="ToolSeer processes your files entirely in your browser. Read exactly what is stored, what is sent, and what is not.">
+<link rel="canonical" href="https://toolseer.com/privacy">
+<meta name="robots" content="index,follow">
+<meta name="theme-color" content="#0040ff">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/toolseer.css">
+<script>
+(function(){try{var t=localStorage.getItem('toolseer:theme');
+if(t!=='light'&&t!=='dark'){t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}
+document.documentElement.dataset.theme=t;
+if(localStorage.getItem('toolseer:lang')==='ar'){document.documentElement.lang='ar';document.documentElement.dir='rtl';}}catch(e){}})();
+</script>
+</head>
+<body>
+<a class="ts-skip-link" href="#ts-main">Skip to content</a>
+<div class="ts-app">
+  <aside class="ts-rail" id="ts-rail" aria-label="Tool list"></aside>
+  <div class="ts-main">
+    <header class="ts-header" id="ts-header"></header>
+    <main class="ts-view" id="ts-main">
+      <section class="ts-hero">
+        <h1 class="ts-hero__title">Privacy</h1>
+        <p class="ts-hero__sub">The short version: we cannot read your files, because they never reach us.</p>
+      </section>
+      <section class="ts-prose">
+        <h2>What happens when you use a tool</h2>
+        <p>
+          Every tool on this site runs inside your browser. When you open a file, your browser reads it
+          from your disk and keeps it in your computer's memory. The conversion code — the same
+          JavaScript and WebAssembly that the page itself is made of — transforms the file locally and
+          hands the result back to you as a download. At no point is the file, or any part of it,
+          transmitted to a server.
+        </p>
+        <p>
+          This is not a policy choice; it is how the software is built. There is no upload step in the
+          code, so there is nothing for a server to receive.
+        </p>
+        <h2>What is stored on your device</h2>
+        <ul>
+          <li><strong>Theme</strong> (light or dark) and <strong>language</strong> preference, in your browser's localStorage.</li>
+          <li>A one-time flag recording that you have seen the disclaimer.</li>
+          <li>The page's static files (HTML, CSS, JavaScript, WebAssembly) in the browser cache, exactly like any website.</li>
+        </ul>
+        <p>OCR language data, when you choose to use OCR, is downloaded once and cached by your browser.</p>
+        <h2>What we do not have</h2>
+        <ul>
+          <li>No accounts, so no account data.</li>
+          <li>No cookies set by us.</li>
+          <li>No analytics or advertising trackers on the tool pages.</li>
+          <li>No file storage. Deleted, cleared, or closed means gone from memory.</li>
+        </ul>
+        <h2>Hosting</h2>
+        <p>
+          The static files are served by Cloudflare Pages. As with any website, your browser's requests
+          to load the page itself are visible to the hosting provider; the contents of your files are not
+          part of those requests.
+        </p>
+        <h2>Contact</h2>
+        <p>
+          Questions about this policy: <a href="/contact">contact page</a>.
+        </p>
+      </section>
+      <footer class="ts-footer" id="ts-footer"></footer>
+    </main>
+  </div>
+</div>
+<script type="module">
+  import { renderShell } from '/assets/js/ui/shell.js';
+  renderShell({ slug: 'privacy' });
+</script>
+</body>
+</html>

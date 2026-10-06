@@ -1,0 +1,15 @@
+# tooling caches and scratch
+.cache/
+.npm-cache/
+.chrome-*.err.log
+.chrome-*.out.log
+.cdp-*
+.chrome-e2e-*
+.chrome-dbg*
+.e2e-*
+.probe*
+.screenshots/
+
+# OS noise
+Thumbs.db
+Desktop.ini

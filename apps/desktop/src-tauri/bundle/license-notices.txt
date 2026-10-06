@@ -1,0 +1,101 @@
+THIRD-PARTY NOTICES FOR TOOLSEER DESKTOP
+=======================================
+⚠ SCAFFOLD STATE — this file is LISTED BUT NOT COMPLETE, and that is deliberate.
+tauri.conf.json points bundle.licenseFile at this file, so whatever is here ends up in front of the
+user. Nothing in apps/desktop has been built, so this file has never been reviewed against a real
+dependency tree. It is a REQUIRED-BEFORE-RELEASE item, not a finished notice file.
+
+WHAT IS MISSING (a release must not ship without it)
+----------------------------------------------------
+1. The full text of the Apache License 2.0, because qpdf is Apache-2.0 and PDFium's licence file also
+   incorporates it. https://www.apache.org/licenses/LICENSE-2.0
+2. The per-component notices for the third-party libraries compiled into the PDFium DLL. PDFium's own
+   LICENSE is an aggregate file - BSD-3-Clause for PDFium-authored code followed by the Apache-2.0
+   text and further component licences - which is why GitHub's detector reports NOASSERTION for
+   chromium/pdfium. Fetch https://raw.githubusercontent.com/chromium/pdfium/main/LICENSE and include
+   it in full rather than summarising it.
+3. The Rust dependency licence list. Regenerate it on the build machine with `cargo about` or
+   `cargo license` (both need cargo, which the environment this scaffold was written in does not
+   have) and paste the output here. Every crate we add is a licence we are shipping.
+
+A CI gate should fail the release if this file still contains this "SCAFFOLD STATE" heading, or if the
+generated Rust dependency list is absent.
+
+---
+BUNDLED COMPONENTS
+------------------
+
+qpdf 12.4.2 — Apache-2.0
+  https://github.com/qpdf/qpdf
+  Source for the pin and the sha256: apps/desktop/engine-manifest.json
+  Shipped as: qpdf.exe (plus any DLLs beside it) under qpdf/ in the install directory.
+  Licence text: https://github.com/qpdf/qpdf/blob/v12.4.2/LICENSE.txt  (full text to be included)
+
+PDFium 151.0.7881.0 (revision chromium/7881) — BSD-3-Clause for PDFium-authored code, with bundled
+components under their own licences
+  https://pdfium.googlesource.com/pdfium/  (mirror: https://github.com/chromium/pdfium)
+  Binary built by a third party: https://github.com/bblanchon/pdfium-binaries (release tag
+  chromium/7881, release marked immutable, build attestation published alongside the artifacts)
+  Shipped as: pdfium.dll under pdfium/ in the install directory.
+  Licence text (aggregate): https://raw.githubusercontent.com/chromium/pdfium/main/LICENSE
+  Required notice, reproduced here so it travels with the binary:
+
+    Copyright 2014 The PDFium Authors
+
+    Redistribution and use in source and binary forms, with or without modification, are permitted
+    provided that the following conditions are met:
+
+      * Redistributions of source code must retain the above copyright notice, this list of
+        conditions and the following disclaimer.
+      * Redistributions in binary form must reproduce the above copyright notice, this list of
+        conditions and the following disclaimer in the documentation and/or other materials provided
+        with the distribution.
+      * Neither the name of Google Inc. nor the names of its contributors may be used to endorse or
+        promote products derived from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
+    IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+    FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+    DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+    DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY
+    WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+PDFium's LICENSE file continues with the Apache License 2.0 and the licences of the components it
+compiles in (FreeType, HarfBuzz, ICU, libjpeg-turbo, libpng, OpenJPEG, Skia, zlib and others). That
+file must be included in full. See item 2 above.
+
+Microsoft Edge WebView2 Runtime — Microsoft licence
+  Not redistributed by us. Tauri's `downloadBootstrapper` mode fetches the Evergreen runtime from
+  Microsoft when it is not already present; it is part of Windows 11 and present on the vast majority
+  of Windows 10 devices. See https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/distribution
+
+---
+RUST DEPENDENCIES
+-----------------
+Paste the output of `cargo about generate` or `cargo license` here before release. Known direct
+dependencies and their licences, as read from crates.io while writing the scaffold (verified for the
+versions listed in Cargo.toml):
+
+  tauri 2.12.1                     Apache-2.0 OR MIT
+  tauri-plugin-dialog 2.x          Apache-2.0 OR MIT
+  tauri-plugin-opener 2.x          Apache-2.0 OR MIT
+  tauri-plugin-single-instance 2.x Apache-2.0 OR MIT
+  pdfium-render 0.9.4              MIT OR Apache-2.0
+  image 0.25.10                    MIT OR Apache-2.0
+  printpdf 0.12.8                  MIT
+  serde / serde_json / thiserror / sha2 / hex / uuid / tokio / futures-util / reqwest
+                                   (verify each with cargo license; most are MIT OR Apache-2.0)
+
+---
+DELIBERATELY NOT INCLUDED
+-------------------------
+Stirling-PDF is NOT part of this distribution. Its licence from v1.0 onwards is the paid "Stirling PDF
+User License", which forbids copying, merging, distributing and sublicensing the software; shipping it
+inside this installer would be exactly that. The reasoning, the quoted licence text and the three
+options open to the project owner are recorded in apps/desktop/engine-manifest.json ->
+policy.excluded[0] and in docs/DESKTOP.md.
+
+MuPDF (AGPL-3.0) and Poppler (GPL-2.0-or-later) are also excluded: their licences would reach our
+whole application.

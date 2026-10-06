@@ -1,0 +1,317 @@
+{
+  "_warning": "UNVERIFIED SCAFFOLD. Nothing in apps/desktop/ has been compiled, built, installed or run: Rust/cargo is not installed on the machine where this was written and installing it was not approved. Every version, URL, byte size and sha256 below was copied from the source URLs in `sources`; every number marked `estimate` is a guess with its basis stated and is NOT a measurement. Re-verify all pins before the first build.",
+  "_status": "unbuilt",
+  "_readBy": [
+    "apps/desktop/src-tauri/src/engine/manifest.rs (compile-time include_str!, so pins are baked into the binary)",
+    "apps/desktop/tools/fetch-engines.mjs (downloads and verifies the payload)",
+    "the website's /desktop page, via the build-time copy described in handoff.webCopy"
+  ],
+  "schemaVersion": 1,
+
+  "app": {
+    "name": "ToolSeer",
+    "productName": "ToolSeer Desktop",
+    "identifier": "com.toolseer.desktop",
+    "version": "1.0.0",
+    "minAppVersion": "1.0.0",
+    "minWindows": "Windows 10 21H2 x64 / Windows 11",
+    "estimateInstalledBytesMin": 60000000,
+    "estimateInstalledBytesMax": 110000000
+  },
+
+  "release": {
+    "_note": "One place to change the GitHub slug. It is a placeholder on purpose: `git` is blocked in the build environment and the workspace has no .git directory, so the real remote could not be read. Distribution is GitHub Releases on the site's own repository - no separate repo, and no vendored or forked engine.",
+    "repo": "OWNER/REPO",
+    "tagPrefix": "desktop-v",
+    "installerAssetStable": "ToolSeer-Setup.exe",
+    "installerAssetVersionedTemplate": "ToolSeer-Setup-{version}.exe",
+    "stableDownloadUrl": "https://github.com/OWNER/REPO/releases/latest/download/ToolSeer-Setup.exe",
+    "checksumAssetTemplate": "ToolSeer-Setup-{version}.exe.sha256",
+    "_stableUrlRequirement": "`releases/latest/download/<asset>` only resolves if the asset file name is byte-identical in every release, so each release must publish BOTH 'ToolSeer-Setup.exe' and 'ToolSeer-Setup-<version>.exe'.",
+    "estimateInstallerBytesMin": 35000000,
+    "estimateInstallerBytesMax": 50000000,
+    "_estimateBasis": "estimate, from measured artifact sizes: pdfium-win-x64.tgz 3,733,154 B + qpdf payload est. 10-20 MB + the Tauri app and the vendored web UI est. 10-20 MB. Replaced by a real number at the first build."
+  },
+
+  "policy": {
+    "rule": "Only permissively licensed engines may be shipped inside the installer, and every bundled component needs an attribution entry in src-tauri/bundle/license-notices.txt. This rule is the reason the architecture looks the way it does.",
+    "excluded": [
+      {
+        "name": "Stirling-PDF",
+        "versionExamined": "3.1.0",
+        "licence": "Paid 'Stirling PDF User License' from v1.0 onwards. Only v0.46.2 and earlier are plain MIT.",
+        "why": "The brief originally said to wrap Stirling-PDF in Tauri and publish the result. That is redistribution of the Software, which the licence forbids in terms: 'Production use ... is only permitted with a valid Stirling PDF User License'; prohibited actions include 'Copy, merge, distribute, sublicense, or sell the Software'; and derivative works 'may not be distributed or sublicensed'. The v3.1.0 root LICENSE is MIT only for content outside carve-out directories - app/proprietary/, app/saas/, engine/ and several frontend/editor/src/* trees each carry their own licence, and the released jar is built from those trees.",
+        "sources": [
+          "https://raw.githubusercontent.com/Stirling-Tools/Stirling-PDF/v3.1.0/LICENSE",
+          "https://raw.githubusercontent.com/Stirling-Tools/Stirling-PDF/v3.1.0/engine/LICENSE",
+          "https://raw.githubusercontent.com/Stirling-Tools/Stirling-PDF/v0.46.2/LICENSE"
+        ],
+        "ownerOptions": [
+          "(i) buy a Stirling PDF User Licence, or ask Stirling PDF Inc. for written redistribution permission;",
+          "(ii) ship the frozen MIT v0.46.2 engine and accept a 2024 codebase with no upstream fixes;",
+          "(iii) build the clean Rust engine stack in this scaffold (recommended)."
+        ]
+      },
+      {
+        "name": "MuPDF",
+        "licence": "AGPL-3.0",
+        "why": "AGPL would reach our whole application. Excluded for the same class of reason as Stirling, not because of technical quality."
+      },
+      {
+        "name": "Poppler / pdftoppm",
+        "licence": "GPL-2.0-or-later",
+        "why": "Shipping a GPL binary linked into our app makes the combined distribution GPL. PDFium covers the same need under BSD-3-Clause."
+      }
+    ],
+    "attribution": {
+      "required": true,
+      "file": "src-tauri/bundle/license-notices.txt",
+      "wiredInto": "tauri.conf.json bundle.licenseFile, so the installer shows it",
+      "note": "PDFium's own LICENSE is an aggregate file: BSD-3-Clause for PDFium-authored code followed by Apache-2.0 for bundled components. That is why GitHub's licence detector reports NOASSERTION for chromium/pdfium. Permissive, but the notices must travel with the binary."
+    }
+  },
+
+  "engines": {
+    "qpdf": {
+      "slot": "structure: merge, split, reorder, rotate, encrypt, decrypt, lossless compression",
+      "version": "12.4.2",
+      "tag": "v12.4.2",
+      "releasedAt": "2026-09-26",
+      "licence": "Apache-2.0",
+      "licenceSource": "https://raw.githubusercontent.com/qpdf/qpdf/v12.4.2/LICENSE.txt",
+      "sourceRepo": "https://github.com/qpdf/qpdf",
+      "releasePage": "https://github.com/qpdf/qpdf/releases/tag/v12.4.2",
+      "artifacts": [
+        {
+          "kind": "windows-x64-archive",
+          "file": "qpdf-12.4.2-msvc64.zip",
+          "url": "https://github.com/qpdf/qpdf/releases/download/v12.4.2/qpdf-12.4.2-msvc64.zip",
+          "sizeBytes": 28183147,
+          "sha256": "db87077e683630c1217e0e8f9a20a9749d952ab676e881c3689187763a5de25d",
+          "_note": "The archive also contains headers and import libraries that we do not ship; the build script extracts only the executable and the DLLs beside it. Archive layout must be checked on the first real fetch."
+        },
+        {
+          "kind": "windows-x64-installer-reference",
+          "file": "qpdf-12.4.2-msvc64.exe",
+          "url": "https://github.com/qpdf/qpdf/releases/download/v12.4.2/qpdf-12.4.2-msvc64.exe",
+          "sizeBytes": 13596592,
+          "sha256": "30eb98817a18ae80ecec4a9e6382bdb87012a6c0c9de24139aa9e20a8f0fcc6e",
+          "_note": "Not shipped. Kept as the size anchor for the runtime payload: 13.6 MB compressed installer implies an installed footprint of roughly 25-40 MB (estimate)."
+        }
+      ],
+      "upstreamChecksums": {
+        "file": "qpdf-12.4.2.sha256",
+        "url": "https://github.com/qpdf/qpdf/releases/download/v12.4.2/qpdf-12.4.2.sha256",
+        "sizeBytes": 2906,
+        "sha256": "bb4472ec2efb3fe4c4a49f030906c734506ffd99cb27abab0eb2f15ab1820d69",
+        "note": "qpdf publishes checksums and a sigstore signature for the release. Cross-check our fetched artifact against this file as a second opinion; the manifest sha256 above is the pin we build against."
+      },
+      "capabilities": [
+        "merge several inputs into one document (documented qpdf recipe: --empty --pages <inputs> -- <out>)",
+        "extract/select/reorder pages, including dropping pages",
+        "rotate pages by page range",
+        "encrypt with user and owner passwords (AES-256)",
+        "decrypt when the password is known",
+        "structural compression: linearise, generate object streams, recompress streams",
+        "the 12.4.2 release notes specifically claim much lower memory use for linearisation (up to 30x on some files), which is a real part of the big-file story"
+      ],
+      "flagCaveat": "Capabilities are documented; the exact argv spellings in src-tauri/src/engine/qpdf.rs are marked VERIFY and must be checked against `qpdf --help` on the pinned binary before release, because qpdf's CLI syntax has changed across majors (notably --encrypt)."
+    },
+
+    "pdfium": {
+      "slot": "rendering and text extraction: PDF to images, extract text, page counting, metadata",
+      "version": "151.0.7881.0",
+      "revision": "chromium/7881",
+      "releasedAt": "2026-06-08",
+      "licence": "BSD-3-Clause for PDFium-authored code, with bundled components under their own licences (the LICENSE file also carries the Apache-2.0 text); the repository's LICENSE is therefore an aggregate, which is why GitHub reports spdx_id NOASSERTION",
+      "licenceSource": "https://raw.githubusercontent.com/chromium/pdfium/main/LICENSE",
+      "repoLicenceDetection": "https://api.github.com/repos/chromium/pdfium reports license.spdx_id = NOASSERTION",
+      "distribution": {
+        "provider": "bblanchon/pdfium-binaries",
+        "providerNote": "A third-party build of PDFium, not a Chromium-published Windows binary. The releases are marked immutable and ship a build attestation, but this is still a supply-chain dependency: pin it, verify the sha256, and keep the attestation URL on record.",
+        "releaseTag": "chromium/7881",
+        "releasePage": "https://github.com/bblanchon/pdfium-binaries/releases/tag/chromium/7881",
+        "attestation": {
+          "file": "pdfium-attestation.json",
+          "url": "https://github.com/bblanchon/pdfium-binaries/releases/download/chromium/7881/pdfium-attestation.json",
+          "sizeBytes": 17703,
+          "sha256": "24dec7cd76acb81106a0c29b908cceceef8215b050f6ff6ffbf875465811ef60"
+        }
+      },
+      "artifacts": [
+        {
+          "kind": "windows-x64",
+          "file": "pdfium-win-x64.tgz",
+          "url": "https://github.com/bblanchon/pdfium-binaries/releases/download/chromium/7881/pdfium-win-x64.tgz",
+          "sizeBytes": 3733154,
+          "sha256": "73cc0de638ac2095e7445bf56a38200a5b7c7ca0e9f4ba144598f2457377ac08",
+          "_note": "Extract bin/pdfium.dll. Deliberately the non-V8 build: the V8 variant (pdfium-v8-win-x64.tgz, 12,121,549 B) exists for JavaScript-in-PDF support we do not need."
+        }
+      ],
+      "cratePairing": {
+        "crate": "pdfium-render",
+        "version": "0.9.4",
+        "licence": "MIT OR Apache-2.0",
+        "crateSource": "https://crates.io/api/v1/crates/pdfium-render/versions",
+        "whyThisRevision": "pdfium-render 0.9.4 declares feature pdfium_latest = pdfium_7881, i.e. its generated bindings target PDFium revision 7881. Revision 8086 (PDFium 157.0.8086.0) is newer, and pairing the newest DLL with older bindings is exactly the kind of mismatch that produces a runtime crash instead of a compile error. Pin the binary to the revision the crate names, and only bump both together.",
+        "newerRevisionAvailable": "chromium/8086 (PDFium 157.0.8086.0, 2026-10-05), pdfium-win-x64.tgz 3,866,531 B, sha256 1fd8af952832dbb0eb16d9249f68fe09e5f5ebf7c3dd9f6066ea2720cc28487d - not used until the crate's pdfium_latest feature points at it.",
+        "integrationNote": "pdfium-render loads the DLL at runtime (bind_to_library), which is what we want: the DLL ships next to our executable and no import library or build-time linking is needed. The exact API surface used in src-tauri/src/engine/pdfium.rs is marked UNVERIFIED."
+      }
+    },
+
+    "ocr": {
+      "where": "webview",
+      "engine": "tesseract.js, already lazily loaded by the website (docs/ARCHITECTURE.md section 5)",
+      "decision": "No native OCR engine is bundled. Keeping OCR in the webview avoids roughly 50 MB of installer, a second OCR code path, and a Windows OCR build with no published checksum.",
+      "rejectedOption": {
+        "engine": "tesseract CLI for Windows",
+        "upstreamLicence": "Apache-2.0",
+        "upstreamLicenceSource": "https://api.github.com/repos/tesseract-ocr/tesseract reports license.spdx_id = Apache-2.0",
+        "buildExamined": {
+          "provider": "UB-Mannheim/tesseract",
+          "version": "5.4.0.20240606",
+          "releasedAt": "2024-06-08",
+          "file": "tesseract-ocr-w64-setup-5.4.0.20240606.exe",
+          "url": "https://github.com/UB-Mannheim/tesseract/releases/download/v5.4.0.20240606/tesseract-ocr-w64-setup-5.4.0.20240606.exe",
+          "sizeBytes": 50175248,
+          "sha256": null,
+          "sha256Note": "NOT AVAILABLE: the release metadata publishes no digest for this asset (the GitHub API digest field is null), and 50 MB of unsigned native code with no checksum is not something to bundle casually. This alone rules the option out for v1."
+        },
+        "costIfChosen": "estimate +50 MB installer (measured asset) plus language data, which is not included in that installer."
+      }
+    }
+  },
+
+  "rustCrates": [
+    {
+      "name": "tauri",
+      "version": "2.12.1",
+      "licence": "Apache-2.0 OR MIT",
+      "source": "https://crates.io/api/v1/crates/tauri",
+      "note": "Latest stable. 3.0.0-alpha.4 exists and is an alpha, so v2 is the target. Requires Rust 1.90, which sets this project's minimum toolchain."
+    },
+    {
+      "name": "pdfium-render",
+      "version": "0.9.4",
+      "licence": "MIT OR Apache-2.0",
+      "source": "https://crates.io/api/v1/crates/pdfium-render/versions"
+    },
+    {
+      "name": "image",
+      "version": "0.25.10",
+      "licence": "MIT OR Apache-2.0",
+      "source": "https://crates.io/api/v1/crates/image/versions",
+      "note": "Requires Rust 1.88. Use default-features = false with only the codecs we need (jpeg, png, webp, tiff, bmp, gif) so the AVIF/EXR encoders do not pull in extra native code."
+    },
+    {
+      "name": "printpdf",
+      "version": "0.12.8",
+      "licence": "MIT",
+      "source": "https://crates.io/api/v1/crates/printpdf/versions",
+      "note": "Requires Rust 1.88. IMPORTANT: its default feature is `html`, which pulls in an entire layout engine (azul-layout, azul-css, rust-fontconfig). Use default-features = false, features = [\"images\", \"jpeg\", \"png\", \"rayon\"] for image-to-PDF."
+    }
+  ],
+
+  "sizes": {
+    "_warning": "ESTIMATES. The only measured values here are the artifact sizes in `engines`; the shipped and installed footprints are estimates and must be replaced with real numbers at the first build.",
+    "configurations": [
+      {
+        "id": "recommended",
+        "description": "Tauri shell + vendored web UI + qpdf + PDFium, OCR in the webview",
+        "estimateInstallerBytesMin": 35000000,
+        "estimateInstallerBytesMax": 50000000,
+        "estimateInstalledBytesMin": 60000000,
+        "estimateInstalledBytesMax": 110000000
+      },
+      {
+        "id": "with-native-ocr",
+        "description": "as recommended, plus the bundled tesseract CLI and language data",
+        "estimateInstallerBytesMin": 90000000,
+        "estimateInstallerBytesMax": 130000000,
+        "estimateInstalledBytesMin": 150000000,
+        "estimateInstalledBytesMax": 250000000
+      },
+      {
+        "id": "abandoned-stirling-bundle",
+        "description": "the design the licence blocker killed: JVM + Stirling-PDF jar",
+        "estimateInstallerBytesMin": 320000000,
+        "estimateInstallerBytesMax": 420000000,
+        "_measuredAnchor": "Stirling-PDF's own Tauri Windows MSI from v3.1.0 is 334,426,112 B (318.9 MiB) and contains the same kind of payload. The licence blocker made the product roughly 8x smaller as a side effect."
+      }
+    ]
+  },
+
+  "handoff": {
+    "webCopy": {
+      "_status": "NOT DONE - apps/web/** is outside this task's write scope.",
+      "from": "apps/desktop/engine-manifest.json",
+      "to": "apps/web/desktop/engine-manifest.json",
+      "how": "tools/build.mjs copies it verbatim at deploy time (the site has no bundler and no runtime build step).",
+      "check": "tools/check.mjs should assert the two files are byte-identical so the site can never advertise a version the desktop app is not pinned to.",
+      "pageUse": "The /desktop page fetches /desktop/engine-manifest.json same-origin (no CDN, per docs/ARCHITECTURE.md rule 5) for the version, size and checksum, and links release.stableDownloadUrl. The download button must be hard-coded to that stable URL so the page works with JavaScript disabled."
+    },
+    "webBridge": {
+      "_status": "NOT DONE - apps/web/** is outside this task's write scope.",
+      "note": "tauri.conf.json sets app.withGlobalTauri = true, so site pages can detect the shell with `if (window.__TAURI__)` and call commands with no import and no bundler. The command surface is documented in docs/DESKTOP.md and demonstrated in apps/desktop/bridge/toolseer-desktop.js, which is a reference copy for that task, not something the site loads today."
+    },
+    "unsupportedClaims": {
+      "_status": "MUST BE ENFORCED IN UI COPY.",
+      "note": "This build implements: merge, split, reorder/rotate/delete, protect, unlock, lossless structural compression, image to PDF, PDF to images, text extraction (text-based PDFs). It does NOT implement lossy image-downsampling compression, OCR (that stays in the webview), or Office conversion. docs/DESKTOP.md lists this exactly; no marketing copy may claim otherwise."
+    }
+  },
+
+  "sources": [
+    {
+      "url": "https://raw.githubusercontent.com/Stirling-Tools/Stirling-PDF/v3.1.0/engine/LICENSE",
+      "supports": "The Stirling PDF User License text, including the production-use restriction and the prohibitions on copying, merging, distributing, sublicensing and distributing derivative works - the reason Stirling-PDF is not bundled."
+    },
+    {
+      "url": "https://raw.githubusercontent.com/Stirling-Tools/Stirling-PDF/v0.46.2/LICENSE",
+      "supports": "That v0.46.2 is plain MIT (Copyright (c) 2024 Stirling Tools), which is the only genuinely redistributable Stirling option."
+    },
+    {
+      "url": "https://api.github.com/repos/qpdf/qpdf/releases/latest",
+      "supports": "qpdf v12.4.2, its release asset names, exact byte sizes and sha256 digests, the checksum/sigstore files, and the claim in the 12.4.2 notes that linearisation became far more memory efficient."
+    },
+    {
+      "url": "https://raw.githubusercontent.com/qpdf/qpdf/v12.4.2/LICENSE.txt",
+      "supports": "qpdf is Apache-2.0."
+    },
+    {
+      "url": "https://api.github.com/repos/bblanchon/pdfium-binaries/releases/tags/chromium%2F7881",
+      "supports": "PDFium 151.0.7881.0, the pdfium-win-x64.tgz size and sha256, the attestation asset, and that the release is marked immutable."
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/pdfium/main/LICENSE",
+      "supports": "PDFium's licence: BSD-3-Clause for its own code plus Apache-2.0 text for bundled components, i.e. an aggregate file."
+    },
+    {
+      "url": "https://api.github.com/repos/chromium/pdfium",
+      "supports": "That GitHub reports spdx_id NOASSERTION for PDFium because of that aggregate licence file."
+    },
+    {
+      "url": "https://crates.io/api/v1/crates/pdfium-render/versions",
+      "supports": "pdfium-render 0.9.4, its MIT OR Apache-2.0 licence, and that its pdfium_latest feature maps to pdfium_7881 - the reason the DLL is pinned to revision 7881."
+    },
+    {
+      "url": "https://crates.io/api/v1/crates/image/versions",
+      "supports": "image 0.25.10 and its MIT OR Apache-2.0 licence."
+    },
+    {
+      "url": "https://crates.io/api/v1/crates/printpdf/versions",
+      "supports": "printpdf 0.12.8, its MIT licence, and that its default feature is `html` - the reason Cargo.toml disables default features."
+    },
+    {
+      "url": "https://api.github.com/repos/tesseract-ocr/tesseract",
+      "supports": "Tesseract is Apache-2.0."
+    },
+    {
+      "url": "https://api.github.com/repos/UB-Mannheim/tesseract/releases/latest",
+      "supports": "The Windows tesseract build examined (5.4.0.20240606, 50,175,248 B) and that its release metadata publishes no sha256 digest."
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/distribution",
+      "supports": "Evergreen WebView2 is part of Windows 11 and present on the vast majority of Windows 10 devices; the bootstrapper is about 2 MB; the Fixed Version runtime is over 250 MB."
+    }
+  ]
+}

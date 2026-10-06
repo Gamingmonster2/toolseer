@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unlock PDF — Remove a Known PDF Password | ToolSeer</title>
+<meta name="description" content="Remove the password from a PDF you can already open. Enter the known password, get an unencrypted copy in your browser. No upload and no cracking.">
+<link rel="canonical" href="https://toolseer.com/unlock-pdf">
+<meta name="theme-color" content="#0040ff">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ToolSeer">
+<meta property="og:title" content="Unlock PDF — remove a password you already know">
+<meta property="og:description" content="Decrypt a PDF with the password that opens it and download an unencrypted copy. The password is used in memory and never transmitted.">
+<meta property="og:url" content="https://toolseer.com/unlock-pdf">
+<meta property="og:image" content="https://toolseer.com/assets/img/og/toolseer-og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Unlock PDF — needs the password, never guesses">
+<meta name="twitter:description" content="Remove standard PDF encryption when you know the password. Runs offline in your browser; nothing is uploaded and nothing is cracked.">
+<meta name="twitter:image" content="https://toolseer.com/assets/img/og/toolseer-og.png">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
+<link rel="stylesheet" href="/assets/css/toolseer.css">
+<script>
+/* Applied before first paint: prevents a theme flash and fixes RTL early. */
+(function () {
+  try {
+    var t = localStorage.getItem('toolseer:theme');
+    if (t !== 'light' && t !== 'dark') {
+      t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    document.documentElement.dataset.theme = t;
+    if (localStorage.getItem('toolseer:lang') === 'ar') {
+      document.documentElement.lang = 'ar';
+      document.documentElement.dir = 'rtl';
+    }
+  } catch (e) { document.documentElement.dataset.theme = 'light'; }
+})();
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "name": "ToolSeer Unlock PDF",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Any (web browser)",
+      "url": "https://toolseer.com/unlock-pdf",
+      "description": "Remove standard PDF password encryption locally in the browser using a password you already know, producing an unencrypted copy of the document.",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "featureList": [
+        "Removes standard PDF encryption when the password is known",
+        "Password used in memory only, never uploaded or stored",
+        "Page content, bookmarks and links preserved",
+        "Clear error when the password is wrong or missing",
+        "No password guessing or cracking of any kind",
+        "Works offline once the page has loaded"
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://toolseer.com/" },
+        { "@type": "ListItem", "position": 2, "name": "Unlock PDF", "item": "https://toolseer.com/unlock-pdf" }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Can ToolSeer open a PDF if I do not know the password?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. The tool needs the password to derive the decryption key, and there is no guessing step of any kind. Without the password the file cannot be opened here, or by any other honest tool. A service that claims it can is running a brute-force attack that only ever succeeds on very weak passwords." }
+        },
+        {
+          "@type": "Question",
+          "name": "Is the password I type sent to a server?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. It is used in memory in this browser tab to derive the key. Nothing is transmitted, nothing is written to local storage or a cookie, and the password never appears in the file you download. You can confirm it by watching the network panel while the tool runs." }
+        },
+        {
+          "@type": "Question",
+          "name": "Does unlocking change what is inside the document?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. The pages, text, images, links and bookmarks are preserved and only the encryption layer is removed. The file is rewritten without it, so the internal byte layout changes and any digital signature it carried will not survive, but what you see on the page is the same." }
+        },
+        {
+          "@type": "Question",
+          "name": "Is it legal to remove a PDF password?",
+          "acceptedAnswer": { "@type": "Answer", "text": "It depends on the file and on where you live. Unlocking your own documents, or files you have been authorised to modify, is normally fine. Removing protection from somebody else's work can breach copyright, a licence or computer-misuse law. Use the tool only where you have the right to." }
+        },
+        {
+          "@type": "Question",
+          "name": "The password is correct but the tool rejects it. Why?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Passwords are case-sensitive and spaces count, so check the exact characters and your keyboard layout. Some documents use one password to open the file and a different owner password for permissions; try the owner password as well. Certificate-based encryption and ebook DRM are outside the scope of this tool." }
+        },
+        {
+          "@type": "Question",
+          "name": "What should I do with the unlocked file?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Treat it as unprotected, because it is. Anyone who obtains it can open it, copy it and edit it. If the content matters, store it somewhere you trust and add protection again with AES-256 once you no longer need it open." }
+        }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<a class="ts-skip-link" href="#ts-main">Skip to content</a>
+
+<div class="ts-app">
+  <div class="ts-support" id="ts-support"></div>
+
+  <aside class="ts-rail" id="ts-rail" aria-label="Tool settings"></aside>
+
+  <div class="ts-main">
+    <header class="ts-header" id="ts-header"></header>
+
+    <main class="ts-view" id="ts-main">
+      <section class="ts-hero">
+        <img class="ts-hero__mascot" src="/assets/img/mascot/unlock-pdf.svg" alt=""
+             aria-hidden="true" width="96" height="96" onerror="this.style.display='none'">
+        <h1 class="ts-hero__title" data-i18n="tool.unlock-pdf.title">Unlock PDF</h1>
+        <p class="ts-hero__sub">
+          Type the password that opens your PDF and download an unencrypted copy. The password is
+          used in memory, in this tab, to derive the key: it is never uploaded, never written to
+          disk and never included in your download. This tool does not guess passwords.
+        </p>
+      </section>
+
+      <!-- The toolkit renders the drop zone, file rows, progress and results here. -->
+      <div id="ts-tool" style="display:contents"></div>
+
+      <section class="ts-prose">
+        <h2>What this tool does, and what it refuses to do</h2>
+        <p>
+          This page removes standard PDF encryption from a file when you already know the password
+          that opens it. The engine derives the key from what you type, decrypts the document and
+          writes a new copy with no encryption dictionary. The pages, text, images, links and
+          bookmarks are preserved; the bytes are not, because writing an unencrypted file means
+          rebuilding its structure.
+        </p>
+        <p>
+          It is <strong>not</strong> a password cracker. There is no guessing, no dictionary attack,
+          no exploiting of weak RC4 keys, and no queue that tries millions of candidates while you
+          wait. If you do not know the password, no honest tool can open the file: encrypted PDFs
+          are designed so that the only way in is the key. A website that promises to crack a
+          protected PDF is either running a brute-force attack, which succeeds only when the
+          password was very weak, or it is misleading you about what it can do.
+        </p>
+
+        <h3>Owner passwords and permission-only locks</h3>
+        <p>
+          Some PDFs open without any prompt but refuse to print or copy. That is an owner-password
+          restriction: the content is readable, and the permission flags say no. This page asks for
+          the password and hands it to the engine, which either accepts it or reports that it is
+          wrong or missing. If a file opens for you without asking for anything, its user password
+          is empty: leave the field blank and the engine can still rewrite it without encryption,
+          which clears the permission flags along with it. We do not attempt to defeat a restriction
+          without the password. Certificate-based (public-key) encryption and the DRM used by ebook
+          stores are not the standard security handler this tool implements, so they are outside
+          what this page can handle.
+        </p>
+
+        <h2>Your password stays in this tab</h2>
+        <p>
+          The password you type is used in memory to derive the decrypt key. It is never
+          transmitted: there is no upload step and no server that could receive it. It is not
+          written to local storage or a cookie, and it does not appear in the download. The whole operation runs as JavaScript in your browser tab, which is why the
+          page keeps working when you disconnect from the network — and why you can watch the
+          network panel and see nothing leave.
+        </p>
+        <p>
+          The output deserves the same attention. An unlocked file has no password at all, so anyone
+          who obtains it can open it, copy it and edit it. Keep it somewhere you trust, send it the
+          way you would send any unprotected document, and if it needs protection again, add it back
+          with <a href="/protect-pdf">Protect PDF</a> using AES-256.
+        </p>
+
+        <h2>Know what you are allowed to unlock</h2>
+        <p>
+          Use this page on documents you own or have permission to modify: your own files, contracts
+          you are a party to, documents your organisation has given you access to, files whose
+          password you were told. Removing protection from somebody else's document can breach
+          copyright, a licence agreement or computer-misuse law, depending on where you are.
+          ToolSeer cannot check ownership and does not ask; the responsibility for using the tool
+          lawfully is yours.
+        </p>
+
+        <h3>When unlocking does not work</h3>
+        <p>
+          If the password is rejected, check the exact characters: passwords are case-sensitive,
+          spaces count, and some keyboards map symbols differently. If the file turns out not to be
+          encrypted at all, there is nothing to remove, and the copy you get back is the same
+          document. If the file is damaged, or uses a security handler this build does not
+          implement, the engine reports that rather than returning a half-broken copy.
+        </p>
+      </section>
+
+      <section class="ts-faq" aria-label="Frequently asked questions">
+        <h2 style="font-size:21px;margin-bottom:2px">Frequently asked questions</h2>
+        <details open>
+          <summary>Can ToolSeer open a PDF if I do not know the password?</summary>
+          <p>No. The tool needs the password to derive the decryption key, and there is no guessing step of any kind. Without the password the file cannot be opened here, or by any other honest tool. A service that claims it can is running a brute-force attack that only ever succeeds on very weak passwords.</p>
+        </details>
+        <details>
+          <summary>Is the password I type sent to a server?</summary>
+          <p>No. It is used in memory in this browser tab to derive the key. Nothing is transmitted, nothing is written to local storage or a cookie, and the password never appears in the file you download. You can confirm it by watching the network panel while the tool runs.</p>
+        </details>
+        <details>
+          <summary>Does unlocking change what is inside the document?</summary>
+          <p>No. The pages, text, images, links and bookmarks are preserved and only the encryption layer is removed. The file is rewritten without it, so the internal byte layout changes and any digital signature it carried will not survive, but what you see on the page is the same.</p>
+        </details>
+        <details>
+          <summary>Is it legal to remove a PDF password?</summary>
+          <p>It depends on the file and on where you live. Unlocking your own documents, or files you have been authorised to modify, is normally fine. Removing protection from somebody else's work can breach copyright, a licence or computer-misuse law. Use the tool only where you have the right to.</p>
+        </details>
+        <details>
+          <summary>The password is correct but the tool rejects it. Why?</summary>
+          <p>Passwords are case-sensitive and spaces count, so check the exact characters and your keyboard layout. Some documents use one password to open the file and a different owner password for permissions; try the owner password as well. Certificate-based encryption and ebook DRM are outside the scope of this tool.</p>
+        </details>
+        <details>
+          <summary>What should I do with the unlocked file?</summary>
+          <p>Treat it as unprotected, because it is. Anyone who obtains it can open it, copy it and edit it. If the content matters, store it somewhere you trust and add protection again with AES-256 once you no longer need it open.</p>
+        </details>
+      </section>
+
+      <section class="ts-prose">
+        <h2>Other ToolSeer tools</h2>
+        <p>
+          Once the password is gone you can reshape the document with
+          <a href="/merge-pdf">Merge PDF</a>, <a href="/split-pdf">Split PDF</a> or
+          <a href="/organize-pdf">Organize PDF</a>, shrink it with
+          <a href="/compress-pdf">Compress PDF</a>, or read it as text with
+          <a href="/extract-text-pdf">Extract Text</a>. Going the other way,
+          <a href="/protect-pdf">Protect PDF</a> adds AES encryption back, and
+          <a href="/pdf-to-images">PDF to Images</a> exports the pages as pictures.
+        </p>
+      </section>
+
+      <footer class="ts-footer" id="ts-footer"></footer>
+    </main>
+  </div>
+</div>
+
+<script type="module">
+  import { defineTool } from '/assets/js/ui/toolkit.js';
+
+  defineTool({
+    slug: 'unlock-pdf',
+    accept: 'application/pdf,.pdf',
+    multiple: false,
+    minFiles: 1,
+    preview: 'rows',
+    dropIcon: 'lock-open',
+    emptyIcon: 'lock-open',
+    actionIcon: 'lock-open',
+    dropHint: 'One PDF at a time · you must already know its password',
+
+    settings: [
+      {
+        /* No hint here on purpose: the shared hint text describes setting a new password,
+           and this page only accepts a password that already exists on the file. */
+        id: 'password', type: 'password', default: '', hint: false,
+      },
+    ],
+
+    async run({ files, settings, onProgress }) {
+      onProgress({ value: 0.08, label: 'Reading the PDF…' });
+      const input = await files[0].asInput();
+
+      const { unlockPdf } = await import('/assets/js/core/index.js');
+      onProgress({ value: 0.35, label: 'Decrypting…' });
+
+      /* The engine throws ToolError('need-password') or ToolError('wrong-password');
+         it is deliberately not caught here so the toolkit can localise the code. */
+      const result = await unlockPdf(input.bytes, {
+        password: String(settings.password ?? ''),
+      });
+
+      const { t, hasKey } = await import('/assets/js/ui/i18n.js');
+      onProgress({ value: 1, label: 'Done' });
+
+      /* Engine warnings are stable codes and the toolkit prints warning strings verbatim.
+         'not-encrypted' means there was no password to remove, so claiming the password was
+         removed would be a lie: say nothing rather than something untrue. */
+      const codes = (result.warnings || []).filter((code) => typeof code === 'string');
+      const warnings = [];
+      if (codes.includes('not-encrypted')) {
+        if (hasKey('warning.notEncrypted')) warnings.push(t('warning.notEncrypted'));
+      } else {
+        warnings.push(t('result.unlocked'));
+      }
+
+      const base = String(input.name || '').replace(/\.pdf$/i, '') || 'toolseer-unlocked';
+      return {
+        outputs: [{ name: `${base}-unlocked.pdf`, bytes: result.bytes, type: 'application/pdf' }],
+        warnings,
+      };
+    },
+  });
+</script>
+</body>
+</html>

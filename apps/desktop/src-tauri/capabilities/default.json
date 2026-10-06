@@ -1,0 +1,13 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "UNVERIFIED SCAFFOLD (never built). Capabilities for the single ToolSeer window. Only plugin and core permissions are listed, because that is what Tauri v2's ACL gates; the app's own commands (engine_*, job_*, pick_*) are registered in Rust via generate_handler!. Note there is deliberately NO shell-plugin permission here: the qpdf sidecar is spawned by our own Rust code with an absolute path, so the webview never gains the ability to run a program.",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "core:window:allow-show",
+    "core:window:allow-set-focus",
+    "dialog:default",
+    "opener:default"
+  ]
+}

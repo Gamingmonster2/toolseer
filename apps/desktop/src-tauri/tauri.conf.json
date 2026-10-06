@@ -1,0 +1,71 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "ToolSeer",
+  "mainBinaryName": "ToolSeer",
+  "version": "1.0.0",
+  "identifier": "com.toolseer.desktop",
+
+  "build": {
+    "frontendDist": "../../web",
+    "devUrl": "http://127.0.0.1:8788"
+  },
+
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "label": "main",
+        "title": "ToolSeer",
+        "width": 1280,
+        "height": 840,
+        "minWidth": 960,
+        "minHeight": 640,
+        "resizable": true,
+        "center": true,
+        "visible": false,
+        "dragDropEnabled": true
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' ipc: http://ipc.localhost blob:; worker-src 'self' blob:; media-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'",
+      "freezePrototype": true
+    }
+  },
+
+  "bundle": {
+    "active": true,
+    "targets": ["nsis"],
+    "publisher": "ToolSeer",
+    "homepage": "https://toolseer.com",
+    "category": "Utility",
+    "shortDescription": "PDF tools for very large jobs, running entirely on your own machine.",
+    "longDescription": "ToolSeer Desktop processes jobs a browser tab cannot hold in memory - a thousand images or a seven-hundred page PDF. Work is streamed page by page to your own disk. Nothing is uploaded, there is no account and there is no telemetry.",
+    "copyright": "ToolSeer",
+    "licenseFile": "bundle/license-notices.txt",
+    "createUpdaterArtifacts": false,
+    "resources": {
+      "payload/qpdf/bin/": "qpdf/",
+      "payload/pdfium/bin/pdfium.dll": "pdfium/pdfium.dll"
+    },
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.ico"
+    ],
+    "windows": {
+      "webviewInstallMode": {
+        "type": "downloadBootstrapper",
+        "silent": true
+      },
+      "digestAlgorithm": "sha256",
+      "timestampUrl": "http://timestamp.digicert.com",
+      "nsis": {
+        "installMode": "currentUser",
+        "languages": ["English", "Arabic"],
+        "displayLanguageSelector": true,
+        "compression": "lzma"
+      }
+    }
+  }
+}

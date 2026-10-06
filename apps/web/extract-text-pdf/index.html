@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Extract Text from PDF — Copy Text Free, Offline | ToolSeer</title>
+<meta name="description" content="Pull the text out of a PDF into a copyable, downloadable file. Reads the embedded text layer; scanned pages are reported honestly rather than returning nothing.">
+<link rel="canonical" href="https://toolseer.com/extract-text-pdf">
+<meta name="theme-color" content="#0040ff">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ToolSeer">
+<meta property="og:title" content="Extract Text from PDF — copy the text, no upload">
+<meta property="og:description" content="Copy the text out of a PDF, page by page, and save it as plain text. Runs in your browser; nothing is uploaded.">
+<meta property="og:url" content="https://toolseer.com/extract-text-pdf">
+<meta property="og:image" content="https://toolseer.com/assets/img/og/toolseer-og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Extract Text from PDF — free and offline">
+<meta name="twitter:description" content="Selectable text from any PDF that has a text layer. Copy it or save it as .txt, entirely in your browser.">
+<meta name="twitter:image" content="https://toolseer.com/assets/img/og/toolseer-og.png">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
+<link rel="stylesheet" href="/assets/css/toolseer.css">
+<script>
+/* Applied before first paint: prevents a theme flash and fixes RTL early. */
+(function () {
+  try {
+    var t = localStorage.getItem('toolseer:theme');
+    if (t !== 'light' && t !== 'dark') {
+      t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    document.documentElement.dataset.theme = t;
+    if (localStorage.getItem('toolseer:lang') === 'ar') {
+      document.documentElement.lang = 'ar';
+      document.documentElement.dir = 'rtl';
+    }
+  } catch (e) { document.documentElement.dataset.theme = 'light'; }
+})();
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "name": "ToolSeer Extract Text from PDF",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Any (web browser)",
+      "url": "https://toolseer.com/extract-text-pdf",
+      "description": "Extract the text layer of a PDF locally in the browser, copy it or download it as plain text, and get a clear message for scanned pages that contain no text layer.",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "featureList": [
+        "Reads the PDF's own text layer page by page",
+        "Optional page ranges such as 1-3, 5, 8-12",
+        "Optional layout preservation for tables and columns",
+        "OCR switch for scans, off by default, with an honest message when no engine is bundled",
+        "Copy to clipboard or download as a .txt file",
+        "No upload, no account, no text extraction quota"
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://toolseer.com/" },
+        { "@type": "ListItem", "position": 2, "name": "Extract Text from PDF", "item": "https://toolseer.com/extract-text-pdf" }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Why does the tool say my PDF has no text layer?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Because its pages are images, which is what a scanner produces. There are no characters stored in the file to copy out, only pixels, so extraction returns nothing. OCR can recognise those pages, but this browser build does not include an OCR engine yet: switching OCR on reports that the language data is not bundled. Expect to proofread any OCR output once an engine is available." }
+        },
+        {
+          "@type": "Question",
+          "name": "Do I need OCR for a normal PDF?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. If the document was exported from a word processor, a design tool or a browser print dialog, it almost certainly has a text layer, and ordinary extraction is exact and fast. OCR is slower, needs language data and introduces recognition errors, so it is worth using only on scans." }
+        },
+        {
+          "@type": "Question",
+          "name": "How accurate is OCR?",
+          "acceptedAnswer": { "@type": "Answer", "text": "It depends on the scan. Clean, straight, 300-DPI pages of ordinary print come out nearly perfect. Skewed, faded, handwritten or faxed pages produce errors, most often in numbers, names and Arabic diacritics. Treat every OCR result as a draft that needs proofreading, and note that a build without an OCR engine says so instead of returning empty text." }
+        },
+        {
+          "@type": "Question",
+          "name": "Does OCR upload my document?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. Recognition is designed to run in your browser, and nothing is uploaded at any point. Where an OCR engine is included, the first use of a language downloads that language's recognition data as a normal web asset and caches it, and recognition then runs locally. Your pages and the recognised text never leave your device." }
+        },
+        {
+          "@type": "Question",
+          "name": "Does the extracted text keep the original layout?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Only approximately. With Keep layout enabled the extractor places characters near where they appear, which preserves tables and columns reasonably well but adds irregular spacing. With it disabled you get a tidier stream of words in the file's content order, and columns can run together." }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I extract text from a password-protected PDF?",
+          "acceptedAnswer": { "@type": "Answer", "text": "You have to remove the password first. Use the Unlock PDF tool on a file you are allowed to open, then run extraction on the unencrypted copy. Extraction cannot read an encrypted document without the password." }
+        }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<a class="ts-skip-link" href="#ts-main">Skip to content</a>
+
+<div class="ts-app">
+  <div class="ts-support" id="ts-support"></div>
+
+  <aside class="ts-rail" id="ts-rail" aria-label="Tool settings"></aside>
+
+  <div class="ts-main">
+    <header class="ts-header" id="ts-header"></header>
+
+    <main class="ts-view" id="ts-main">
+      <section class="ts-hero">
+        <img class="ts-hero__mascot" src="/assets/img/mascot/extract-text-pdf.svg" alt=""
+             aria-hidden="true" width="96" height="96" onerror="this.style.display='none'">
+        <h1 class="ts-hero__title" data-i18n="tool.extract-text-pdf.title">Extract Text from PDF</h1>
+        <p class="ts-hero__sub">
+          Copy the text out of a PDF, page by page, and save it as a plain text file. Documents with
+          a real text layer come out exactly; scanned pages have no text to copy, and this browser
+          build does not include an OCR engine yet, so it tells you that instead of returning an
+          empty file.
+        </p>
+      </section>
+
+      <!-- The toolkit renders the drop zone, file rows, progress and results here. -->
+      <div id="ts-tool" style="display:contents"></div>
+
+      <section class="ts-prose">
+        <h2>A text layer is not the same thing as a picture of text</h2>
+        <p>
+          Most PDFs created by Word, Google Docs, LaTeX or a browser print dialog contain a text
+          layer: every character is stored with its font, its position on the page and usually a
+          mapping to a Unicode value. Extracting that layer is a copy operation, not a guess — the
+          characters are already in the file, and the result is as accurate as the document's own
+          mapping. This page reads that layer page by page and hands you plain text you can copy or
+          save as a .txt file.
+        </p>
+        <p>
+          A scanned PDF is the opposite. A scanner produces one image per page, so the file contains
+          no characters at all, only pixels. Nothing can be extracted because there is no text to
+          extract, and this page says so instead of handing you an empty file. The only way to get
+          text out of a scan is optical character recognition, which is what the OCR switch is for —
+          and this browser build reports that no OCR engine is bundled rather than pretending to
+          have read a page.
+        </p>
+
+        <h2>OCR is a guess, and guesses need proofreading</h2>
+        <p>
+          OCR draws each page, finds shapes that look like letters and outputs its best
+          interpretation. Modern engines are good on clean 300-DPI scans of ordinary print, and much
+          worse on handwriting, faxes, skewed pages, tables, unusual fonts and low-contrast
+          photocopies. Numbers, names, product codes and Arabic diacritics are the usual casualties.
+          Read OCR output before you rely on it: a single wrong digit can change a total or an
+          account number.
+        </p>
+        <p>
+          OCR here is opt-in and off by default because it is heavy. One thing to be plain about:
+          <strong>this browser build does not include an OCR engine yet</strong>, so switching OCR on
+          reports that the language data is not bundled and returns no text rather than pretending
+          to have read a page. If an engine is present, the design is that the first use of a
+          language downloads its recognition data — several megabytes — and caches it, after which
+          recognition runs locally on your machine. Nothing is uploaded at any point, and the
+          language choice below only matters once an engine is available.
+        </p>
+
+        <h3>What you get, and what the layout switch does</h3>
+        <p>
+          Extraction follows the order in which the PDF stores its content, which is usually reading
+          order but not always: multi-column pages and sidebars can interleave. With
+          <strong>Keep layout</strong> on, the extractor tries to preserve spacing and line breaks
+          by placing characters roughly where they sit on the page — better for tables, worse for
+          reflowing the text afterwards. With it off you get a cleaner stream of words that pastes
+          neatly into another document, at the cost of columns running together.
+        </p>
+        <p>
+          Page selection uses 1-based numbers in the form 1-3, 5, 8-12; leave the field empty for
+          the whole document. An encrypted PDF has to be unlocked first, because the engine cannot
+          read page content without the key and reports that instead of returning a partial result.
+          One limitation belongs to every extractor, not just this one: if the PDF's font data
+          carries a broken character mapping, the text comes out as nonsense glyphs. Only OCR can
+          work around that, because it reads the pixels instead of the mapping.
+        </p>
+      </section>
+
+      <section class="ts-faq" aria-label="Frequently asked questions">
+        <h2 style="font-size:21px;margin-bottom:2px">Frequently asked questions</h2>
+        <details open>
+          <summary>Why does the tool say my PDF has no text layer?</summary>
+          <p>Because its pages are images, which is what a scanner produces. There are no characters stored in the file to copy out, only pixels, so extraction returns nothing. OCR can recognise those pages, but this browser build does not include an OCR engine yet: switching OCR on reports that the language data is not bundled. Expect to proofread any OCR output once an engine is available.</p>
+        </details>
+        <details>
+          <summary>Do I need OCR for a normal PDF?</summary>
+          <p>No. If the document was exported from a word processor, a design tool or a browser print dialog, it almost certainly has a text layer, and ordinary extraction is exact and fast. OCR is slower, needs language data and introduces recognition errors, so it is worth using only on scans.</p>
+        </details>
+        <details>
+          <summary>How accurate is OCR?</summary>
+          <p>It depends on the scan. Clean, straight, 300-DPI pages of ordinary print come out nearly perfect. Skewed, faded, handwritten or faxed pages produce errors, most often in numbers, names and Arabic diacritics. Treat every OCR result as a draft that needs proofreading, and note that a build without an OCR engine says so instead of returning empty text.</p>
+        </details>
+        <details>
+          <summary>Does OCR upload my document?</summary>
+          <p>No. Recognition is designed to run in your browser, and nothing is uploaded at any point. Where an OCR engine is included, the first use of a language downloads that language's recognition data as a normal web asset and caches it, and recognition then runs locally. Your pages and the recognised text never leave your device.</p>
+        </details>
+        <details>
+          <summary>Does the extracted text keep the original layout?</summary>
+          <p>Only approximately. With Keep layout enabled the extractor places characters near where they appear, which preserves tables and columns reasonably well but adds irregular spacing. With it disabled you get a tidier stream of words in the file's content order, and columns can run together.</p>
+        </details>
+        <details>
+          <summary>Can I extract text from a password-protected PDF?</summary>
+          <p>You have to remove the password first. Use the Unlock PDF tool on a file you are allowed to open, then run extraction on the unencrypted copy. Extraction cannot read an encrypted document without the password.</p>
+        </details>
+      </section>
+
+      <section class="ts-prose">
+        <h2>Other ToolSeer tools</h2>
+        <p>
+          If the file is locked, start with <a href="/unlock-pdf">Unlock PDF</a>. To work on the
+          document itself, use <a href="/merge-pdf">Merge PDF</a>,
+          <a href="/split-pdf">Split PDF</a> or <a href="/organize-pdf">Organize PDF</a>; to make
+          it smaller, <a href="/compress-pdf">Compress PDF</a>. To turn pages into images instead of
+          text, <a href="/pdf-to-images">PDF to Images</a> does that, and
+          <a href="/image-to-pdf">Image to PDF</a> goes the other way. To lock a document after you
+          have finished with it, <a href="/protect-pdf">Protect PDF</a> encrypts it with AES-256.
+        </p>
+      </section>
+
+      <footer class="ts-footer" id="ts-footer"></footer>
+    </main>
+  </div>
+</div>
+
+<script type="module">
+  import { defineTool } from '/assets/js/ui/toolkit.js';
+
+  defineTool({
+    slug: 'extract-text-pdf',
+    accept: 'application/pdf,.pdf',
+    multiple: false,
+    minFiles: 1,
+    preview: 'rows',
+    dropIcon: 'file-text',
+    emptyIcon: 'text-t',
+    actionIcon: 'text-t',
+    dropHint: 'One PDF at a time · uses the text layer, OCR is optional',
+
+    settings: [
+      {
+        id: 'pages', type: 'text', default: '',
+        labelKey: 'setting.range.label',
+        hintKey: 'setting.range.hint',
+        placeholderKey: 'setting.range.placeholder',
+      },
+      {
+        id: 'layout', type: 'switch', default: true,
+      },
+      {
+        /* Off by default, as OCR should be. The shared hint text says OCR reads text from
+           scans, which is not true of this build yet, so the switch carries no hint and the
+           page copy explains the real state instead. */
+        id: 'ocr', type: 'switch', default: false, hint: false,
+      },
+      {
+        /* Recognition language follows the interface language; OCR itself stays off until the
+           reader asks for it, and the choice only takes effect when an OCR engine is bundled. */
+        id: 'ocrLang', type: 'select', hint: false,
+        default: (document.documentElement.lang || 'en').toLowerCase().startsWith('ar') ? 'eng+ara' : 'eng',
+        options: [{ value: 'eng' }, { value: 'ara' }, { value: 'eng+ara' }],
+      },
+    ],
+
+    async run({ files, settings, onProgress }) {
+      onProgress({ value: 0.06, label: 'Reading the PDF…' });
+      const input = await files[0].asInput();
+
+      const { extractText, parsePageRanges, pdfInfo } = await import('/assets/js/core/index.js');
+
+      let pages;
+      const spec = String(settings.pages ?? '').trim();
+      if (spec) {
+        const info = await pdfInfo(input.bytes);
+        pages = parsePageRanges(spec, info.pageCount);
+      }
+
+      const ocr = !!settings.ocr;
+      onProgress({
+        value: ocr ? 0.25 : 0.5,
+        label: ocr ? 'Recognising text (OCR)…' : 'Extracting text…',
+      });
+
+      const result = await extractText(input.bytes, {
+        pages,
+        layout: !!settings.layout,
+        ocr,
+        ocrLang: settings.ocrLang,
+      });
+
+      const text = typeof result.text === 'string' ? result.text : '';
+      const { t, hasKey } = await import('/assets/js/ui/i18n.js');
+
+      /* Engine warnings are stable codes and the toolkit prints warning strings verbatim:
+         translate them or drop them, so the reader never sees a bare code. */
+      const warnings = [];
+      for (const code of result.warnings || []) {
+        if (typeof code !== 'string') continue;
+        if (code.startsWith('ocr-failed:') && hasKey('warning.ocrFailed')) {
+          const line = t('warning.ocrFailed');
+          if (!warnings.includes(line)) warnings.push(line);
+        }
+      }
+
+      /* An empty result is a normal outcome on a scan, not an error: say what to do about it. */
+      if (!text.trim()) warnings.push(t('result.noText'));
+
+      onProgress({ value: 1, label: 'Done' });
+      return { text, warnings };
+    },
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,245 @@
+{
+  "generatedAt": "2026-10-06T22:35:19.296Z",
+  "packages": [
+    {
+      "name": "pdf-lib",
+      "version": "1.17.1",
+      "license": "MIT",
+      "purpose": "Create/modify PDFs: image→PDF, merge, split, organise, page ops",
+      "tarball": "https://registry.npmjs.org/pdf-lib/-/pdf-lib-1.17.1.tgz",
+      "tarballSha256": "a7cc1eaf12e41e612a7be581162a63b18118aefc01e90f6a1f35347b1f324a1c",
+      "files": [
+        {
+          "file": "apps/web/vendor/pdf-lib/pdf-lib.esm.min.js",
+          "bytes": 523417,
+          "sha256": "72c052d97b4d5d9fa6cdbdcb7ad709f03d4ddb1122390cb3afeba4d88651d969"
+        },
+        {
+          "file": "apps/web/vendor/pdf-lib/LICENSE.md",
+          "bytes": 1070,
+          "sha256": "f2c9fc00fdb66eb99ac156ba52d734af66d8d309f65753ae809ad34ee2883bcb"
+        }
+      ]
+    },
+    {
+      "name": "pdfjs-dist",
+      "version": "6.4.299",
+      "license": "Apache-2.0",
+      "purpose": "Render PDF pages to canvas (PDF→Images) and extract text",
+      "tarball": "https://registry.npmjs.org/pdfjs-dist/-/pdfjs-dist-6.4.299.tgz",
+      "tarballSha256": "86269b40170eb41740ea05ad2102d71d33de4f122b34eb2f478be0ea7779c415",
+      "files": [
+        {
+          "file": "apps/web/vendor/pdfjs-dist/pdf.min.mjs",
+          "bytes": 458904,
+          "sha256": "57456c8e0c81e46be31174b499ef77f2b9f5ee46d04412ba627320a36755d4c2"
+        },
+        {
+          "file": "apps/web/vendor/pdfjs-dist/pdf.worker.min.mjs",
+          "bytes": 1264342,
+          "sha256": "9536359f1b8367850d485731ca1d5e45c159a7b7a0912325e539937aa21ceb18"
+        },
+        {
+          "file": "apps/web/vendor/pdfjs-dist/LICENSE",
+          "bytes": 10174,
+          "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594"
+        },
+        {
+          "file": "apps/web/vendor/pdfjs-dist/standard_fonts/LICENSE_FOXIT",
+          "bytes": 1553,
+          "sha256": "b578cdd2345840ada550bd12519533812320d5f1d21cf4c1c7e1b1b0a31c98b7"
+        },
+        {
+          "file": "apps/web/vendor/pdfjs-dist/standard_fonts/LICENSE_LIBERATION",
+          "bytes": 22154,
+          "sha256": "d2c4d5b3e115a519cb58eb691aa64538397e2611f9ebe801392cf9667997e7dc"
+        },
+        {
+          "file": "apps/web/vendor/pdfjs-dist/standard_fonts/FoxitDingbats.pfb",
+          "bytes": 29513,
+          "sha256": "845c752392b6c914fb989c75a08b7792b88f542d2499042ef2889f8c814a16ed"
+        },
+        {
+          "file": "apps/web/vendor/pdfjs-dist/standard_fonts/FoxitFixed.pfb",
+          "bytes": 17597,
+          "sha256": "b6c8fe53f134b8b6d4578cd2d544df4cee9624c4efa8d51a560fb40ea296101b"
+        },
+        {
+          "file": "apps/web/vendor/pdfjs-dist/standard_fonts/FoxitFixedBold.pfb",
+          "bytes": 18055,
+          "sha256": "f1b7159702973f54fc86254ea38bcf3712b2a736eb3a0995751e9f4bb45ad603"
+        },
+        {
+          "file": "apps/web/vendor/pdfjs-dist/standard_fonts/FoxitFixedBoldItalic.pfb",
+          "bytes": 19151,
+          "sha256": "8a000945843bd31add06aee63bf9fd41b7578b4f3242a4b7cd46349ad9d24d4d"
+        },
+        {
+          "file": "apps/web/vendor/pdfjs-dist/standard_fonts/FoxitFixedItalic.pfb",
+          "bytes": 18746,
+          "sha256": "5007faf8320fa1fcc08b8894b356ad976f60b992ba29ee5272578bbdebaf3876"
+        },
+        {
+          "file": "apps/web/vendor/pdfjs-dist/standard_fonts/FoxitSerif.pfb",
+          "bytes": 19469,
+          "sha256": "4f57d2b9d884af8f907bf22df6019b52d86cbf6214fdbd02b1ae05472a543f35"
+        },
+        {
+          "file": "apps/web/vendor/pdfjs-dist/standard_fonts/FoxitSerifBold.pfb",
+          "bytes": 19395,
+          "sha256": "0bdf4b04e964139818d51eda03d566ba999fc3ba2421b1c6c51f9dc969022e80"
+        },
+        {
+          "file": "apps/web/vendor/pdfjs-dist/standard_fonts/FoxitSerifBoldItalic.pfb",
+          "bytes": 20733,
+          "sha256": "a406cac82583bf98175cb62c87ed5e95c45fbb34eece63a10b0a13e793cb2e10"
+        },
+        {
+          "file": "apps/web/vendor/pdfjs-dist/standard_fonts/FoxitSerifItalic.pfb",
+          "bytes": 21227,
+          "sha256": "610ae0687198045c4db5d1a6650fd5e92536631706382eb8b72e38df578d0ae9"
+        },
+        {
+          "file": "apps/web/vendor/pdfjs-dist/standard_fonts/FoxitSymbol.pfb",
+          "bytes": 16729,
+          "sha256": "47967d055530e7357088a08403115425643ec2cdfd6201ba8af0fbd7116c1539"
+        },
+        {
+          "file": "apps/web/vendor/pdfjs-dist/standard_fonts/LiberationSans-Bold.ttf",
+          "bytes": 137052,
+          "sha256": "361c61b82d575c5c35fd9157fda8b0194bcfcd0d88ea8521a4fb5dd53d33dddc"
+        },
+        {
+          "file": "apps/web/vendor/pdfjs-dist/standard_fonts/LiberationSans-BoldItalic.ttf",
+          "bytes": 135124,
+          "sha256": "a224075ac17495ad0a3af3bc0a419ac0704a8b3fd1095456201fb9b095fc281d"
+        },
+        {
+          "file": "apps/web/vendor/pdfjs-dist/standard_fonts/LiberationSans-Italic.ttf",
+          "bytes": 162036,
+          "sha256": "832b4406dbef23628800d3aaad21048534ac84d7e3ad955be83b8172ed8ef512"
+        },
+        {
+          "file": "apps/web/vendor/pdfjs-dist/standard_fonts/LiberationSans-Regular.ttf",
+          "bytes": 139512,
+          "sha256": "f8ace1f892b2bd9dc1792ba7f097fa7588f84fed48321480e04de5390828221f"
+        },
+        {
+          "file": "apps/web/vendor/pdfjs-dist/wasm/LICENSE_JBIG2",
+          "bytes": 12862,
+          "sha256": "9e66b7f1b934a28b37f3bc4dac97915de1674271e79a0a88182a18ed9731b4d1"
+        },
+        {
+          "file": "apps/web/vendor/pdfjs-dist/wasm/LICENSE_OPENJPEG",
+          "bytes": 2112,
+          "sha256": "a6af136f3e15038a666b61f376612a07d9a4e48cb7c01adbf3e33b3f14ab49b6"
+        },
+        {
+          "file": "apps/web/vendor/pdfjs-dist/wasm/LICENSE_PDFJS_JBIG2",
+          "bytes": 555,
+          "sha256": "aad3cce09842e00e9e11ad5e8fef8cc02fbc3a3768fe2f007443b9cee37aaee5"
+        },
+        {
+          "file": "apps/web/vendor/pdfjs-dist/wasm/LICENSE_PDFJS_OPENJPEG",
+          "bytes": 1285,
+          "sha256": "717fc62da03292dbb4dd0c8280bd4ce7bb8550dcf31d772bc93455fb50313425"
+        },
+        {
+          "file": "apps/web/vendor/pdfjs-dist/wasm/LICENSE_PDFJS_QCMS",
+          "bytes": 1036,
+          "sha256": "508a77d2e7b51d98adeed32648ad124b7b30241a8e70b2e72c99f92d8e5874d1"
+        },
+        {
+          "file": "apps/web/vendor/pdfjs-dist/wasm/LICENSE_QCMS",
+          "bytes": 1121,
+          "sha256": "36d847ae882f6574ebc72f56a4f354e4f104fde4a584373496482e97d52d31bc"
+        },
+        {
+          "file": "apps/web/vendor/pdfjs-dist/wasm/jbig2_nowasm_fallback.js",
+          "bytes": 152009,
+          "sha256": "68686ced624a48c42f84cdaa482ec44b72b0de4dc84a0df903af1fb7b45b5d9a"
+        },
+        {
+          "file": "apps/web/vendor/pdfjs-dist/wasm/openjpeg_nowasm_fallback.js",
+          "bytes": 445781,
+          "sha256": "9047b34b6bc142d85e4b0aa1b08b0b9baad4c6f8b7ac87641b9e8f90eb6fd23e"
+        },
+        {
+          "file": "apps/web/vendor/pdfjs-dist/wasm/quickjs-eval.js",
+          "bytes": 6232,
+          "sha256": "fe7930418e869791ce892567dbd0bc4698152b7e550b5cefa553992c56ddc325"
+        },
+        {
+          "file": "apps/web/vendor/pdfjs-dist/wasm/jbig2.wasm",
+          "bytes": 103671,
+          "sha256": "466f45c2a61a698152fb5400c27e56ff2ceb73dcb71fde3fc366a502308eaab0"
+        },
+        {
+          "file": "apps/web/vendor/pdfjs-dist/wasm/openjpeg.wasm",
+          "bytes": 251131,
+          "sha256": "95e5002597af0824004aa57b1900fe019715db389e37640b1e58395e42f00cc5"
+        },
+        {
+          "file": "apps/web/vendor/pdfjs-dist/wasm/qcms_bg.wasm",
+          "bytes": 96589,
+          "sha256": "663d86126d5f5fcb1c61490f94353e2a8375660b8c5498ab3ebab5a34b08800e"
+        },
+        {
+          "file": "apps/web/vendor/pdfjs-dist/wasm/quickjs-eval.wasm",
+          "bytes": 469105,
+          "sha256": "7bcacc9f22cacf7e9b23866d2a6d1639693d40c7f144e41b7c69ed37ba9cbe8f"
+        }
+      ]
+    },
+    {
+      "name": "jszip",
+      "version": "3.10.2",
+      "license": "MIT",
+      "purpose": "Zip generated images for one-click download",
+      "tarball": "https://registry.npmjs.org/jszip/-/jszip-3.10.2.tgz",
+      "tarballSha256": "4ee15dcb3f5433b736a41d091bcad37facee4a4aa96f9e21194789da886ac226",
+      "files": [
+        {
+          "file": "apps/web/vendor/jszip/jszip.min.js",
+          "bytes": 97781,
+          "sha256": "7f839b2d4688b845c105ebf5d2f9803075f91ea0fe72bdaac176c3a04dd3d2c1"
+        },
+        {
+          "file": "apps/web/vendor/jszip/LICENSE.markdown",
+          "bytes": 33753,
+          "sha256": "566c953c6090b1218ca6217dd7359d45dde46581968586dc607d59a78af6a9c4"
+        }
+      ]
+    },
+    {
+      "name": "@neslinesli93/qpdf-wasm",
+      "version": "0.3.0",
+      "license": "ISC",
+      "purpose": "qpdf CLI in WASM: encrypt (Protect), decrypt (Unlock), lossless compression, linearisation",
+      "tarball": "https://registry.npmjs.org/@neslinesli93%2fqpdf-wasm/-/qpdf-wasm-0.3.0.tgz",
+      "tarballSha256": "404eab5d57db5b277dbda87ed75fb3557feaa76bd648e08fb0326ea95261d72d",
+      "files": [
+        {
+          "file": "apps/web/vendor/@neslinesli93__qpdf-wasm/qpdf.js",
+          "bytes": 43376,
+          "sha256": "c0e8fe62e0c3385dd8cb5d6b613f74d87a4138a3a3343e2add45a067a14d0884"
+        },
+        {
+          "file": "apps/web/vendor/@neslinesli93__qpdf-wasm/qpdf.wasm",
+          "bytes": 1334286,
+          "sha256": "abd933f4ccace4f732999381b21aec8b7e3726f18a5b167fafd57f88dd440876"
+        },
+        {
+          "file": "apps/web/vendor/@neslinesli93__qpdf-wasm/qpdf.d.ts",
+          "bytes": 650,
+          "sha256": "4aa526a1f62ae2d8d159a800fd1c7a3b69525d15a94735fd4a974ac2ff8dbb00"
+        },
+        {
+          "file": "apps/web/vendor/@neslinesli93__qpdf-wasm/README.md",
+          "bytes": 2843,
+          "sha256": "315ec2aae2915200d40296c819e54c1244e939788742263a34bfdb9912710a86"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Our works — ToolSeer</title>
+<meta name="description" content="What ToolSeer has shipped so far: the ten-tool browser suite, the design system, and the desktop app roadmap.">
+<link rel="canonical" href="https://toolseer.com/works">
+<meta name="robots" content="index,follow">
+<meta name="theme-color" content="#0040ff">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/toolseer.css">
+<script>
+(function(){try{var t=localStorage.getItem('toolseer:theme');
+if(t!=='light'&&t!=='dark'){t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}
+document.documentElement.dataset.theme=t;
+if(localStorage.getItem('toolseer:lang')==='ar'){document.documentElement.lang='ar';document.documentElement.dir='rtl';}}catch(e){}})();
+</script>
+</head>
+<body>
+<a class="ts-skip-link" href="#ts-main">Skip to content</a>
+<div class="ts-app">
+  <aside class="ts-rail" id="ts-rail" aria-label="Tool list"></aside>
+  <div class="ts-main">
+    <header class="ts-header" id="ts-header"></header>
+    <main class="ts-view" id="ts-main">
+      <section class="ts-hero">
+        <h1 class="ts-hero__title">Our works</h1>
+        <p class="ts-hero__sub">A running record of what ToolSeer has shipped, and what is next.</p>
+      </section>
+      <section class="ts-prose">
+        <h2>ToolSeer V3 — the browser suite</h2>
+        <p>
+          Ten PDF tools, one engine, zero servers. The current site: image-to-PDF conversion with live
+          page previews, merge, compression with three honest levels, splitting by page, ranges or
+          chunks, password protection and removal, page-by-page visual organisation, PDF-to-image
+          export, and text extraction with optional OCR. Every tool processes files entirely in the
+          browser, and every page ships with structured data, bilingual chrome and a dark theme.
+        </p>
+        <h2>The design system</h2>
+        <p>
+          One stylesheet, one icon set, one component kit, shared across every page. The mascot system
+          gives each tool its own illustration while keeping one recognisable character.
+        </p>
+        <h2>Roadmap</h2>
+        <ul>
+          <li><strong>Desktop app</strong> — the same ten tools on disk, for files too large for a browser tab. Architecture documented, build in progress.</li>
+          <li><strong>OCR languages</strong> — expanding beyond English and Arabic.</li>
+          <li><strong>More tools</strong> — rotate, watermark, PDF to Word, and the rest of the roadmap.</li>
+        </ul>
+      </section>
+      <section class="ts-toolgrid" style="max-width:880px">
+        <a class="ts-tool" href="/image-to-pdf"><span class="ts-tool__name">Image to PDF</span><span class="ts-tool__desc">Convert images to a single PDF.</span></a>
+        <a class="ts-tool" href="/merge-pdf"><span class="ts-tool__name">Merge PDF</span><span class="ts-tool__desc">Combine PDFs into one document.</span></a>
+        <a class="ts-tool" href="/compress-pdf"><span class="ts-tool__name">Compress PDF</span><span class="ts-tool__desc">Three honest compression levels.</span></a>
+        <a class="ts-tool" href="/organize-pdf"><span class="ts-tool__name">Organize PDF</span><span class="ts-tool__desc">Visual page reordering and rotation.</span></a>
+        <a class="ts-tool" href="/desktop"><span class="ts-tool__name">Desktop app</span><span class="ts-tool__desc">The same tools, for very large jobs.</span></a>
+      </section>
+      <footer class="ts-footer" id="ts-footer"></footer>
+    </main>
+  </div>
+</div>
+<script type="module">
+  import { renderShell } from '/assets/js/ui/shell.js';
+  renderShell({ slug: 'works' });
+</script>
+</body>
+</html>

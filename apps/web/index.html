@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ToolSeer — Free PDF Tools in Your Browser. No Upload, No Signup.</title>
+<meta name="description" content="Merge, compress, split, protect and convert PDFs entirely in your browser. Free, fast, private — your files never leave your device. 10 tools, no account, no watermark.">
+<link rel="canonical" href="https://toolseer.com/">
+<meta name="theme-color" content="#0040ff">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ToolSeer">
+<meta property="og:title" content="ToolSeer — Free PDF tools in your browser">
+<meta property="og:description" content="Merge, compress, split, protect and convert PDFs entirely in your browser. Your files never leave your device.">
+<meta property="og:url" content="https://toolseer.com/">
+<meta property="og:image" content="https://toolseer.com/assets/img/og/toolseer-og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="ToolSeer — Free PDF tools in your browser">
+<meta name="twitter:description" content="Merge, compress, split, protect and convert PDFs entirely in your browser. No upload, no signup.">
+<meta name="twitter:image" content="https://toolseer.com/assets/img/og/toolseer-og.png">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
+<link rel="stylesheet" href="/assets/css/toolseer.css">
+<script>
+(function () {
+  try {
+    var t = localStorage.getItem('toolseer:theme');
+    if (t !== 'light' && t !== 'dark') {
+      t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    document.documentElement.dataset.theme = t;
+    if (localStorage.getItem('toolseer:lang') === 'ar') {
+      document.documentElement.lang = 'ar';
+      document.documentElement.dir = 'rtl';
+    }
+  } catch (e) { document.documentElement.dataset.theme = 'light'; }
+})();
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "name": "ToolSeer",
+      "url": "https://toolseer.com/",
+      "inLanguage": ["en", "ar"],
+      "description": "Free, private PDF tools that run entirely in your browser. No upload, no account, no watermark.",
+      "publisher": { "@type": "Organization", "name": "ToolSeer", "url": "https://toolseer.com/" }
+    },
+    {
+      "@type": "ItemList",
+      "name": "ToolSeer PDF tools",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Image to PDF", "url": "https://toolseer.com/image-to-pdf" },
+        { "@type": "ListItem", "position": 2, "name": "Merge PDF", "url": "https://toolseer.com/merge-pdf" },
+        { "@type": "ListItem", "position": 3, "name": "Compress PDF", "url": "https://toolseer.com/compress-pdf" },
+        { "@type": "ListItem", "position": 4, "name": "Split PDF", "url": "https://toolseer.com/split-pdf" },
+        { "@type": "ListItem", "position": 5, "name": "Protect PDF", "url": "https://toolseer.com/protect-pdf" },
+        { "@type": "ListItem", "position": 6, "name": "Unlock PDF", "url": "https://toolseer.com/unlock-pdf" },
+        { "@type": "ListItem", "position": 7, "name": "PDF to Images", "url": "https://toolseer.com/pdf-to-images" },
+        { "@type": "ListItem", "position": 8, "name": "Organize PDF", "url": "https://toolseer.com/organize-pdf" },
+        { "@type": "ListItem", "position": 9, "name": "Extract Text from PDF", "url": "https://toolseer.com/extract-text-pdf" },
+        { "@type": "ListItem", "position": 10, "name": "Desktop app", "url": "https://toolseer.com/desktop" }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Are my files uploaded to a server?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. Every ToolSeer tool runs entirely in your browser. Files are read locally, processed locally, and handed back as a download. Nothing is ever transmitted to a server, and the pages keep working offline once loaded." }
+        },
+        {
+          "@type": "Question",
+          "name": "Is ToolSeer really free?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes. Because processing happens on your device, there are no server costs to pass on. The tools are free with no page limits, no watermarks and no account requirement." }
+        },
+        {
+          "@type": "Question",
+          "name": "What can I do with very large PDFs?",
+          "acceptedAnswer": { "@type": "Answer", "text": "A browser tab must hold a document in memory, so files with hundreds of pages or a thousand images can exceed what a tab handles. The ToolSeer desktop app does the same work on disk with no memory ceiling." }
+        },
+        {
+          "@type": "Question",
+          "name": "Which browsers are supported?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Any recent Chrome, Edge, Firefox or Safari. The heavy work uses the same WebAssembly and JavaScript engines the browser itself ships, so there is nothing to install." }
+        }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<a class="ts-skip-link" href="#ts-main">Skip to content</a>
+
+<div class="ts-app">
+  <div class="ts-support" id="ts-support"></div>
+
+  <aside class="ts-rail" id="ts-rail" aria-label="Tool list"></aside>
+
+  <div class="ts-main">
+    <header class="ts-header" id="ts-header"></header>
+
+    <main class="ts-view" id="ts-main">
+      <section class="ts-hero">
+        <img class="ts-hero__mascot" src="/assets/img/mascot/base.svg" alt=""
+             aria-hidden="true" width="96" height="96" onerror="this.style.display='none'">
+        <h1 class="ts-hero__title">Free PDF tools that live in your browser</h1>
+        <p class="ts-hero__sub">
+          Merge, compress, split, protect, convert — every tool runs entirely on your device.
+          No upload, no signup, no watermark, and your files are never sent anywhere.
+        </p>
+      </section>
+
+      <section class="ts-toolgrid" aria-label="PDF tools">
+        <a class="ts-tool" href="/image-to-pdf">
+          <span class="ts-tool__top">
+            <span class="ts-tool__mascot"><img src="/assets/img/mascot/image-to-pdf.svg" alt="" width="46" height="46" aria-hidden="true" onerror="this.style.display='none'"></span>
+            <span class="ts-tool__name">Image to PDF</span>
+          </span>
+          <span class="ts-tool__desc">Turn JPG and PNG images into one PDF. Reorder by dragging, pick page size, margins and quality.</span>
+        </a>
+        <a class="ts-tool" href="/merge-pdf">
+          <span class="ts-tool__top">
+            <span class="ts-tool__mascot"><img src="/assets/img/mascot/merge-pdf.svg" alt="" width="46" height="46" aria-hidden="true" onerror="this.style.display='none'"></span>
+            <span class="ts-tool__name">Merge PDF</span>
+          </span>
+          <span class="ts-tool__desc">Combine several PDFs into one document in the order you choose, with optional bookmarks per file.</span>
+        </a>
+        <a class="ts-tool" href="/compress-pdf">
+          <span class="ts-tool__top">
+            <span class="ts-tool__mascot"><img src="/assets/img/mascot/compress-pdf.svg" alt="" width="46" height="46" aria-hidden="true" onerror="this.style.display='none'"></span>
+            <span class="ts-tool__name">Compress PDF</span>
+          </span>
+          <span class="ts-tool__desc">Shrink a PDF for email or upload. Lossless structure optimisation, or stronger compression with image downsampling.</span>
+        </a>
+        <a class="ts-tool" href="/split-pdf">
+          <span class="ts-tool__top">
+            <span class="ts-tool__mascot"><img src="/assets/img/mascot/split-pdf.svg" alt="" width="46" height="46" aria-hidden="true" onerror="this.style.display='none'"></span>
+            <span class="ts-tool__name">Split PDF</span>
+          </span>
+          <span class="ts-tool__desc">Extract one page per file, type your own page ranges, or cut the document into chunks of N pages.</span>
+        </a>
+        <a class="ts-tool" href="/protect-pdf">
+          <span class="ts-tool__top">
+            <span class="ts-tool__mascot"><img src="/assets/img/mascot/protect-pdf.svg" alt="" width="46" height="46" aria-hidden="true" onerror="this.style.display='none'"></span>
+            <span class="ts-tool__name">Protect PDF</span>
+          </span>
+          <span class="ts-tool__desc">Add a password and encryption to a PDF, and choose what readers may print, copy or modify.</span>
+        </a>
+        <a class="ts-tool" href="/unlock-pdf">
+          <span class="ts-tool__top">
+            <span class="ts-tool__mascot"><img src="/assets/img/mascot/unlock-pdf.svg" alt="" width="46" height="46" aria-hidden="true" onerror="this.style.display='none'"></span>
+            <span class="ts-tool__name">Unlock PDF</span>
+          </span>
+          <span class="ts-tool__desc">Remove the password from a PDF you already know the password for — done locally, never uploaded.</span>
+        </a>
+        <a class="ts-tool" href="/pdf-to-images">
+          <span class="ts-tool__top">
+            <span class="ts-tool__mascot"><img src="/assets/img/mascot/pdf-to-images.svg" alt="" width="46" height="46" aria-hidden="true" onerror="this.style.display='none'"></span>
+            <span class="ts-tool__name">PDF to Images</span>
+          </span>
+          <span class="ts-tool__desc">Export every page as PNG or JPEG at the resolution you need, then download them as a zip.</span>
+        </a>
+        <a class="ts-tool" href="/organize-pdf">
+          <span class="ts-tool__top">
+            <span class="ts-tool__mascot"><img src="/assets/img/mascot/organize-pdf.svg" alt="" width="46" height="46" aria-hidden="true" onerror="this.style.display='none'"></span>
+            <span class="ts-tool__name">Organize PDF</span>
+          </span>
+          <span class="ts-tool__desc">Reorder, rotate and delete pages on a visual grid. Drag pages into place and save the result.</span>
+        </a>
+        <a class="ts-tool" href="/extract-text-pdf">
+          <span class="ts-tool__top">
+            <span class="ts-tool__mascot"><img src="/assets/img/mascot/extract-text-pdf.svg" alt="" width="46" height="46" aria-hidden="true" onerror="this.style.display='none'"></span>
+            <span class="ts-tool__name">Extract Text</span>
+          </span>
+          <span class="ts-tool__desc">Pull the text layer out of a PDF, or run OCR on scanned pages. Copy it, or download it as a .txt file.</span>
+        </a>
+        <a class="ts-tool" href="/desktop">
+          <span class="ts-tool__top">
+            <span class="ts-tool__mascot"><img src="/assets/img/mascot/desktop.svg" alt="" width="46" height="46" aria-hidden="true" onerror="this.style.display='none'"></span>
+            <span class="ts-tool__name">Desktop app</span>
+          </span>
+          <span class="ts-tool__desc">For very large jobs — thousands of pages or images. Same tools, running on disk with no memory ceiling.</span>
+        </a>
+      </section>
+
+      <section class="ts-steps" aria-label="How it works">
+        <div class="ts-step">
+          <span class="ts-step__n">1</span>
+          <span class="ts-step__title">Choose a tool</span>
+          <span class="ts-step__text">Every tool is one page. Nothing to install, nothing to configure.</span>
+        </div>
+        <div class="ts-step">
+          <span class="ts-step__n">2</span>
+          <span class="ts-step__title">Drop your files</span>
+          <span class="ts-step__text">Drag and drop, or browse. Files are read by your browser and never uploaded.</span>
+        </div>
+        <div class="ts-step">
+          <span class="ts-step__n">3</span>
+          <span class="ts-step__title">Download the result</span>
+          <span class="ts-step__text">Processing happens on your device, so results are instant and private.</span>
+        </div>
+      </section>
+
+      <section class="ts-prose">
+        <h2>Why the tools live in your browser</h2>
+        <p>
+          Classic PDF websites upload your document to a server, convert it there, and make you download
+          it back. That is why they need accounts, file-size limits and privacy policies full of
+          exceptions. ToolSeer does the opposite: the conversion engine is downloaded once with the page
+          and runs on your own machine. Your files never travel anywhere, the tools work offline, and
+          there is no server that could be hacked or subpoenaed — because there is no server involved.
+        </p>
+        <p>
+          The trade-off is memory. A browser tab must keep a document in memory while it works, which is
+          why extremely large files are better handled by the <a href="/desktop">desktop app</a>. For
+          everyday documents — the overwhelming majority — the browser is faster than any upload would be.
+        </p>
+        <h2>A tool for every PDF job</h2>
+        <p>
+          Create PDFs from photos with <a href="/image-to-pdf">Image to PDF</a>, combine several documents
+          with <a href="/merge-pdf">Merge PDF</a>, make a file small enough to email with
+          <a href="/compress-pdf">Compress PDF</a>, pull pages apart with <a href="/split-pdf">Split PDF</a>,
+          or rework the page order visually with <a href="/organize-pdf">Organize PDF</a>. Add a password
+          with <a href="/protect-pdf">Protect PDF</a> or remove one you know with
+          <a href="/unlock-pdf">Unlock PDF</a>. Going the other way,
+          <a href="/pdf-to-images">PDF to Images</a> exports pages as pictures, and
+          <a href="/extract-text-pdf">Extract Text</a> pulls out the words — with OCR for scanned pages.
+        </p>
+      </section>
+
+      <section class="ts-faq" aria-label="Frequently asked questions">
+        <h2 style="font-size:21px;margin-bottom:2px">Frequently asked questions</h2>
+        <details open>
+          <summary>Are my files uploaded to a server?</summary>
+          <p>No. Every ToolSeer tool runs entirely in your browser. Files are read locally, processed locally, and handed back as a download. Nothing is ever transmitted to a server, and the pages keep working offline once loaded.</p>
+        </details>
+        <details>
+          <summary>Is ToolSeer really free?</summary>
+          <p>Yes. Because processing happens on your device, there are no server costs to pass on. The tools are free with no page limits, no watermarks and no account requirement.</p>
+        </details>
+        <details>
+          <summary>What can I do with very large PDFs?</summary>
+          <p>A browser tab must hold a document in memory, so files with hundreds of pages or a thousand images can exceed what a tab handles. The ToolSeer desktop app does the same work on disk with no memory ceiling.</p>
+        </details>
+        <details>
+          <summary>Which browsers are supported?</summary>
+          <p>Any recent Chrome, Edge, Firefox or Safari. The heavy work uses the same WebAssembly and JavaScript engines the browser itself ships, so there is nothing to install.</p>
+        </details>
+      </section>
+
+      <footer class="ts-footer" id="ts-footer"></footer>
+    </main>
+  </div>
+</div>
+
+<script type="module">
+  import { renderShell } from '/assets/js/ui/shell.js';
+  import { icon } from '/assets/js/ui/icons.js';
+  import { t } from '/assets/js/ui/i18n.js';
+
+  const { railBody } = renderShell({ slug: '' });
+  if (railBody) {
+    const links = [
+      ['image-to-pdf', 'tool.image-to-pdf.title'],
+      ['merge-pdf', 'tool.merge-pdf.title'],
+      ['compress-pdf', 'tool.compress-pdf.title'],
+      ['split-pdf', 'tool.split-pdf.title'],
+      ['protect-pdf', 'tool.protect-pdf.title'],
+      ['unlock-pdf', 'tool.unlock-pdf.title'],
+      ['pdf-to-images', 'tool.pdf-to-images.title'],
+      ['organize-pdf', 'tool.organize-pdf.title'],
+      ['extract-text-pdf', 'tool.extract-text-pdf.title'],
+      ['desktop', 'nav.desktop'],
+    ];
+    for (const [slug, key] of links) {
+      const a = document.createElement('a');
+      a.className = 'ts-nav__link';
+      a.href = `/${slug}`;
+      a.style.width = '100%';
+      a.innerHTML = `${icon('arrow-right', { size: 15 })}<span data-i18n="${key}">${t(key)}</span>`;
+      railBody.append(a);
+    }
+  }
+</script>
+</body>
+</html>

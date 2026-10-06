@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Organize PDF Pages — Reorder, Rotate &amp; Delete | ToolSeer</title>
+<meta name="description" content="Reorder, rotate and delete PDF pages on a visual grid, then download the organized file. Pages are copied without re-encoding. Runs in your browser — no upload.">
+<link rel="canonical" href="https://toolseer.com/organize-pdf">
+<meta name="theme-color" content="#0040ff">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ToolSeer">
+<meta property="og:title" content="Organize PDF Pages — Free, offline, no upload">
+<meta property="og:description" content="Reorder, rotate and delete PDF pages on a visual grid in your browser. Nothing is uploaded.">
+<meta property="og:url" content="https://toolseer.com/organize-pdf">
+<meta property="og:image" content="https://toolseer.com/assets/img/og/toolseer-og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Organize PDF Pages — Free, offline, no upload">
+<meta name="twitter:description" content="Reorder, rotate and delete pages on a visual grid, then save the organized PDF. Nothing leaves your device.">
+<meta name="twitter:image" content="https://toolseer.com/assets/img/og/toolseer-og.png">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
+<link rel="stylesheet" href="/assets/css/toolseer.css">
+<script>
+/* Applied before first paint: prevents a theme flash and fixes RTL early. */
+(function () {
+  try {
+    var t = localStorage.getItem('toolseer:theme');
+    if (t !== 'light' && t !== 'dark') {
+      t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    document.documentElement.dataset.theme = t;
+    if (localStorage.getItem('toolseer:lang') === 'ar') {
+      document.documentElement.lang = 'ar';
+      document.documentElement.dir = 'rtl';
+    }
+  } catch (e) { document.documentElement.dataset.theme = 'light'; }
+})();
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "name": "ToolSeer Organize PDF Pages",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Any (web browser)",
+      "url": "https://toolseer.com/organize-pdf",
+      "description": "Reorder, rotate and delete PDF pages on a visual grid locally in the browser, then save the result as a new PDF.",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "featureList": [
+        "Drag pages to reorder them",
+        "Rotate pages in 90-degree steps",
+        "Delete pages and see the new numbering",
+        "Pages copied without re-encoding",
+        "No upload — everything runs in the browser"
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://toolseer.com/" },
+        { "@type": "ListItem", "position": 2, "name": "Organize PDF Pages", "item": "https://toolseer.com/organize-pdf" }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Are my files uploaded to a server?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. Organizing runs entirely in your browser. The PDF is read from disk, the reordered pages are copied into a new file in memory, and nothing is transmitted anywhere." }
+        },
+        {
+          "@type": "Question",
+          "name": "What do the two numbers on a page card mean?",
+          "acceptedAnswer": { "@type": "Answer", "text": "The small badge in the corner is the page's new position in the output — it updates as you drag pages around. The label on the bar shows the original page number from the source file, which never changes. Deleted pages show a dash instead of a position." }
+        },
+        {
+          "@type": "Question",
+          "name": "Does organizing change my pages' content?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. Page content is copied into the new file exactly as stored, without re-encoding, so quality is untouched. Rotation is applied to the page as a whole. Form fields, links and annotations are not carried over, and your original file is never modified." }
+        },
+        {
+          "@type": "Question",
+          "name": "What happens when I delete a page?",
+          "acceptedAnswer": { "@type": "Answer", "text": "The page stays visible in the grid, dimmed, so you can restore it before saving. It is simply left out of the output. If every page is deleted there is nothing to save, and the tool tells you instead of producing an empty file." }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I rotate all pages at once?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes. The Rotate all pages button above the grid turns every kept page 90 degrees counter-clockwise each time you press it. The per-page buttons turn one page at a time, and rotation is added to any rotation the page already has." }
+        }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<a class="ts-skip-link" href="#ts-main">Skip to content</a>
+
+<div class="ts-app">
+  <div class="ts-support" id="ts-support"></div>
+
+  <aside class="ts-rail" id="ts-rail" aria-label="Tool settings"></aside>
+
+  <div class="ts-main">
+    <header class="ts-header" id="ts-header"></header>
+
+    <main class="ts-view" id="ts-main">
+      <section class="ts-hero">
+        <img class="ts-hero__mascot" src="/assets/img/mascot/organize-pdf.svg" alt=""
+             aria-hidden="true" width="96" height="96" onerror="this.style.display='none'">
+        <h1 class="ts-hero__title" data-i18n="tool.organize-pdf.title">Organize PDF Pages</h1>
+        <p class="ts-hero__sub">
+          Reorder pages by dragging the grid, rotate any page in 90° steps, and delete the ones you do
+          not need. Save the result as a fresh PDF without uploading anything.
+        </p>
+      </section>
+
+      <!-- The toolkit renders the drop zone, file grid, progress and results here. -->
+      <div id="ts-tool" style="display:contents"></div>
+
+      <section class="ts-prose">
+        <h2>How the page grid works</h2>
+        <p>
+          The grid is the whole interface: every page of your PDF appears as a card, in the order the
+          output will have. Drag a card to a new position, or focus it and press
+          <strong>Alt + Arrow</strong> to move it one step. Each card carries a rotate-left button, a
+          rotate-right button and a delete button. Deleted pages stay in the grid, dimmed, so you can
+          restore them at any point before saving — the counter above the grid always shows how many
+          pages are kept out of the total.
+        </p>
+        <p>
+          The two numbers on a card mean different things, on purpose. The <strong>small badge</strong> in
+          the corner is the page's <strong>new position</strong> among the kept pages, and it updates as
+          you drag pages around. The <strong>label on the bar</strong> is the <strong>original page
+          number</strong> in the source file, and it never changes no matter where you move the card.
+          A deleted page shows a dash instead of a position. Keeping the two numbers separate means the
+          operation is always described in terms of the source document — what you see on the bar is
+          exactly what the engine receives.
+        </p>
+        <p>
+          When you save, the kept pages are copied into a brand-new PDF in their grid order, with their
+          rotations applied. Rotation is added on top of any rotation a page already carries, in 90° steps,
+          and page content is copied without re-encoding, so nothing loses quality. Your original file is
+          never modified. If you delete every page, there is nothing to save: the tool reports an error
+          instead of producing an empty document.
+        </p>
+        <p>
+          What organizing cannot do is preserve interactive page furniture. Form fields, hyperlinks and
+          annotations live outside the page content that is copied, so they are not carried into the
+          organized file — treat the result as a clean, print-ready document.
+        </p>
+
+        <h3>When a browser is the wrong tool</h3>
+        <p>
+          The grid renders a thumbnail of every page in memory before you start, so a document with a
+          thousand scanned pages needs a fair amount of RAM just to load. A desktop browser handles a few
+          hundred pages comfortably. Beyond that, the ToolSeer desktop app organizes pages on disk instead
+          of in a tab.
+        </p>
+      </section>
+
+      <section class="ts-faq" aria-label="Frequently asked questions">
+        <h2 style="font-size:21px;margin-bottom:2px">Frequently asked questions</h2>
+        <details open>
+          <summary>Are my files uploaded to a server?</summary>
+          <p>No. Organizing runs entirely in your browser. The PDF is read from disk, the reordered pages are copied into a new file in memory, and nothing is transmitted anywhere.</p>
+        </details>
+        <details>
+          <summary>What do the two numbers on a page card mean?</summary>
+          <p>The small badge in the corner is the page's new position in the output — it updates as you drag pages around. The label on the bar shows the original page number from the source file, which never changes. Deleted pages show a dash instead of a position.</p>
+        </details>
+        <details>
+          <summary>Does organizing change my pages' content?</summary>
+          <p>No. Page content is copied into the new file exactly as stored, without re-encoding, so quality is untouched. Rotation is applied to the page as a whole. Form fields, links and annotations are not carried over, and your original file is never modified.</p>
+        </details>
+        <details>
+          <summary>What happens when I delete a page?</summary>
+          <p>The page stays visible in the grid, dimmed, so you can restore it before saving. It is simply left out of the output. If every page is deleted there is nothing to save, and the tool tells you instead of producing an empty file.</p>
+        </details>
+        <details>
+          <summary>Can I rotate all pages at once?</summary>
+          <p>Yes. The Rotate all pages button above the grid turns every kept page 90 degrees counter-clockwise each time you press it. The per-page buttons turn one page at a time, and rotation is added to any rotation the page already has.</p>
+        </details>
+      </section>
+
+      <section class="ts-prose">
+        <h2>Other ToolSeer tools</h2>
+        <p>
+          Want to keep the result together with other documents? Use <a href="/merge-pdf">Merge PDF</a>
+          to combine several files, <a href="/split-pdf">Split PDF</a> to break the organized file apart
+          again, <a href="/compress-pdf">Compress PDF</a> to shrink it, or <a href="/pdf-to-images">PDF to
+          Images</a> to render the final pages as PNG or JPEG.
+        </p>
+      </section>
+
+      <footer class="ts-footer" id="ts-footer"></footer>
+    </main>
+  </div>
+</div>
+
+<script type="module">
+  import { defineTool } from '/assets/js/ui/toolkit.js';
+
+  /* Live reference to the toolkit's page-grid state, refreshed on every render. */
+  let gridState = null;
+
+  defineTool({
+    slug: 'organize-pdf',
+    accept: 'application/pdf,.pdf',
+    multiple: false,
+    minFiles: 1,
+    preview: 'pages',
+    dropIcon: 'shuffle',
+    emptyIcon: 'layers',
+    actionIcon: 'check',
+    dropHint: 'Reorder, rotate and delete pages on the grid',
+
+    settings: [],
+
+    /* The toolkit re-renders the grid on every change; keep a live reference so
+       run() never acts on a stale snapshot. */
+    onRender({ pages }) { gridState = pages; },
+
+    async run({ files, pages: passedPages, onProgress }) {
+      onProgress({ value: 0.05, label: 'Reading file…' });
+      const input = await files[0].asInput();
+
+      // The page grid may still be rendering thumbnails; wait for it briefly.
+      for (let i = 0; i < 40 && !gridState; i++) await new Promise((r) => setTimeout(r, 100));
+
+      const { organizePdf, ToolError } = await import('/assets/js/core/index.js');
+
+      const kept = gridState
+        ? gridState.filter((p) => !p.deleted).map((p) => ({ source: p.src, rotation: p.rotation }))
+        : passedPages;
+      if (!kept || kept.length === 0) {
+        throw new ToolError('range-empty', 'Every page was deleted — there is nothing to save.',
+          'Restore at least one page, or add the file again.');
+      }
+
+      onProgress({ value: 0.3, label: 'Rearranging pages…' });
+      const order = kept.map((p) => p.source);
+      const rotate = Object.fromEntries(
+        kept.filter((p) => p.rotation).map((p) => [String(p.source), p.rotation]),
+      );
+      const { bytes, warnings } = await organizePdf(input.bytes, { order, rotate });
+
+      onProgress({ value: 1, label: 'Done' });
+      return {
+        outputs: [{ name: 'toolseer-organized.pdf', bytes, type: 'application/pdf' }],
+        warnings: warnings || [],
+      };
+    },
+  });
+</script>
+</body>
+</html>

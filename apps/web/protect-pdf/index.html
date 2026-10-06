@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Protect PDF — Add a Password to a PDF Free | ToolSeer</title>
+<meta name="description" content="Encrypt a PDF with AES-256, AES-128 or RC4-128 and set print, copy and edit permissions. The password is used in your browser and never stored or sent.">
+<link rel="canonical" href="https://toolseer.com/protect-pdf">
+<meta name="theme-color" content="#0040ff">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ToolSeer">
+<meta property="og:title" content="Protect PDF — AES encryption that stays in your browser">
+<meta property="og:description" content="Set a password, choose AES-256, and keep the file on your device. Permission flags are advisory and we say so plainly.">
+<meta property="og:url" content="https://toolseer.com/protect-pdf">
+<meta property="og:image" content="https://toolseer.com/assets/img/og/toolseer-og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Protect PDF — free, private, offline">
+<meta name="twitter:description" content="AES-256 PDF encryption with print, copy and edit permissions, done entirely inside your browser tab.">
+<meta name="twitter:image" content="https://toolseer.com/assets/img/og/toolseer-og.png">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
+<link rel="stylesheet" href="/assets/css/toolseer.css">
+<script>
+/* Applied before first paint: prevents a theme flash and fixes RTL early. */
+(function () {
+  try {
+    var t = localStorage.getItem('toolseer:theme');
+    if (t !== 'light' && t !== 'dark') {
+      t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    document.documentElement.dataset.theme = t;
+    if (localStorage.getItem('toolseer:lang') === 'ar') {
+      document.documentElement.lang = 'ar';
+      document.documentElement.dir = 'rtl';
+    }
+  } catch (e) { document.documentElement.dataset.theme = 'light'; }
+})();
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "name": "ToolSeer Protect PDF",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Any (web browser)",
+      "url": "https://toolseer.com/protect-pdf",
+      "description": "Encrypt a PDF with a password locally in the browser using AES-256, AES-128 or RC4-128, and set advisory print, copy, edit and comment permissions.",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "featureList": [
+        "AES-256, AES-128 and RC4-128 encryption",
+        "Separate user password and optional owner password",
+        "Advisory permissions for printing, copying, editing and comments",
+        "The password never leaves the browser tab",
+        "Nothing is stored, logged or uploaded",
+        "No account, no subscription, no watermark"
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://toolseer.com/" },
+        { "@type": "ListItem", "position": 2, "name": "Protect PDF", "item": "https://toolseer.com/protect-pdf" }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Is my password uploaded or stored anywhere?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. The password is used in memory in this browser tab to derive the encryption key. It is never sent over the network, never written to local storage or a cookie, and never placed in the output file name or metadata. Because nothing is stored, we also cannot recover it for you." }
+        },
+        {
+          "@type": "Question",
+          "name": "Can the print and copy restrictions be bypassed?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Often, yes. Permission flags live in the encryption dictionary and well-behaved readers honour them, but they are not cryptography. Anyone who can open the file with the password can usually re-save it without the restrictions. Treat them as a request, and redact anything that must not be copied." }
+        },
+        {
+          "@type": "Question",
+          "name": "Which encryption algorithm should I choose?",
+          "acceptedAnswer": { "@type": "Answer", "text": "AES-256 unless you must support a very old reader. AES-128 works with Acrobat 7 and later and is still a real cipher with a shorter key. RC4-128 exists only for legacy software and should not be used for sensitive documents, because RC4 has known statistical weaknesses." }
+        },
+        {
+          "@type": "Question",
+          "name": "What happens if I forget the password?",
+          "acceptedAnswer": { "@type": "Answer", "text": "The document cannot be opened without it. There is no back door, no recovery code and no support route, because we never receive the password or the file. Keep an unencrypted copy of anything you cannot afford to lose, or store the password in a password manager." }
+        },
+        {
+          "@type": "Question",
+          "name": "What is the difference between the user password and the owner password?",
+          "acceptedAnswer": { "@type": "Answer", "text": "The user password is required to open and decrypt the document. The owner password proves authority to change permissions and passwords. If you leave the owner field empty, this tool uses the user password for both roles." }
+        },
+        {
+          "@type": "Question",
+          "name": "Is a password-protected PDF safe to email?",
+          "acceptedAnswer": { "@type": "Answer", "text": "The contents are encrypted, so an interceptor cannot read the document without the password. The file itself can still be copied and attacked offline, which is why the password must be long. Send the password through a different channel from the file, for example by message rather than in the same email." }
+        }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<a class="ts-skip-link" href="#ts-main">Skip to content</a>
+
+<div class="ts-app">
+  <div class="ts-support" id="ts-support"></div>
+
+  <aside class="ts-rail" id="ts-rail" aria-label="Tool settings"></aside>
+
+  <div class="ts-main">
+    <header class="ts-header" id="ts-header"></header>
+
+    <main class="ts-view" id="ts-main">
+      <section class="ts-hero">
+        <img class="ts-hero__mascot" src="/assets/img/mascot/protect-pdf.svg" alt=""
+             aria-hidden="true" width="96" height="96" onerror="this.style.display='none'">
+        <h1 class="ts-hero__title" data-i18n="tool.protect-pdf.title">Protect PDF</h1>
+        <p class="ts-hero__sub">
+          Encrypt a PDF with a password you choose and decide what readers may print, copy, edit
+          or comment on. The password is used in memory in this tab to derive the key: it is never
+          uploaded, never written to disk and never included in your download.
+        </p>
+      </section>
+
+      <!-- The toolkit renders the drop zone, file rows, progress and results here. -->
+      <div id="ts-tool" style="display:contents"></div>
+
+      <section class="ts-prose">
+        <h2>What a PDF password actually protects</h2>
+        <p>
+          Adding a password uses the standard security handler defined by the PDF specification.
+          The document's streams and strings are encrypted with a key derived from your password,
+          and a reader cannot display the pages until it has derived the same key. With AES-256 that
+          is a genuine cryptographic barrier: without the password the content cannot be decrypted
+          by an ordinary tool, and guessing a long passphrase is not practical.
+        </p>
+        <p>
+          The permission switches are a different matter, and this is where most tools overclaim.
+          Print, copy, edit and comment are <strong>flags inside the encryption dictionary</strong>,
+          not cryptography. A well-behaved reader — Acrobat, Preview, most mobile viewers — honours
+          them. A determined person with the right software can ignore them, and anyone who can open
+          the file with the password can usually re-save it without restrictions. Treat the flags as
+          a request, never as a guarantee. If a passage must not be copied, redact it before you
+          send the file, because a flag will not stop a screenshot either.
+        </p>
+
+        <h3>User password and owner password are different jobs</h3>
+        <p>
+          The <strong>user password</strong> is what a reader asks for when the file is opened; it
+          is what decrypts the document. The <strong>owner password</strong> proves authority over
+          the file and is what a reader asks for when someone tries to change the permissions or the
+          passwords. Leave the owner field empty and this tool uses the user password for both
+          roles, which is the simplest choice and leaves the content just as well protected.
+        </p>
+
+        <h3>Choosing an algorithm</h3>
+        <ul>
+          <li>
+            <strong>AES-256</strong> — the modern default. Supported by Acrobat X and everything
+            newer, and by current browser viewers. Use this unless you have a reason not to.
+          </li>
+          <li>
+            <strong>AES-128</strong> — a reasonable fallback when a reader from roughly 2005 to 2010
+            has to open the file (Acrobat 7 and later). Still a real cipher, with a shorter key.
+          </li>
+          <li>
+            <strong>RC4-128</strong> — legacy only. RC4 has known statistical weaknesses and is
+            deprecated; keep it for old software that refuses anything else, and not for sensitive
+            documents.
+          </li>
+        </ul>
+
+        <h2>Defaults on this page, stated plainly</h2>
+        <p>
+          Printing and commenting start switched on; copying text and editing start switched off.
+          That is the shape most people expect from a locked document, and every flag is visible in
+          the settings panel so you can change it before you run the tool. Remember what the flags
+          are worth: the password is the real protection, and the flags are a polite request to
+          honest software.
+        </p>
+
+        <h2>Practical rules for a password you will not lose</h2>
+        <p>
+          Encryption happens in memory, in this tab. The password is used to derive the key, is
+          never written to storage, never appears in the file name and is never transmitted. We keep
+          no copy of your document and no copy of the password, so there is no recovery path and no
+          reset link if it is forgotten. Keep an unencrypted original somewhere safe, or put the
+          password in a password manager before you send the protected file.
+        </p>
+        <p>
+          Length beats complexity. A five-word passphrase is harder to guess offline than eight
+          scrambled characters, and whoever holds the file can guess at it without any rate limit.
+          Also be clear about what encryption does not do: it does not stop someone who has the
+          password from sharing the decrypted copy, it does not watermark or expire the document,
+          and it cannot hide information that is printed visibly on a page. If you also want to
+          shrink the file, run it through <a href="/compress-pdf">Compress PDF</a> first and protect
+          the result.
+        </p>
+      </section>
+
+      <section class="ts-faq" aria-label="Frequently asked questions">
+        <h2 style="font-size:21px;margin-bottom:2px">Frequently asked questions</h2>
+        <details open>
+          <summary>Is my password uploaded or stored anywhere?</summary>
+          <p>No. The password is used in memory in this browser tab to derive the encryption key. It is never sent over the network, never written to local storage or a cookie, and never placed in the output file name or metadata. Because nothing is stored, we also cannot recover it for you.</p>
+        </details>
+        <details>
+          <summary>Can the print and copy restrictions be bypassed?</summary>
+          <p>Often, yes. Permission flags live in the encryption dictionary and well-behaved readers honour them, but they are not cryptography. Anyone who can open the file with the password can usually re-save it without the restrictions. Treat them as a request, and redact anything that must not be copied.</p>
+        </details>
+        <details>
+          <summary>Which encryption algorithm should I choose?</summary>
+          <p>AES-256 unless you must support a very old reader. AES-128 works with Acrobat 7 and later and is still a real cipher with a shorter key. RC4-128 exists only for legacy software and should not be used for sensitive documents, because RC4 has known statistical weaknesses.</p>
+        </details>
+        <details>
+          <summary>What happens if I forget the password?</summary>
+          <p>The document cannot be opened without it. There is no back door, no recovery code and no support route, because we never receive the password or the file. Keep an unencrypted copy of anything you cannot afford to lose, or store the password in a password manager.</p>
+        </details>
+        <details>
+          <summary>What is the difference between the user password and the owner password?</summary>
+          <p>The user password is required to open and decrypt the document. The owner password proves authority to change permissions and passwords. If you leave the owner field empty, this tool uses the user password for both roles.</p>
+        </details>
+        <details>
+          <summary>Is a password-protected PDF safe to email?</summary>
+          <p>The contents are encrypted, so an interceptor cannot read the document without the password. The file itself can still be copied and attacked offline, which is why the password must be long. Send the password through a different channel from the file, for example by message rather than in the same email.</p>
+        </details>
+      </section>
+
+      <section class="ts-prose">
+        <h2>Other ToolSeer tools</h2>
+        <p>
+          If the file already refuses to open, <a href="/unlock-pdf">Unlock PDF</a> removes
+          protection when you know the password. To change the document itself, use
+          <a href="/merge-pdf">Merge PDF</a>, <a href="/split-pdf">Split PDF</a> or
+          <a href="/organize-pdf">Organize PDF</a>; to shrink it before sending,
+          <a href="/compress-pdf">Compress PDF</a>. Need selectable text out of a scan? That is
+          <a href="/extract-text-pdf">Extract Text</a>, with optional OCR.
+        </p>
+      </section>
+
+      <footer class="ts-footer" id="ts-footer"></footer>
+    </main>
+  </div>
+</div>
+
+<script type="module">
+  import { defineTool } from '/assets/js/ui/toolkit.js';
+
+  defineTool({
+    slug: 'protect-pdf',
+    accept: 'application/pdf,.pdf',
+    multiple: false,
+    minFiles: 1,
+    preview: 'rows',
+    dropIcon: 'lock',
+    emptyIcon: 'shield',
+    actionIcon: 'lock',
+    dropHint: 'One PDF at a time · encrypted locally, the password never leaves this tab',
+
+    settings: [
+      {
+        id: 'password', type: 'password', default: '',
+      },
+      {
+        id: 'passwordConfirm', type: 'password', default: '',
+      },
+      {
+        id: 'ownerPassword', type: 'password', default: '',
+      },
+      {
+        id: 'algorithm', type: 'select', default: 'aes-256',
+        options: [{ value: 'aes-256' }, { value: 'aes-128' }, { value: 'rc4-128' }],
+      },
+      { id: 'allowPrint', type: 'switch', default: true, labelKey: 'setting.allowPrint', hintKey: 'setting.allowPrint.hint' },
+      { id: 'allowCopy', type: 'switch', default: false, labelKey: 'setting.allowCopy', hintKey: 'setting.allowCopy.hint' },
+      { id: 'allowModify', type: 'switch', default: false, labelKey: 'setting.allowModify', hintKey: 'setting.allowModify.hint' },
+      { id: 'allowAnnotate', type: 'switch', default: true, labelKey: 'setting.allowAnnotate', hintKey: 'setting.allowAnnotate.hint' },
+    ],
+
+    async run({ files, settings, onProgress }) {
+      /* Validated first, and only ever compared — the password is not stored anywhere. */
+      const userPassword = String(settings.password ?? '');
+      const confirm = String(settings.passwordConfirm ?? '');
+
+      if (!userPassword) {
+        const err = new Error('password-empty');
+        err.code = 'password-empty';
+        throw err;
+      }
+      if (userPassword !== confirm) {
+        const err = new Error('password-mismatch');
+        err.code = 'password-mismatch';
+        throw err;
+      }
+
+      onProgress({ value: 0.1, label: 'Reading the PDF…' });
+      const input = await files[0].asInput();
+
+      const { protectPdf } = await import('/assets/js/core/index.js');
+      onProgress({ value: 0.4, label: 'Encrypting…' });
+
+      const ownerPassword = String(settings.ownerPassword ?? '');
+      const result = await protectPdf(input.bytes, {
+        userPassword,
+        ownerPassword: ownerPassword || undefined,
+        allow: {
+          print: !!settings.allowPrint,
+          copy: !!settings.allowCopy,
+          modify: !!settings.allowModify,
+          annotate: !!settings.allowAnnotate,
+        },
+        algorithm: settings.algorithm,
+      });
+
+      const { t, hasKey } = await import('/assets/js/ui/i18n.js');
+      onProgress({ value: 1, label: 'Done' });
+
+      /* Engine warnings are stable codes and the toolkit prints warning strings verbatim:
+         translate them or drop them, so the reader never sees a bare code. */
+      const warnings = [];
+      for (const code of result.warnings || []) {
+        if (typeof code !== 'string') continue;
+        if (code.startsWith('weak-encryption:') && hasKey('warning.weakEncryption')) {
+          warnings.push(t('warning.weakEncryption'));
+        }
+      }
+      warnings.push(t('result.locked'));
+
+      const base = String(input.name || '').replace(/\.pdf$/i, '') || 'toolseer-protected';
+      return {
+        outputs: [{ name: `${base}-protected.pdf`, bytes: result.bytes, type: 'application/pdf' }],
+        warnings,
+      };
+    },
+  });
+</script>
+</body>
+</html>

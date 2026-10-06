@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PDF to Images — Convert PDF Pages to PNG &amp; JPG | ToolSeer</title>
+<meta name="description" content="Convert PDF pages to PNG or JPEG in your browser. Choose 72, 150 or 300 DPI, set JPEG quality, export all pages or a range. No upload, no signup, no watermark.">
+<link rel="canonical" href="https://toolseer.com/pdf-to-images">
+<meta name="theme-color" content="#0040ff">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ToolSeer">
+<meta property="og:title" content="PDF to Images — Free, offline, no upload">
+<meta property="og:description" content="Render PDF pages to PNG or JPEG in your browser at 72, 150 or 300 DPI. Nothing is uploaded.">
+<meta property="og:url" content="https://toolseer.com/pdf-to-images">
+<meta property="og:image" content="https://toolseer.com/assets/img/og/toolseer-og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="PDF to Images — Free, offline, no upload">
+<meta name="twitter:description" content="Convert PDF pages to PNG or JPEG in your browser. Pick the resolution and quality. Nothing leaves your device.">
+<meta name="twitter:image" content="https://toolseer.com/assets/img/og/toolseer-og.png">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
+<link rel="stylesheet" href="/assets/css/toolseer.css">
+<script>
+/* Applied before first paint: prevents a theme flash and fixes RTL early. */
+(function () {
+  try {
+    var t = localStorage.getItem('toolseer:theme');
+    if (t !== 'light' && t !== 'dark') {
+      t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    document.documentElement.dataset.theme = t;
+    if (localStorage.getItem('toolseer:lang') === 'ar') {
+      document.documentElement.lang = 'ar';
+      document.documentElement.dir = 'rtl';
+    }
+  } catch (e) { document.documentElement.dataset.theme = 'light'; }
+})();
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "name": "ToolSeer PDF to Images",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Any (web browser)",
+      "url": "https://toolseer.com/pdf-to-images",
+      "description": "Render PDF pages to PNG or JPEG images locally in the browser, at 72, 150 or 300 DPI, with adjustable JPEG quality and page selection.",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "featureList": [
+        "PNG (lossless) or JPEG export",
+        "72, 150 or 300 DPI resolution",
+        "Adjustable JPEG quality",
+        "Export all pages or a chosen range",
+        "Download all images as a ZIP"
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://toolseer.com/" },
+        { "@type": "ListItem", "position": 2, "name": "PDF to Images", "item": "https://toolseer.com/pdf-to-images" }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Are my files uploaded to a server?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. Conversion runs entirely in your browser. The PDF is read from disk, each page is drawn onto a canvas, and the images are handed back as downloads. Nothing is transmitted anywhere." }
+        },
+        {
+          "@type": "Question",
+          "name": "What does the DPI setting really do?",
+          "acceptedAnswer": { "@type": "Answer", "text": "It sets the rendering resolution. A page is drawn at dpi divided by 72 times its natural size, so a 300-DPI export of an A4 page is about 2480 by 3507 pixels. Higher DPI means larger, sharper-looking images — but if the page contains a low-resolution scan, upscaling cannot invent detail that is not there." }
+        },
+        {
+          "@type": "Question",
+          "name": "PNG or JPEG — which should I choose?",
+          "acceptedAnswer": { "@type": "Answer", "text": "PNG is lossless: every rendered pixel is stored exactly, which suits text, diagrams and screenshots but makes larger files. JPEG is much smaller for photo-heavy pages and trades some sharpness for size. The quality slider, from 0.5 to 1.0, applies to JPEG only." }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I export only some pages?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes. Type a range such as 1-3, 5, 8-12 in the Pages field and only those pages are rendered, in that order. Leave the field empty to export every page." }
+        },
+        {
+          "@type": "Question",
+          "name": "Will the images contain selectable text?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. An image export is a picture of each page: text becomes pixels, so it cannot be selected or searched. If you need the text itself, use the Extract Text tool instead." }
+        }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<a class="ts-skip-link" href="#ts-main">Skip to content</a>
+
+<div class="ts-app">
+  <div class="ts-support" id="ts-support"></div>
+
+  <aside class="ts-rail" id="ts-rail" aria-label="Tool settings"></aside>
+
+  <div class="ts-main">
+    <header class="ts-header" id="ts-header"></header>
+
+    <main class="ts-view" id="ts-main">
+      <section class="ts-hero">
+        <img class="ts-hero__mascot" src="/assets/img/mascot/pdf-to-images.svg" alt=""
+             aria-hidden="true" width="96" height="96" onerror="this.style.display='none'">
+        <h1 class="ts-hero__title" data-i18n="tool.pdf-to-images.title">PDF to Images</h1>
+        <p class="ts-hero__sub">
+          Render every page — or just the ones you choose — to PNG or JPEG at 72, 150 or 300 DPI.
+          Download the images one by one or all together as a ZIP.
+        </p>
+      </section>
+
+      <!-- The toolkit renders the drop zone, file grid, progress and results here. -->
+      <div id="ts-tool" style="display:contents"></div>
+
+      <section class="ts-prose">
+        <h2>How pages become images</h2>
+        <p>
+          Each selected page is drawn onto a canvas at the resolution you picked, then encoded as PNG or
+          JPEG. The <strong>DPI</strong> setting is a scaling factor, not a magic sharpener: the page is
+          rendered at dpi divided by 72 times its natural size, so a 300-DPI export of an A4 page comes
+          out at about 2480 × 3507 pixels. Choosing a higher DPI than the content actually contains does
+          not add detail — a low-resolution scan exported at 300 DPI is simply a larger copy of the same
+          low-resolution picture.
+        </p>
+        <p>
+          The two formats trade size against fidelity. <strong>PNG</strong> stores every rendered pixel
+          losslessly, which suits text, diagrams and screenshots and produces the largest files.
+          <strong>JPEG</strong> compresses hard and is the right choice for photo-heavy pages; the
+          <strong>Image quality</strong> slider, from 0.5 to 1.0, sets how much detail JPEG discards and
+          applies to JPEG output only. Pages are rendered onto a white background, matching how a PDF
+          reader shows them.
+        </p>
+        <p>
+          The <strong>Pages</strong> field is optional. Leave it empty and every page is exported. Type a
+          range such as 1-3, 5, 8-12 and only those pages are rendered, in the order you wrote them; a
+          page listed twice appears once. Output files are named toolseer-page-01.png, toolseer-page-02.png
+          and so on (with .jpg for JPEG), and when there is more than one image the result panel offers a
+          <strong>Download all (.zip)</strong> button alongside individual downloads. The ZIP is assembled
+          in your browser from the images it just made — nothing is sent anywhere.
+        </p>
+
+        <h3>What image export is not</h3>
+        <p>
+          An image is a picture of a page, not the page itself: text becomes pixels and is no longer
+          selectable or searchable, and the original PDF is never modified. If you need the text, use the
+          <a href="/extract-text-pdf">Extract Text</a> tool instead. And because every rendered image is
+          held in memory at once, a very long document at 300 DPI can exhaust a browser tab — for jobs
+          like that, the ToolSeer desktop app renders page by page to disk.
+        </p>
+      </section>
+
+      <section class="ts-faq" aria-label="Frequently asked questions">
+        <h2 style="font-size:21px;margin-bottom:2px">Frequently asked questions</h2>
+        <details open>
+          <summary>Are my files uploaded to a server?</summary>
+          <p>No. Conversion runs entirely in your browser. The PDF is read from disk, each page is drawn onto a canvas, and the images are handed back as downloads. Nothing is transmitted anywhere.</p>
+        </details>
+        <details>
+          <summary>What does the DPI setting really do?</summary>
+          <p>It sets the rendering resolution. A page is drawn at dpi divided by 72 times its natural size, so a 300-DPI export of an A4 page is about 2480 by 3507 pixels. Higher DPI means larger, sharper-looking images — but if the page contains a low-resolution scan, upscaling cannot invent detail that is not there.</p>
+        </details>
+        <details>
+          <summary>PNG or JPEG — which should I choose?</summary>
+          <p>PNG is lossless: every rendered pixel is stored exactly, which suits text, diagrams and screenshots but makes larger files. JPEG is much smaller for photo-heavy pages and trades some sharpness for size. The quality slider, from 0.5 to 1.0, applies to JPEG only.</p>
+        </details>
+        <details>
+          <summary>Can I export only some pages?</summary>
+          <p>Yes. Type a range such as 1-3, 5, 8-12 in the Pages field and only those pages are rendered, in that order. Leave the field empty to export every page.</p>
+        </details>
+        <details>
+          <summary>Will the images contain selectable text?</summary>
+          <p>No. An image export is a picture of each page: text becomes pixels, so it cannot be selected or searched. If you need the text itself, use the Extract Text tool instead.</p>
+        </details>
+      </section>
+
+      <section class="ts-prose">
+        <h2>Other ToolSeer tools</h2>
+        <p>
+          Want the reverse direction? Use <a href="/image-to-pdf">Image to PDF</a> to turn pictures back
+          into a PDF. You may also want <a href="/split-pdf">Split PDF</a> to extract pages before
+          rendering, <a href="/organize-pdf">Organize PDF Pages</a> to reorder or rotate them first, or
+          <a href="/compress-pdf">Compress PDF</a> to shrink the document itself instead.
+        </p>
+      </section>
+
+      <footer class="ts-footer" id="ts-footer"></footer>
+    </main>
+  </div>
+</div>
+
+<script type="module">
+  import { defineTool } from '/assets/js/ui/toolkit.js';
+
+  defineTool({
+    slug: 'pdf-to-images',
+    accept: 'application/pdf,.pdf',
+    multiple: false,
+    minFiles: 1,
+    preview: 'rows',
+    dropIcon: 'images',
+    emptyIcon: 'images',
+    actionIcon: 'images',
+    dropHint: 'Render PDF pages to PNG or JPEG at your chosen resolution',
+
+    settings: [
+      { id: 'format', type: 'select', default: 'png', options: [{ value: 'png' }, { value: 'jpeg' }] },
+      {
+        id: 'dpi', type: 'select', default: 'dpi150',
+        options: [{ value: 'dpi72' }, { value: 'dpi150' }, { value: 'dpi300' }],
+      },
+      {
+        id: 'quality', type: 'range', default: 0.85, min: 0.5, max: 1, step: 0.05,
+        minLabelKey: 'opt.low', maxLabelKey: 'opt.high',
+      },
+      {
+        id: 'range', type: 'text', default: '',
+        hintKey: 'setting.range.hint',
+        placeholderKey: 'setting.range.placeholder',
+      },
+    ],
+
+    async run({ files, settings, onProgress }) {
+      onProgress({ value: 0.05, label: 'Reading file…' });
+      const input = await files[0].asInput();
+
+      const { pdfToImages, pdfInfo, parsePageRanges } = await import('/assets/js/core/index.js');
+
+      // Empty = every page. Otherwise validate early so a bad range fails with
+      // a localised error before rendering starts.
+      const spec = String(settings.range || '').trim();
+      let pages;
+      if (spec) {
+        const info = await pdfInfo(input.bytes);
+        pages = parsePageRanges(spec, info.pageCount);
+      }
+
+      onProgress({ value: 0.15, label: 'Rendering pages…' });
+      const format = settings.format;
+      const { outputs, warnings } = await pdfToImages(input.bytes, {
+        format,
+        dpi: Number(String(settings.dpi).replace(/^dpi/i, '')),
+        pages,
+        quality: format === 'jpeg' ? Number(settings.quality) : undefined,
+      });
+
+      const extension = format === 'jpeg' ? 'jpg' : 'png';
+      const mime = format === 'jpeg' ? 'image/jpeg' : 'image/png';
+      const named = outputs.map((out, index) => ({
+        name: `toolseer-page-${String(index + 1).padStart(2, '0')}.${extension}`,
+        bytes: out.bytes,
+        type: mime,
+      }));
+
+      const notes = warnings ? warnings.slice() : [];
+      if (named.length > 50) {
+        notes.push('More than 50 images were created: the Download-all ZIP will be large and may take a while to build.');
+      }
+
+      onProgress({ value: 1, label: 'Done' });
+      return { outputs: named, warnings: notes };
+    },
+  });
+</script>
+</body>
+</html>

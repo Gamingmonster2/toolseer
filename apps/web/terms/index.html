@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Terms of use — ToolSeer</title>
+<meta name="description" content="The terms under which ToolSeer's free in-browser PDF tools are provided.">
+<link rel="canonical" href="https://toolseer.com/terms">
+<meta name="robots" content="index,follow">
+<meta name="theme-color" content="#0040ff">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/toolseer.css">
+<script>
+(function(){try{var t=localStorage.getItem('toolseer:theme');
+if(t!=='light'&&t!=='dark'){t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}
+document.documentElement.dataset.theme=t;
+if(localStorage.getItem('toolseer:lang')==='ar'){document.documentElement.lang='ar';document.documentElement.dir='rtl';}}catch(e){}})();
+</script>
+</head>
+<body>
+<a class="ts-skip-link" href="#ts-main">Skip to content</a>
+<div class="ts-app">
+  <aside class="ts-rail" id="ts-rail" aria-label="Tool list"></aside>
+  <div class="ts-main">
+    <header class="ts-header" id="ts-header"></header>
+    <main class="ts-view" id="ts-main">
+      <section class="ts-hero">
+        <h1 class="ts-hero__title">Terms of use</h1>
+        <p class="ts-hero__sub">Free tools, used at your own responsibility — plainly stated.</p>
+      </section>
+      <section class="ts-prose">
+        <h2>The service</h2>
+        <p>
+          ToolSeer provides free tools that convert and manipulate PDF and image files inside your web
+          browser. The tools are provided as-is, without warranties of any kind, express or implied,
+          including fitness for a particular purpose.
+        </p>
+        <h2>Your files</h2>
+        <p>
+          Files you open are processed on your own device and are not uploaded to us. You remain
+          responsible for the files you process: you must have the right to use them, and you must
+          comply with the laws that apply to their contents.
+        </p>
+        <h2>No liability</h2>
+        <p>
+          To the maximum extent permitted by law, ToolSeer is not liable for any loss or damage arising
+          from the use of the tools, including loss of data. Always keep a copy of your original files.
+        </p>
+        <h2>Acceptable use</h2>
+        <p>
+          Do not use the tools to process unlawful material, or to remove protections from files you do
+          not own or are not authorised to use.
+        </p>
+        <h2>Third-party components</h2>
+        <p>
+          The tools are built on open-source components (pdf-lib, PDF.js, qpdf, JSZip, Tesseract.js and
+          others). Their licences are reproduced in the <code>apps/web/vendor/</code> directory of the
+          project repository.
+        </p>
+        <h2>Changes</h2>
+        <p>
+          These terms may change. The version published on this page is the current version.
+        </p>
+      </section>
+      <footer class="ts-footer" id="ts-footer"></footer>
+    </main>
+  </div>
+</div>
+<script type="module">
+  import { renderShell } from '/assets/js/ui/shell.js';
+  renderShell({ slug: 'terms' });
+</script>
+</body>
+</html>

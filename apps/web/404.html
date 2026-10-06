@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Page not found — ToolSeer</title>
+<meta name="robots" content="noindex,follow">
+<meta name="theme-color" content="#0040ff">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/toolseer.css">
+<script>
+(function(){try{var t=localStorage.getItem('toolseer:theme');
+if(t!=='light'&&t!=='dark'){t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}
+document.documentElement.dataset.theme=t;
+if(localStorage.getItem('toolseer:lang')==='ar'){document.documentElement.lang='ar';document.documentElement.dir='rtl';}}catch(e){}})();
+</script>
+</head>
+<body>
+<div class="ts-app">
+  <aside class="ts-rail" id="ts-rail" aria-label="Tool list"></aside>
+  <div class="ts-main">
+    <header class="ts-header" id="ts-header"></header>
+    <main class="ts-view" id="ts-main">
+      <section class="ts-hero" style="padding-top:60px">
+        <h1 class="ts-hero__title">This page does not exist</h1>
+        <p class="ts-hero__sub">
+          The link may be outdated, or the address mistyped. The tools below are all still here.
+        </p>
+        <p><a class="ts-btn ts-btn--primary ts-btn--lg" href="/">Back to ToolSeer</a></p>
+      </section>
+      <section class="ts-toolgrid" style="max-width:880px">
+        <a class="ts-tool" href="/image-to-pdf"><span class="ts-tool__name">Image to PDF</span><span class="ts-tool__desc">Turn images into a single PDF.</span></a>
+        <a class="ts-tool" href="/merge-pdf"><span class="ts-tool__name">Merge PDF</span><span class="ts-tool__desc">Combine several PDFs into one.</span></a>
+        <a class="ts-tool" href="/compress-pdf"><span class="ts-tool__name">Compress PDF</span><span class="ts-tool__desc">Make a PDF smaller.</span></a>
+        <a class="ts-tool" href="/split-pdf"><span class="ts-tool__name">Split PDF</span><span class="ts-tool__desc">Break a PDF into pieces.</span></a>
+        <a class="ts-tool" href="/pdf-to-images"><span class="ts-tool__name">PDF to Images</span><span class="ts-tool__desc">Export pages as pictures.</span></a>
+        <a class="ts-tool" href="/extract-text-pdf"><span class="ts-tool__name">Extract Text</span><span class="ts-tool__desc">Pull the words out of a PDF.</span></a>
+      </section>
+      <footer class="ts-footer" id="ts-footer"></footer>
+    </main>
+  </div>
+</div>
+<script type="module">
+  import { renderShell } from '/assets/js/ui/shell.js';
+  renderShell({ slug: '404' });
+</script>
+</body>
+</html>
