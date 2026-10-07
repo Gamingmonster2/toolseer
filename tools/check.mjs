@@ -241,6 +241,20 @@ for (const route of ONLY ? ROUTES.filter((r) => r.slug === ONLY) : ROUTES) {
   const words = wordCount(prose);
   if (route.slug) ok(words >= 300, where, `prose only ${words} words (need 300+)`);
 
+  /* Inline module syntax. Every tool page carries its own <script type="module">
+     and nothing else parses it — a typo there ships a page whose engine silently
+     never runs. Extracted to a temp file because `node --check` must not be given
+     a pipe in a confined sandbox. */
+  const modules = [...html.matchAll(/<script type="module"[^>]*>([\s\S]*?)<\/script>/gi)];
+  for (let i = 0; i < modules.length; i++) {
+    const tmp = path.join(ROOT, '.cache', `inline-${where.replace(/[^\w-]/g, '_')}-${i}.mjs`);
+    fs.mkdirSync(path.dirname(tmp), { recursive: true });
+    fs.writeFileSync(tmp, modules[i][1]);
+    checkJsSyntax(tmp);
+    fs.rmSync(tmp, { force: true });
+  }
+  if (modules.length) checks++;
+
   /* mascot references degrade gracefully or resolve */
   for (const m of html.matchAll(/<img[^>]*src=["'](\/assets\/img\/mascot\/[^"']+)["'][^>]*>/gi)) {
     const hasFallback = /onerror=/.test(m[0]);

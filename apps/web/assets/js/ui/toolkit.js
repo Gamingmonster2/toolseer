@@ -720,7 +720,33 @@ function mount(cfg) {
     rm.innerHTML = icon('x', { size: 14 });
     rm.addEventListener('click', (e) => { e.stopPropagation(); remove(index); });
 
-    card.append(order, drag, thumb, body, rm);
+    /* Touch reordering. HTML5 drag-and-drop never fires on a touch screen, so a
+       phone user selecting thirty photos had no way to fix the page order at all.
+       These two buttons are the same operation the drag handle performs, and they
+       are always visible on coarse pointers (see .ts-file__move in the CSS). */
+    const moveBar = document.createElement('div');
+    moveBar.className = 'ts-file__move';
+    const earlier = document.createElement('button');
+    earlier.type = 'button';
+    earlier.className = 'ts-file__move-btn';
+    earlier.disabled = index === 0;
+    earlier.setAttribute('aria-label', `${t('action.moveUp')}: ${item.file.name}`);
+    earlier.title = t('action.moveUp');
+    earlier.innerHTML = icon('arrow-left', { size: 15 });
+    earlier.addEventListener('click', (e) => { e.stopPropagation(); move(index, -1); });
+
+    const later = document.createElement('button');
+    later.type = 'button';
+    later.className = 'ts-file__move-btn';
+    later.disabled = index === items.length - 1;
+    later.setAttribute('aria-label', `${t('action.moveDown')}: ${item.file.name}`);
+    later.title = t('action.moveDown');
+    later.innerHTML = icon('arrow-right', { size: 15 });
+    later.addEventListener('click', (e) => { e.stopPropagation(); move(index, 1); });
+
+    moveBar.append(earlier, later);
+
+    card.append(order, drag, thumb, body, moveBar, rm);
     wireReorder(card, index, '.ts-file__drag');
     return card;
   }

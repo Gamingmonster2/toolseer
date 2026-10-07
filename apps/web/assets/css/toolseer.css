@@ -560,6 +560,39 @@ html[data-theme="dark"] .ts-file__drag { background: rgba(17, 24, 39, 0.9); colo
 .ts-file__remove:hover { background: var(--ts-danger); }
 .ts-file__remove svg { width: 14px; height: 14px; }
 
+/* Touch-friendly reordering. HTML5 drag-and-drop never fires on a touch screen,
+   so these buttons are the only way a phone user can fix page order. They are
+   therefore always visible on coarse pointers and hover-revealed on a mouse. */
+.ts-file__move {
+  position: absolute;
+  inset-block-end: 42px;
+  inset-inline-start: 8px;
+  z-index: 2;
+  display: none;
+  gap: 4px;
+}
+.ts-file:hover .ts-file__move,
+.ts-file:focus-within .ts-file__move { display: flex; }
+@media (pointer: coarse) {
+  .ts-file__move { display: flex; }
+}
+.ts-file__move-btn {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: var(--ts-radius-sm);
+  background: rgba(17, 24, 39, 0.78);
+  color: #fff;
+  cursor: pointer;
+  transition: background var(--ts-speed) var(--ts-ease), opacity var(--ts-speed) var(--ts-ease);
+}
+.ts-file__move-btn svg { width: 15px; height: 15px; }
+.ts-file__move-btn:hover:not(:disabled) { background: var(--ts-primary); }
+.ts-file__move-btn:disabled { opacity: 0.35; cursor: default; }
+html[dir="rtl"] .ts-file__move-btn svg { transform: scaleX(-1); }
+
 /* list rows (merge/split style) */
 .ts-rows { display: flex; flex-direction: column; gap: 8px; }
 .ts-row {

@@ -258,11 +258,29 @@ window.addEventListener('beforeinstallprompt', function (event) {
     ],
 
     async run({ files, settings, onProgress }) {
-      onProgress({ value: 0.1, label: 'Reading images…' });
+      onProgress({ value: 0.08, label: 'Reading images…' });
+
+      /* The Sorting control has to actually do something — a control that changes
+         nothing is a false affordance. It reorders the pages, exactly as its hint
+         says. Handy on a phone where dragging thirty thumbnails is awkward. */
+      const mode = String(settings.sorting || 'original');
+      const ordered = files.slice();
+      if (mode === 'name') {
+        const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
+        ordered.sort((a, b) => collator.compare(a.name, b.name));
+      } else if (mode === 'size') {
+        ordered.sort((a, b) => a.size - b.size);
+      } else if (mode === 'date') {
+        ordered.sort((a, b) => (a.file.lastModified || 0) - (b.file.lastModified || 0));
+      }
+
       const images = [];
-      for (let i = 0; i < files.length; i++) {
-        images.push(await files[i].asInput());
-        onProgress({ value: 0.1 + (0.5 * (i + 1)) / files.length, label: `Reading image ${i + 1} of ${files.length}…` });
+      for (let i = 0; i < ordered.length; i++) {
+        images.push(await ordered[i].asInput());
+        onProgress({
+          value: 0.1 + (0.5 * (i + 1)) / ordered.length,
+          label: `Reading image ${i + 1} of ${ordered.length}…`,
+        });
       }
 
       const { imagesToPdf } = await import('/assets/js/core/index.js');
