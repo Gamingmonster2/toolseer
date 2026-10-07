@@ -16,6 +16,9 @@ const EN = {
   'brand.name': 'ToolSeer',
   'brand.tagline': 'Free PDF tools that run in your browser',
 
+  'home.title': 'Free PDF tools that live in your browser',
+  'home.sub': 'Merge, compress, split, protect, convert — every tool runs entirely on your device. No upload, no signup, no watermark, and your files are never sent anywhere.',
+
   'nav.home': 'Home',
   'nav.tools': 'All tools',
   'nav.works': 'Our Works',
@@ -505,6 +508,9 @@ const AR = {
   ...AR_EXTRA,
   'brand.name': 'تول سير',
   'brand.tagline': 'أدوات PDF مجانية تعمل داخل متصفحك',
+
+  'home.title': 'أدوات PDF مجانية تعمل داخل متصفحك',
+  'home.sub': 'ادمج، اضغط، قسّم، احمِ، وحوّل — كل أداة تعمل بالكامل على جهازك. بلا رفع، بلا تسجيل، بلا علامة مائية، وملفاتك لا تُرسل إلى أي مكان.',
 
   'nav.home': 'الرئيسية',
   'nav.tools': 'كل الأدوات',

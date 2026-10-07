@@ -123,6 +123,22 @@ report(
       report('that folder holds the site', Boolean(abs) && fs.existsSync(path.join(abs, 'index.html')), 'index.html present');
       report('worker name is set', typeof cfg.name === 'string' && cfg.name.length > 0,
         'must match the Worker name in the Cloudflare dashboard');
+
+      /* Trailing-slash agreement. The project declares canonical URLs WITHOUT a
+         trailing slash everywhere (link rel=canonical, sitemap, JSON-LD). If the
+         host prefers the trailing-slash form instead, it redirects `/tool` →
+         `/tool/` while `_redirects` does the opposite, and the two rules loop
+         until the browser gives up with an empty page. This check exists because
+         that is exactly what the first live deploy did. */
+      const handling = cfg.assets && cfg.assets.html_handling;
+      const safeHandling = ['drop-trailing-slash', 'none'];
+      report(
+        'trailing-slash handling agrees with the canonical URLs',
+        safeHandling.includes(handling),
+        handling
+          ? `html_handling: ${handling}`
+          : `html_handling defaults to auto-trailing-slash, which fights _redirects — set "drop-trailing-slash"`
+      );
     }
   }
 }

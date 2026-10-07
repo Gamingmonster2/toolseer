@@ -20,10 +20,19 @@
   "assets": {
     // The deployable site. No build command, no package.json, on purpose.
     "directory": "apps/web",
-    // `/merge-pdf` serves `merge-pdf/index.html` and `/merge-pdf/` redirects to
-    // it, which is the canonical form every page, sitemap entry and JSON-LD
-    // block in this project declares.
-    "html_handling": "auto-trailing-slash",
+    // ⚠️ MUST BE `drop-trailing-slash`, NOT the default.
+    //
+    // The default (`auto-trailing-slash`) treats `/image-to-pdf/` as the canonical
+    // form and redirects `/image-to-pdf` to it — while `_redirects` in this project
+    // normalises the other way (`/image-to-pdf/` → `/image-to-pdf`). The two rules
+    // bounce a request back and forth forever, and the browser gives up with an
+    // empty page that looks like a dropped connection. That is exactly what the
+    // first successful deploy did.
+    //
+    // `drop-trailing-slash` agrees with every canonical URL, sitemap entry and
+    // JSON-LD block in the project: `/image-to-pdf` serves `image-to-pdf/index.html`
+    // directly, and a trailing slash redirects to the form we already declare.
+    "html_handling": "drop-trailing-slash",
     // Serve our own 404.html with a real 404 status instead of a blank page.
     "not_found_handling": "404-page"
   }
