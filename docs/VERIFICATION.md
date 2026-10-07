@@ -15,7 +15,7 @@ code. Every number in this file comes from a command that was executed, and the 
 | Engine + UI tests | `node tests/run.mjs` | **101 passed, 0 failed** (84 engine + 17 toolbox UI) |
 | Real browser | `node tools/e2e.mjs --convert image-to-pdf,merge-pdf,protect-pdf,extract-text-pdf` | **201 checks, 0 failed, across 19 routes** (recorded before the toolbox/PWA/OCR additions — see §8) |
 | Vendor integrity | `node tools/vendor.mjs verify` | **216 files match `vendor.lock.json`** |
-| Mascot geometry | `node apps/web/assets/img/mascot/_validate.mjs` | all checks pass (11 gecko SVGs; the rabbit set too) |
+| Mascot geometry | `node tools/validate-mascots.mjs` | all checks pass (11 gecko SVGs; the rabbit set too) |
 | OCR stack in a real browser | probe page driving `vendor/ocr/` over CDP | **OCR read a real 1920×8537 scanned page in 2.1 s** |
 | Desktop engine pins | `node apps/desktop/tools/fetch-engines.mjs --check` | exit 0, 13 sources validated |
 
@@ -107,7 +107,7 @@ multi-document assembly, the Emscripten/classic-script loading path, and the Web
 | Artifact | Command | Result |
 |---|---|---|
 | Mascot SVGs (11) | `System.Xml.XmlDocument.Load` on each file | 11/11 parse; namespace + viewBox correct |
-| Mascot theme contract | `node apps/web/assets/img/mascot/_validate.mjs` | paints limited to `currentColor` / `var(--ts-primary,#0040ff)`; geometry gates green |
+| Mascot theme contract | `node tools/validate-mascots.mjs` | paints limited to `currentColor` / `var(--ts-primary,#0040ff)`; geometry gates green |
 | Vendor fetch/extract | `node tools/vendor.mjs install` + `verify` | 209 files, all hashes matched |
 | Desktop engine pins | `node apps/desktop/tools/fetch-engines.mjs --check` | exit 0, 13 sources, pins validated |
 | Desktop JS | `node --check` on both `.js` files | exit 0 |

@@ -375,8 +375,8 @@ the accent token is written into comments as `ts-primary` only.
 **(2) The geometry / contract / silhouette gate**
 
 ```powershell
-node apps/web/assets/img/mascot/_validate.mjs                                     # gecko (default set)
-node apps/web/assets/img/mascot/_validate.mjs apps/web/assets/img/mascot/alternates/rabbit
+node tools/validate-mascots.mjs                                     # gecko (default set)
+node tools/validate-mascots.mjs apps/web/assets/img/mascot/alternates/rabbit
 ```
 
 The profile is auto-detected from the path (`--profile rabbit|gecko` overrides it), so the rabbit

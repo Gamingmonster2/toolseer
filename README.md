@@ -45,6 +45,7 @@ tests/               engine test suite (Node, no browser needed)
 ## Commands (all plain `node` — this repo intentionally has no npm dependency)
 
 ```powershell
+node tools/preflight.mjs          # ONE command: is this tree deployable? (run before pushing)
 node tools/vendor.mjs install      # download + checksum the pinned engines
 node tools/check.mjs               # integrity gate: routes, SEO, JSON-LD, i18n, assets, inline modules
 node tools/e2e.mjs --shot          # headless-Chrome E2E: every route, theme, RTL, errors

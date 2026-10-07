@@ -80,10 +80,37 @@ link** — not the subdomain.
 
 ## 6. The switch, step by step
 
+### 6.0 First: deploy to a test URL and try it there
+
+Before any domain is touched, deploy and judge the result. Cloudflare Pages settings:
+
+| Pages setting | Value |
+|---|---|
+| Framework preset | **None** |
+| Build command | **(leave empty)** — there is nothing to build; the files are the site |
+| Build output directory | **`apps/web`** |
+| Root directory | `/` (the repository root) |
+| Environment variables | none |
+| Node version | irrelevant — no `package.json` exists, deliberately, so Pages cannot try to install anything |
+
+Do **not** add a `package.json` at the repository root to "help" Pages: it would make the platform
+attempt an install and a build step that this project does not have.
+
+Then, on the `*.pages.dev` URL, run the continuity checker and walk the flow by hand:
+
+```powershell
+node tools/check-live.mjs --base https://<your-project>.pages.dev
+```
+
+Judge it on the preview URL first. If it is not good enough yet, develop more — the domain is
+untouched, nothing is lost, and every deploy after that appears on the same preview URL.
+
+### 6.1 When it IS good enough
+
 ```text
 1. Push this repository to GitHub.
-2. Cloudflare Pages → connect the repo → build command: none, output directory: apps/web.
-3. Open the pages.dev URL → run tools/check-live.mjs against it (see below) → fix anything red.
+2. Cloudflare Pages → connect the repo → settings from the table above.
+3. Open the pages.dev URL → run tools/check-live.mjs against it → fix anything red.
 4. Create the subdomain repo for the preserved old page, deploy it the same way,
    and add noindex to its HTML.
 5. Cloudflare → the legacy subdomain DNS record pointing at the old deployment.

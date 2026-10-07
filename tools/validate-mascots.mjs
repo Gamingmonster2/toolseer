@@ -2,9 +2,9 @@
 // hand-anchoring, silhouette legibility (gecko profile) and stroke-crossing analysis.
 //
 // Run from the repo root, default set (gecko):
-//   node apps/web/assets/img/mascot/_validate.mjs
+//   node tools/validate-mascots.mjs
 // The alternate skin is the same gate on another directory (profile auto-detected):
-//   node apps/web/assets/img/mascot/_validate.mjs apps/web/assets/img/mascot/alternates/rabbit
+//   node tools/validate-mascots.mjs apps/web/assets/img/mascot/alternates/rabbit
 //   ... --profile rabbit|gecko   forces the profile instead of guessing from the path
 import fs from 'node:fs';
 
