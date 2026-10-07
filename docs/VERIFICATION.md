@@ -12,7 +12,7 @@ code. Every number in this file comes from a command that was executed, and the 
 | Gate | Command | Result |
 |---|---|---|
 | Static integrity | `node tools/check.mjs` | **404 checks, 0 problems** |
-| Engine unit/integration | `node tests/run.mjs` | **84 passed, 0 failed, 84 total (3.7 s)** |
+| Engine + UI tests | `node tests/run.mjs` | **101 passed, 0 failed** (84 engine + 17 toolbox UI) |
 | Real browser | `node tools/e2e.mjs --convert image-to-pdf,merge-pdf,protect-pdf,extract-text-pdf` | **201 checks, 0 failed, across 19 routes** (recorded before the toolbox/PWA/OCR additions — see §8) |
 | Vendor integrity | `node tools/vendor.mjs verify` | **216 files match `vendor.lock.json`** |
 | Mascot geometry | `node apps/web/assets/img/mascot/_validate.mjs` | all checks pass (11 gecko SVGs; the rabbit set too) |
@@ -162,6 +162,13 @@ node tools/e2e.mjs --convert image-to-pdf,merge-pdf,protect-pdf,extract-text-pdf
 ```
 
 > **Sandbox note.** The browser gate needs Chrome to start. Under the DSH `workspace-write` file policy
-> Chrome's crashpad cannot open its own process handles (`OpenProcess: Access is denied`), so no
-> browser can run and the gate cannot be executed in that mode. The recorded runs were made with the
-> wider policy; re-running after any change to `apps/web/**` requires the same.
+> Chrome's crashpad cannot open its own process handles (`OpenProcess: Access is denied`) and its mojo
+> platform channel is refused, so no browser can run and the gate cannot be executed in that mode. The
+> recorded runs were made with the wider policy; re-running after any change to `apps/web/**` requires
+> the same.
+>
+> The harness now narrates its steps (`· home: toolbox search`, …) and every CDP call has a 20 s
+> timeout that names the step it was in. That was added because a run can die on a stall and the
+> report previously said only `Runtime.evaluate`, which is not enough to bisect with. **It has not yet
+> been used to re-run the failing home route** — the first thing to do when a browser is available
+> again.
