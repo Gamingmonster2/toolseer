@@ -360,6 +360,10 @@ const EN = {
   'pwa.ios.step2': 'In the share sheet, scroll down and tap “Add to Home Screen”.',
   'pwa.ios.step3': 'Tap “Add” in the top corner — the ToolSeer icon appears on your home screen.',
   'pwa.ios.step4': 'Open ToolSeer from that icon; it starts full screen, like an app.',
+
+  'legacy.text': 'Looking for the original image-to-PDF page?',
+  'legacy.label': 'Old version',
+  'legacy.note': 'Kept exactly as it was, for anyone who prefers it.',
 };
 
 /** Extra Arabic entries, merged into AR below so both dictionaries stay in one file. */
@@ -479,6 +483,10 @@ const AR_EXTRA = {
   'titlebar.reload': 'تحديث',
   'titlebar.minimize': 'تصغير',
   'titlebar.close': 'إغلاق',
+
+  'legacy.text': 'هل تبحث عن صفحة تحويل الصور إلى PDF الأصلية؟',
+  'legacy.label': 'النسخة القديمة',
+  'legacy.note': 'محفوظة كما هي، لمن يفضّلها.',
 
   'pwa.install': 'تثبيت التطبيق',
   'pwa.installed': 'تم تثبيت تول سير على هذا الجهاز.',

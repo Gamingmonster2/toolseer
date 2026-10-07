@@ -46,12 +46,23 @@ tests/               engine test suite (Node, no browser needed)
 
 ```powershell
 node tools/vendor.mjs install      # download + checksum the pinned engines
-node tools/check.mjs               # integrity gate: routes, SEO, JSON-LD, i18n, assets
+node tools/check.mjs               # integrity gate: routes, SEO, JSON-LD, i18n, assets, inline modules
 node tools/e2e.mjs --shot          # headless-Chrome E2E: every route, theme, RTL, errors
 node tools/e2e.mjs --convert image-to-pdf   # run a real in-browser conversion
+node tools/check-live.mjs --base https://www.toolseer.com   # continuity check against a deployment
 node tools/serve.mjs 4173          # local preview → http://127.0.0.1:4173/
-node tests/run.mjs                 # engine unit tests
+node tests/run.mjs                 # engine + UI tests
+node tools/render-icons.mjs        # regenerate the icon family from the brand mark
+node tools/wire-pwa.mjs            # (re-)apply the manifest link and install-prompt capture to pages
 ```
+
+## Going live
+
+The old site has an audience (~70,000 page views, most arriving by bookmark rather than by search).
+The cutover — new site on the main domain, the original page preserved on a subdomain, a bar at the
+top linking to it — is written up step by step in [`docs/MIGRATION.md`](docs/MIGRATION.md), including
+the two decisions that will bite if they are skipped (which host is canonical, and `noindex` on the
+preserved copy). `tools/check-live.mjs` verifies the whole continuity contract against a real origin.
 
 ## Why this architecture
 

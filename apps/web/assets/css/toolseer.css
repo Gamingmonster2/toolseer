@@ -1093,6 +1093,36 @@ html[dir="rtl"] .ts-toolbox .ts-tool:focus-within [data-tip]::after { transform:
   -webkit-app-region: drag;
 }
 
+/* Legacy-version bar. Hidden entirely until LEGACY_SITE.url is configured in
+   shell.js — a link to a site that does not exist would be a dead button. */
+.ts-legacybar {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 7px 16px;
+  background: var(--ts-surface-2);
+  border-block-end: 1px solid var(--ts-border);
+  font-size: 13px;
+  color: var(--ts-text-muted);
+}
+.ts-legacybar__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 11px;
+  border-radius: var(--ts-radius-pill);
+  background: var(--ts-primary-soft);
+  color: var(--ts-primary);
+  font-weight: 600;
+  text-decoration: none;
+  transition: background var(--ts-speed) var(--ts-ease), color var(--ts-speed) var(--ts-ease);
+}
+.ts-legacybar__link:hover { background: var(--ts-primary); color: var(--ts-text-on-primary); }
+html[dir="rtl"] .ts-legacybar__link svg { transform: scaleX(-1); }
+
 @media (max-width: 880px) {
   .ts-toolbox .ts-toolgrid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
   .ts-toolbox__head { gap: 12px; }

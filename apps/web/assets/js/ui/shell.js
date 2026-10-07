@@ -35,6 +35,45 @@ export const SITE = {
 /** True when this same page is running inside the Tauri desktop shell. */
 export const isDesktop = () => typeof window !== 'undefined' && Boolean(window.__TAURI__);
 
+/**
+ * The preserved old tool ("النسخة القديمة").
+ *
+ * The plan: the new site takes the main domain, and the original single page is
+ * kept alive on a subdomain with a link to it from the top of the new site. The
+ * link stays hidden while `url` is null, because a link to a site that does not
+ * exist yet is a dead button. Set it on the day the subdomain is live:
+ *
+ *   url: 'https://old.toolseer.com'
+ */
+export const LEGACY_SITE = {
+  url: null,
+  labelKey: 'legacy.label',
+  textKey: 'legacy.text',
+};
+
+/**
+ * Slim bar at the very top offering the preserved old tool. Renders nothing
+ * unless LEGACY_SITE.url is set. It sits below the desktop window toolbar so the
+ * native chrome stays where the operating system expects it.
+ */
+function renderLegacyBar(app) {
+  if (!app || !LEGACY_SITE.url) return;
+  const bar = document.createElement('div');
+  bar.className = 'ts-legacybar';
+  const text = document.createElement('span');
+  text.className = 'ts-legacybar__text';
+  text.textContent = t(LEGACY_SITE.textKey);
+  const link = document.createElement('a');
+  link.className = 'ts-legacybar__link';
+  link.href = LEGACY_SITE.url;
+  link.rel = 'noopener';
+  link.innerHTML = `${icon('arrow-right', { size: 14 })}<span>${t(LEGACY_SITE.labelKey)}</span>`;
+  bar.append(text, link);
+  const titlebar = app.querySelector('.ts-titlebar');
+  if (titlebar) titlebar.after(bar);
+  else app.prepend(bar);
+}
+
 /* ------------------------------------------------------------------ theme -- */
 
 const THEME_KEY = 'toolseer:theme';
@@ -341,6 +380,7 @@ export function renderShell(opts = {}) {
   const footer = document.getElementById('ts-footer');
   const app = document.querySelector('.ts-app');
   renderTitlebar(app);
+  renderLegacyBar(app);
 
   /* --- support strip --- */
   if (supportHost) {
