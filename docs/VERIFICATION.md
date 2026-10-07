@@ -11,20 +11,40 @@ code. Every number in this file comes from a command that was executed, and the 
 
 | Gate | Command | Result |
 |---|---|---|
-| Static integrity | `node tools/check.mjs` | **355 checks, 0 problems** |
+| Static integrity | `node tools/check.mjs` | **404 checks, 0 problems** |
 | Engine unit/integration | `node tests/run.mjs` | **84 passed, 0 failed, 84 total (3.7 s)** |
-| Real browser | `node tools/e2e.mjs --convert image-to-pdf,merge-pdf,protect-pdf,extract-text-pdf` | **201 checks, 0 failed, across 19 routes** |
-| Vendor integrity | `node tools/vendor.mjs verify` | **209 files match `vendor.lock.json`** |
-| Mascot geometry | `node apps/web/assets/img/mascot/_validate.mjs` | all checks pass (11 SVGs) |
+| Real browser | `node tools/e2e.mjs --convert image-to-pdf,merge-pdf,protect-pdf,extract-text-pdf` | **201 checks, 0 failed, across 19 routes** (recorded before the toolbox/PWA/OCR additions — see §8) |
+| Vendor integrity | `node tools/vendor.mjs verify` | **216 files match `vendor.lock.json`** |
+| Mascot geometry | `node apps/web/assets/img/mascot/_validate.mjs` | all checks pass (11 gecko SVGs; the rabbit set too) |
+| OCR stack in a real browser | probe page driving `vendor/ocr/` over CDP | **OCR read a real 1920×8537 scanned page in 2.1 s** |
 | Desktop engine pins | `node apps/desktop/tools/fetch-engines.mjs --check` | exit 0, 13 sources validated |
 
-The tree was frozen before this pass; the git commit that follows records the exact verified state.
+The tree was frozen before each pass; the git commits record the exact verified state.
 
 ---
 
+## 0. Open verification item (read this first)
+
+The browser gates need Chrome to start, and Chrome cannot start under the DSH `workspace-write`
+file policy (crashpad cannot open its own process handles). **The sandbox mode changed mid-session**,
+so the last full browser pass (201/201) predates the toolbox hub, the PWA layer, the gecko artwork,
+the OCR wiring and the `_redirects`/`serve.mjs` placeholder fix. Those changes are covered by the
+static gate (404 checks) and by targeted browser probes that ran while the wider mode was available,
+but **the complete 19-route browser pass has not been re-run against the final tree.** Re-run exactly:
+
+```powershell
+node tools/e2e.mjs --shot --convert image-to-pdf,merge-pdf,protect-pdf,extract-text-pdf
+```
+
+One concrete symptom was observed and is still open: with the sign-in redirect emulation in
+`serve.mjs` fixed, `--only privacy` passed 10/10 but `--only home` timed out on a `Runtime.evaluate`
+while a debugger pause showed the main thread was **not** blocked and the console was clean. The
+privacy route and the home route share `renderShell`; they differ by the toolbox and the PWA module.
+That is the first thing the re-run should bisect if it reproduces.
+
 ## 1. Static integrity gate — `node tools/check.mjs`
 
-355 checks across every route. What it proves without a browser:
+404 checks across every route. What it proves without a browser:
 
 | Area | Check |
 |---|---|

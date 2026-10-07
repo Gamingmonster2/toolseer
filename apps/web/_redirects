@@ -1,5 +1,47 @@
-# Cloudflare Pages redirects. Trailing-slash normalisation is explicit so
-# canonical URLs (no trailing slash) are the only URLs that ever resolve.
+# ============================================================================
+# ToolSeer V3 — apps/web/_redirects   (Cloudflare Pages)
+#
+# RULES OF THIS FILE, verified against the Cloudflare Pages redirects docs:
+#   * FIRST MATCH WINS, top to bottom — most specific rules are listed first.
+#   * Static paths come before dynamic (placeholder) paths.
+#   * Redirects run BEFORE static asset matching and are always followed, so no
+#     rule may be broad enough to match /assets/*, /vendor/*, /sw.js,
+#     /manifest.webmanifest, /offline.html, /robots.txt, /sitemap.xml or any real
+#     tool slug. A rule that did would break the live site instead of helping a
+#     legacy visitor. Every rule below is checked against those namespaces.
+#   * Splats are used only in the documented trailing form (`/p/*`), which is also
+#     the only form tools/serve.mjs implements. One splat per line, at the end.
+#   * Fragments (#view-converter, #view-works, #view-contact) are NEVER evaluated
+#     by Cloudflare. They need no rule: the browser keeps the fragment across a
+#     redirect whose Location has none, so an old link
+#     `/p/toolseer.html#view-works` becomes `/#view-works` and lands on the new
+#     hub. See docs/CONTINUITY.md §3.
+#   * Cloudflare cannot match query strings: a source containing "?" is not
+#     usable. That is why `/?m=1` (the old Blogger mobile variant) has no rule
+#     below — see §5. It already resolves to the responsive hub.
+#   * Limits: 2,000 static + 100 dynamic rules. This file uses about 40.
+#
+# LOCAL PREVIEW WARNING: tools/serve.mjs understands exact paths and trailing
+# `/*` only — it does NOT implement `:placeholder` sources. Rules marked
+# [dynamic] below will silently not fire on http://127.0.0.1:4173. Test those
+# against Cloudflare, or add placeholder support to tools/serve.mjs.
+#
+# ============================================================================
+# ⚠ OWNER MUST VERIFY — we do NOT have the real Blogger URL list yet.
+#
+# Everything from section 3 down is a SHAPE inferred from how Blogger emits
+# URLs, not from this site's actual traffic. Confirm against:
+#   a) Blogger dashboard → Settings → the blog's published URL / post list, and
+#   b) Google Search Console → Indexing → Pages (export the indexed URLs).
+# Then keep every shape that matches, delete the ones that do not, and add any
+# real URL that is missing. Section 6 lists likely aliases, commented out, to
+# switch on ONLY if they appear in that list.
+# ============================================================================
+
+
+# --- 1. Canonical, no-trailing-slash normalisation (existing contract) -------
+# These are the real routes (docs/ARCHITECTURE.md §3). Keep them first so no
+# dynamic rule can ever shadow a live page.
 
 / / 200
 /image-to-pdf/ /image-to-pdf 301
@@ -17,8 +59,108 @@
 /privacy/ /privacy 301
 /terms/ /terms 301
 
-# Legacy single-page views from the original Blogger site → current routes.
+# The physical file behind a route must canonicalise to the route. This line is
+# also what protects every /<route>/index.html from the two-segment dynamic rules
+# in section 4 (first match wins). [dynamic]
+/:slug/index.html /:slug 301
+
+
+# --- 2. Legacy single-page views and entry paths (VERIFY) --------------------
+# The old site was one page; these were its obvious entry points.
+
 /convert / 301
 /converter / 301
 /our-works /works 301
 /contact-us /contact 301
+/contact_us /contact 301
+/index.html / 301
+/home / 301
+/home.html / 301
+/default.html / 301
+
+
+# --- 3. Blogger static pages: /p/<slug>.html (VERIFY) ------------------------
+# Blogger publishes static pages under /p/. Splat at the end, so it can never
+# match a real route (nothing on this site lives under /p/).
+
+/p/* / 301
+/p / 301
+/p/ / 301
+
+
+# --- 4. Blogger dated posts and archives (VERIFY) ---------------------------
+# Blogger's permalink shape is /YYYY/MM/slug.html, with /YYYY/MM/ as the monthly
+# archive listing. Listed most specific first. [dynamic] — see the local preview
+# warning above.
+#
+# TWO-SEGMENT RULES AND WHAT THEY CAN TOUCH. `/:year/:month` and `/:year/:month/`
+# match any two-segment path. Everything this site actually serves at depth two is
+# either /<route>/index.html — already redirected above by /:slug/index.html — or
+# the single build artifact /vendor/vendor.lock.json, which no page ever fetches
+# and which therefore redirects to the hub harmlessly. If the owner wants even that
+# gone, delete the two `/:year/:month` lines and enumerate literal years instead
+# (`/2019/* / 301`, `/2020/* / 301`, …), which cannot match anything else.
+#
+# DELIBERATELY ABSENT: `/:year/ / 301` (Blogger's yearly archive). A one-segment
+# placeholder would match EVERY one-segment path on the site — /sw.js, /robots.txt,
+# /sitemap.xml, /offline.html, /manifest.webmanifest and every tool route — if
+# Cloudflare ever normalises trailing slashes during matching. That downside is
+# catastrophic and the upside is one rare legacy URL shape, so the rule is not
+# here. If the archive widget is set to yearly, add literal years only.
+
+/:year/:month/:day/:slug.html / 301
+/:year/:month/:slug.html / 301
+/:year/:month/ / 301
+/:year/:month / 301
+
+
+# --- 5. Feeds, search, labels and the Blogger mobile variant (VERIFY) --------
+# Feed paths have no equivalent on the new site, so they go to the hub rather
+# than 404. Search and label URLs also land on the hub, which is the page that
+# links every tool.
+#
+# /?m=1 CANNOT be expressed here: the source path is "/" and Cloudflare does not
+# match query strings. It needs no rule — the query is inert on a responsive
+# site, and rule `/ / 200` above already serves the hub for it. Offline, sw.js
+# matches cached pages with ignoreSearch, so "/?m=1" still opens the cached hub.
+
+/feeds/* / 301
+/feed/posts/default / 301
+/feed / 301
+/atom.xml / 301
+/rss.xml / 301
+/search / 301
+/search/* / 301
+
+
+# --- 6. Speculative aliases — ENABLE ONLY WHAT THE URL LIST SHOWS -----------
+# These are plausible old names, not evidence. They are commented out so that
+# nothing here can ever shadow a future route. Uncomment, one per line, only for
+# a path that appears in the owner's Blogger / Search Console list.
+#
+# /merge / 301
+# /merge-pdfs / 301
+# /combine-pdf / 301
+# /compress / 301
+# /reduce-pdf-size / 301
+# /split / 301
+# /rotate-pdf / 301
+# /jpg-to-pdf / 301
+# /images-to-pdf / 301
+# /pdf-to-jpg / 301
+# /word-to-pdf / 301
+# /extract-text / 301
+# /ocr-pdf / 301
+#
+# If the URL list shows BARE post paths such as /my-post.html (a Blogger custom
+# permalink), the only single-rule way to catch them is a placeholder with a
+# literal suffix. Test it on a preview deploy BEFORE enabling, because it would
+# also catch /404.html:
+#
+# /:slug.html / 301
+#
+# NOTE ON TRAILING SLASHES: section 1 normalises every real route explicitly, on
+# purpose. There is deliberately NO generic `/:route/ /:route` rule here — the
+# two-segment `/:year/:month/` rule above is a placeholder rule too, so a generic
+# one-segment normaliser placed after it would be shadowed for every single-segment
+# path. When a new route is added, add its trailing-slash rule to section 1.

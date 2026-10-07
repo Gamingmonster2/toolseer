@@ -799,3 +799,280 @@ html[data-theme="dark"] .ts-file__drag { background: rgba(17, 24, 39, 0.9); colo
 @media print {
   .ts-rail, .ts-header, .ts-support, .ts-actions, .ts-drop { display: none !important; }
 }
+
+/* ======================================================================
+   Toolbox hub — the searchable tool grid (owner's reference: PDF24 Toolbox)
+   Scoped under .ts-toolbox so the simpler .ts-tool cards used by the 404 and
+   works pages keep their original layout.
+   ====================================================================== */
+
+.ts-toolbox {
+  width: 100%;
+  max-width: 1120px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-block-start: 6px;
+}
+
+.ts-toolbox__head {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  text-align: start;
+}
+.ts-toolbox__mascot { flex: none; width: 84px; height: 84px; color: var(--ts-text); }
+.ts-toolbox__mascot svg { width: 100%; height: 100%; }
+.ts-toolbox__titles { display: flex; flex-direction: column; gap: 2px; }
+.ts-toolbox__title { font-size: clamp(24px, 3.4vw, 34px); font-weight: 800; letter-spacing: -0.03em; }
+.ts-toolbox__sub { font-size: 15px; color: var(--ts-text-muted); }
+
+/* ---- controls row ---- */
+.ts-toolbox__controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 10px;
+  background: var(--ts-surface);
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-lg);
+  box-shadow: var(--ts-shadow-xs);
+}
+
+.ts-search { position: relative; flex: 1 1 260px; min-width: 200px; display: flex; align-items: center; }
+.ts-search__icon {
+  position: absolute; inset-inline-start: 13px; color: var(--ts-text-subtle);
+  display: grid; place-items: center; pointer-events: none;
+}
+.ts-search__input {
+  width: 100%;
+  padding: 11px 15px;
+  padding-inline-start: 42px;
+  background: var(--ts-surface-2);
+  border: 1px solid transparent;
+  border-radius: var(--ts-radius);
+  font-size: 14px;
+}
+.ts-search__input:focus {
+  outline: none;
+  background: var(--ts-surface);
+  border-color: var(--ts-primary);
+  box-shadow: 0 0 0 3px var(--ts-primary-ring);
+}
+.ts-search__input::-webkit-search-cancel-button { cursor: pointer; }
+
+.ts-filters { display: flex; gap: 3px; background: var(--ts-surface-2); padding: 4px; border-radius: var(--ts-radius-pill); }
+.ts-filters__btn {
+  padding: 8px 15px;
+  border: 0;
+  background: transparent;
+  border-radius: var(--ts-radius-pill);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ts-text-muted);
+  cursor: pointer;
+  transition: background var(--ts-speed) var(--ts-ease), color var(--ts-speed) var(--ts-ease);
+  white-space: nowrap;
+}
+.ts-filters__btn:hover { color: var(--ts-text); }
+.ts-filters__btn[aria-pressed="true"] { background: var(--ts-surface); color: var(--ts-primary); box-shadow: var(--ts-shadow-xs); }
+
+.ts-toolbox__count { font-size: 13px; color: var(--ts-text-muted); padding-inline-end: 6px; white-space: nowrap; }
+
+/* ---- the grid: dense like the reference, 6 across on a wide screen ---- */
+.ts-toolbox .ts-toolgrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(172px, 1fr));
+  gap: 12px;
+  max-width: none;
+}
+
+.ts-toolbox .ts-tool {
+  position: relative;
+  display: block;
+  padding: 0;
+  margin: 0;
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-lg);
+  background: var(--ts-surface);
+  box-shadow: none;
+  overflow: visible;
+  transition: transform var(--ts-speed) var(--ts-ease), box-shadow var(--ts-speed) var(--ts-ease), border-color var(--ts-speed) var(--ts-ease);
+}
+.ts-toolbox .ts-tool:hover,
+.ts-toolbox .ts-tool:focus-within {
+  transform: translateY(-3px);
+  border-color: var(--ts-primary);
+  box-shadow: var(--ts-shadow-md);
+  z-index: 4;
+}
+
+.ts-tool__link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  padding: 18px 14px 16px;
+  border-radius: var(--ts-radius-lg);
+  text-decoration: none;
+  color: inherit;
+  text-align: center;
+  min-height: 152px;
+  justify-content: flex-start;
+}
+.ts-tool__art {
+  width: 56px; height: 56px; flex: none;
+  color: var(--ts-text);
+  border-radius: var(--ts-radius);
+  background: var(--ts-primary-soft);
+  padding: 7px;
+  box-sizing: content-box;
+}
+.ts-tool__art svg { width: 100%; height: 100%; }
+.ts-tool__art--soon {
+  display: grid; place-items: center;
+  background: transparent; border: 1px dashed var(--ts-border-strong);
+  color: var(--ts-text-subtle); padding: 7px;
+}
+.ts-toolbox .ts-tool__name { font-size: 14px; font-weight: 700; line-height: 1.3; }
+.ts-toolbox .ts-tool__desc {
+  font-size: 12.5px;
+  color: var(--ts-text-muted);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.ts-toolbox .ts-tool__badge {
+  align-self: center;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ts-warning);
+  background: var(--ts-warning-soft);
+  padding: 2px 8px;
+  border-radius: var(--ts-radius-pill);
+}
+
+.ts-tool--link .ts-tool__link:focus-visible { outline: 3px solid var(--ts-primary-ring); outline-offset: 2px; }
+.ts-tool--soon { opacity: 0.72; }
+.ts-tool--soon:hover { transform: none; border-color: var(--ts-border); box-shadow: none; }
+.ts-tool--soon .ts-tool__link { cursor: default; }
+
+/* favourite star — the reference app puts it in the card's top corner */
+.ts-star {
+  position: absolute;
+  inset-block-start: 8px;
+  inset-inline-end: 8px;
+  width: 28px; height: 28px;
+  display: grid; place-items: center;
+  border: 0; border-radius: var(--ts-radius-pill);
+  background: transparent;
+  color: var(--ts-text-subtle);
+  cursor: pointer;
+  transition: background var(--ts-speed) var(--ts-ease), color var(--ts-speed) var(--ts-ease), transform var(--ts-speed) var(--ts-ease);
+}
+.ts-star:hover { background: var(--ts-surface-2); color: var(--ts-primary); transform: scale(1.08); }
+.ts-star.is-on { color: var(--ts-primary); }
+.ts-star.is-on svg { fill: currentColor; }
+
+/* hover tooltip: one line of what the tool does */
+.ts-toolbox [data-tip] { position: relative; }
+.ts-toolbox [data-tip]::after {
+  content: attr(data-tip);
+  position: absolute;
+  inset-block-end: calc(100% - 4px);
+  inset-inline-start: 50%;
+  transform: translateX(-50%) translateY(4px);
+  width: max-content;
+  max-width: 250px;
+  padding: 8px 12px;
+  border-radius: var(--ts-radius);
+  background: var(--ts-text);
+  color: var(--ts-surface);
+  font-size: 12.5px;
+  font-weight: 500;
+  line-height: 1.35;
+  text-align: center;
+  box-shadow: var(--ts-shadow-lg);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms var(--ts-ease), transform 120ms var(--ts-ease);
+  z-index: 8;
+}
+.ts-toolbox .ts-tool:hover [data-tip]::after,
+.ts-toolbox .ts-tool:focus-within [data-tip]::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+html[dir="rtl"] .ts-toolbox [data-tip]::after { transform: translateX(50%) translateY(4px); }
+html[dir="rtl"] .ts-toolbox .ts-tool:hover [data-tip]::after,
+html[dir="rtl"] .ts-toolbox .ts-tool:focus-within [data-tip]::after { transform: translateX(50%) translateY(0); }
+
+.ts-toolbox__empty { padding-block: 34px; }
+
+/* ---- Windows-integration strip ---- */
+.ts-desktopbar { width: 100%; }
+.ts-desktopbar__inner {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+  padding: 20px 22px;
+  background: var(--ts-surface);
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-lg);
+  box-shadow: var(--ts-shadow-xs);
+}
+.ts-desktopbar__art { width: 64px; height: 64px; flex: none; color: var(--ts-text); }
+.ts-desktopbar__art svg { width: 100%; height: 100%; }
+.ts-desktopbar__text { flex: 1 1 320px; display: flex; flex-direction: column; gap: 5px; }
+.ts-desktopbar__title { font-size: 15px; font-weight: 700; }
+.ts-desktopbar__body { font-size: 13.5px; color: var(--ts-text-muted); }
+
+/* ---- desktop-only window toolbar (Tauri shell) ---- */
+.ts-titlebar {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 8px;
+  background: var(--ts-rail);
+  border-block-end: 1px solid var(--ts-border);
+  min-height: 40px;
+}
+.ts-titlebar__btn {
+  display: grid; place-items: center;
+  width: 34px; height: 30px;
+  border: 0; border-radius: var(--ts-radius-sm);
+  background: transparent; color: var(--ts-text-muted); cursor: pointer;
+  transition: background var(--ts-speed) var(--ts-ease), color var(--ts-speed) var(--ts-ease);
+}
+.ts-titlebar__btn:hover { background: var(--ts-surface-2); color: var(--ts-text); }
+.ts-titlebar__btn--close:hover { background: var(--ts-danger); color: #fff; }
+.ts-titlebar__spacer { flex: 1; }
+.ts-titlebar__title {
+  font-size: 13px; font-weight: 600; color: var(--ts-text-muted);
+  -webkit-app-region: drag;
+}
+
+@media (max-width: 880px) {
+  .ts-toolbox .ts-toolgrid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+  .ts-toolbox__head { gap: 12px; }
+  .ts-toolbox__mascot { width: 62px; height: 62px; }
+  .ts-toolbox__controls { padding: 8px; }
+  .ts-toolbox .ts-tool__link { min-height: 138px; padding: 14px 10px; }
+  .ts-desktopbar__inner { padding: 16px; }
+}
+
+@media (max-width: 560px) {
+  .ts-toolbox .ts-toolgrid { grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 9px; }
+  .ts-toolbox .ts-tool__desc { display: none; }
+  .ts-tool__art { width: 46px; height: 46px; }
+  .ts-filters { flex: 1; justify-content: space-between; }
+  .ts-toolbox__count { display: none; }
+}

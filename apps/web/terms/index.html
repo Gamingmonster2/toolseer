@@ -16,6 +16,15 @@ if(t!=='light'&&t!=='dark'){t=window.matchMedia&&window.matchMedia('(prefers-col
 document.documentElement.dataset.theme=t;
 if(localStorage.getItem('toolseer:lang')==='ar'){document.documentElement.lang='ar';document.documentElement.dir='rtl';}}catch(e){}})();
 </script>
+<link rel="manifest" href="/manifest.webmanifest">
+<script>
+/* Capture the install prompt as early as possible: it can fire before the
+   deferred module runs, and the event is not replayable. */
+window.addEventListener('beforeinstallprompt', function (event) {
+  event.preventDefault();
+  window.__toolseerInstallPrompt = event;
+});
+</script>
 </head>
 <body>
 <a class="ts-skip-link" href="#ts-main">Skip to content</a>

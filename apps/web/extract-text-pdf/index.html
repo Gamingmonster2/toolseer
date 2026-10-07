@@ -53,7 +53,7 @@
         "Reads the PDF's own text layer page by page",
         "Optional page ranges such as 1-3, 5, 8-12",
         "Optional layout preservation for tables and columns",
-        "OCR switch for scans, off by default, with an honest message when no engine is bundled",
+        "OCR switch for scanned pages, off by default, with self-hosted English and Arabic models",
         "Copy to clipboard or download as a .txt file",
         "No upload, no account, no text extraction quota"
       ]
@@ -71,7 +71,7 @@
         {
           "@type": "Question",
           "name": "Why does the tool say my PDF has no text layer?",
-          "acceptedAnswer": { "@type": "Answer", "text": "Because its pages are images, which is what a scanner produces. There are no characters stored in the file to copy out, only pixels, so extraction returns nothing. OCR can recognise those pages, but this browser build does not include an OCR engine yet: switching OCR on reports that the language data is not bundled. Expect to proofread any OCR output once an engine is available." }
+          "acceptedAnswer": { "@type": "Answer", "text": "Because its pages are images, which is what a scanner produces. There are no characters stored in the file to copy out, only pixels, so ordinary extraction returns nothing. Turning on OCR makes the browser render each page and recognise the text with a local model — about 11 MB for English and 1.7 MB for Arabic, downloaded once, then cached. Expect to proofread the result." }
         },
         {
           "@type": "Question",
@@ -81,7 +81,7 @@
         {
           "@type": "Question",
           "name": "How accurate is OCR?",
-          "acceptedAnswer": { "@type": "Answer", "text": "It depends on the scan. Clean, straight, 300-DPI pages of ordinary print come out nearly perfect. Skewed, faded, handwritten or faxed pages produce errors, most often in numbers, names and Arabic diacritics. Treat every OCR result as a draft that needs proofreading, and note that a build without an OCR engine says so instead of returning empty text." }
+          "acceptedAnswer": { "@type": "Answer", "text": "It depends on the scan. Clean, straight, 300-DPI pages of ordinary print come out nearly perfect. Skewed, faded, handwritten or faxed pages produce errors, most often in numbers, names and Arabic diacritics. Treat every OCR result as a draft that needs proofreading; the tool always tells you which pages came from OCR rather than from a real text layer." }
         },
         {
           "@type": "Question",
@@ -103,6 +103,15 @@
   ]
 }
 </script>
+<link rel="manifest" href="/manifest.webmanifest">
+<script>
+/* Capture the install prompt as early as possible: it can fire before the
+   deferred module runs, and the event is not replayable. */
+window.addEventListener('beforeinstallprompt', function (event) {
+  event.preventDefault();
+  window.__toolseerInstallPrompt = event;
+});
+</script>
 </head>
 <body>
 <a class="ts-skip-link" href="#ts-main">Skip to content</a>
@@ -122,9 +131,8 @@
         <h1 class="ts-hero__title" data-i18n="tool.extract-text-pdf.title">Extract Text from PDF</h1>
         <p class="ts-hero__sub">
           Copy the text out of a PDF, page by page, and save it as a plain text file. Documents with
-          a real text layer come out exactly; scanned pages have no text to copy, and this browser
-          build does not include an OCR engine yet, so it tells you that instead of returning an
-          empty file.
+          a real text layer come out exactly; for scanned pages, turn on OCR and the browser reads
+          them locally with English or Arabic models — no upload, no account.
         </p>
       </section>
 
@@ -144,10 +152,9 @@
         <p>
           A scanned PDF is the opposite. A scanner produces one image per page, so the file contains
           no characters at all, only pixels. Nothing can be extracted because there is no text to
-          extract, and this page says so instead of handing you an empty file. The only way to get
-          text out of a scan is optical character recognition, which is what the OCR switch is for —
-          and this browser build reports that no OCR engine is bundled rather than pretending to
-          have read a page.
+          extract, which is why this page tells you plainly that a page had no text layer instead of
+          handing you an empty file. The only way to get text out of a scan is optical character
+          recognition, which is what the OCR switch is for.
         </p>
 
         <h2>OCR is a guess, and guesses need proofreading</h2>
@@ -160,13 +167,12 @@
           account number.
         </p>
         <p>
-          OCR here is opt-in and off by default because it is heavy. One thing to be plain about:
-          <strong>this browser build does not include an OCR engine yet</strong>, so switching OCR on
-          reports that the language data is not bundled and returns no text rather than pretending
-          to have read a page. If an engine is present, the design is that the first use of a
-          language downloads its recognition data — several megabytes — and caches it, after which
-          recognition runs locally on your machine. Nothing is uploaded at any point, and the
-          language choice below only matters once an engine is available.
+          OCR here is opt-in and off by default because it is heavy. Turning it on downloads the
+          recognition engine (about 4 MB of WebAssembly) and one language model: roughly 11 MB for
+          English, 1.7 MB for Arabic. Your browser caches both, so it is a one-time cost per
+          language, and recognition then runs entirely on your machine. Nothing is uploaded at any
+          point, and pages that already have a text layer are never sent through OCR — those come out
+          exactly.
         </p>
 
         <h3>What you get, and what the layout switch does</h3>
@@ -192,7 +198,7 @@
         <h2 style="font-size:21px;margin-bottom:2px">Frequently asked questions</h2>
         <details open>
           <summary>Why does the tool say my PDF has no text layer?</summary>
-          <p>Because its pages are images, which is what a scanner produces. There are no characters stored in the file to copy out, only pixels, so extraction returns nothing. OCR can recognise those pages, but this browser build does not include an OCR engine yet: switching OCR on reports that the language data is not bundled. Expect to proofread any OCR output once an engine is available.</p>
+          <p>Because its pages are images, which is what a scanner produces. There are no characters stored in the file to copy out, only pixels, so ordinary extraction returns nothing. Turning on OCR makes the browser render each page and recognise the text with a local model — about 11 MB for English and 1.7 MB for Arabic, downloaded once and then cached. Expect to proofread the result.</p>
         </details>
         <details>
           <summary>Do I need OCR for a normal PDF?</summary>
@@ -200,7 +206,7 @@
         </details>
         <details>
           <summary>How accurate is OCR?</summary>
-          <p>It depends on the scan. Clean, straight, 300-DPI pages of ordinary print come out nearly perfect. Skewed, faded, handwritten or faxed pages produce errors, most often in numbers, names and Arabic diacritics. Treat every OCR result as a draft that needs proofreading, and note that a build without an OCR engine says so instead of returning empty text.</p>
+          <p>It depends on the scan. Clean, straight, 300-DPI pages of ordinary print come out nearly perfect. Skewed, faded, handwritten or faxed pages produce errors, most often in numbers, names and Arabic diacritics. Treat every OCR result as a draft that needs proofreading; the tool always tells you which pages came from OCR rather than from a real text layer.</p>
         </details>
         <details>
           <summary>Does OCR upload my document?</summary>
@@ -288,16 +294,33 @@
 
       const ocr = !!settings.ocr;
       onProgress({
-        value: ocr ? 0.25 : 0.5,
-        label: ocr ? 'Recognising text (OCR)…' : 'Extracting text…',
+        value: ocr ? 0.2 : 0.5,
+        label: ocr ? 'Preparing OCR…' : 'Extracting text…',
       });
+
+      /* OCR needs a backend injected into the engine. It is imported only when the
+         reader asks for OCR, so a normal extraction never pays for the 4 MB WASM
+         core or the language data. */
+      let ocrEngine;
+      if (ocr) {
+        const { createBrowserOcrEngine } = await import('/assets/js/core/ocr-browser.js');
+        ocrEngine = createBrowserOcrEngine({
+          onProgress: ({ label, value }) => onProgress({
+            label: label || 'Recognising text (OCR)…',
+            value: 0.2 + (typeof value === 'number' ? value * 0.7 : 0.2),
+          }),
+        });
+      }
 
       const result = await extractText(input.bytes, {
         pages,
         layout: !!settings.layout,
         ocr,
         ocrLang: settings.ocrLang,
+        ocrEngine,
       });
+
+      if (ocrEngine) await ocrEngine.terminate().catch(() => {});
 
       const text = typeof result.text === 'string' ? result.text : '';
       const { t, hasKey } = await import('/assets/js/ui/i18n.js');

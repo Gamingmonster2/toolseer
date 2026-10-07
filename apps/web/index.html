@@ -92,6 +92,15 @@
   ]
 }
 </script>
+<link rel="manifest" href="/manifest.webmanifest">
+<script>
+/* Capture the install prompt as early as possible: it can fire before the
+   deferred module runs, and the event is not replayable. */
+window.addEventListener('beforeinstallprompt', function (event) {
+  event.preventDefault();
+  window.__toolseerInstallPrompt = event;
+});
+</script>
 </head>
 <body>
 <a class="ts-skip-link" href="#ts-main">Skip to content</a>
@@ -115,77 +124,21 @@
         </p>
       </section>
 
-      <section class="ts-toolgrid" aria-label="PDF tools">
-        <a class="ts-tool" href="/image-to-pdf">
-          <span class="ts-tool__top">
-            <span class="ts-tool__mascot"><img src="/assets/img/mascot/image-to-pdf.svg" alt="" width="46" height="46" aria-hidden="true" onerror="this.style.display='none'"></span>
-            <span class="ts-tool__name">Image to PDF</span>
-          </span>
-          <span class="ts-tool__desc">Turn JPG and PNG images into one PDF. Reorder by dragging, pick page size, margins and quality.</span>
-        </a>
-        <a class="ts-tool" href="/merge-pdf">
-          <span class="ts-tool__top">
-            <span class="ts-tool__mascot"><img src="/assets/img/mascot/merge-pdf.svg" alt="" width="46" height="46" aria-hidden="true" onerror="this.style.display='none'"></span>
-            <span class="ts-tool__name">Merge PDF</span>
-          </span>
-          <span class="ts-tool__desc">Combine several PDFs into one document in the order you choose, with optional bookmarks per file.</span>
-        </a>
-        <a class="ts-tool" href="/compress-pdf">
-          <span class="ts-tool__top">
-            <span class="ts-tool__mascot"><img src="/assets/img/mascot/compress-pdf.svg" alt="" width="46" height="46" aria-hidden="true" onerror="this.style.display='none'"></span>
-            <span class="ts-tool__name">Compress PDF</span>
-          </span>
-          <span class="ts-tool__desc">Shrink a PDF for email or upload. Lossless structure optimisation, or stronger compression with image downsampling.</span>
-        </a>
-        <a class="ts-tool" href="/split-pdf">
-          <span class="ts-tool__top">
-            <span class="ts-tool__mascot"><img src="/assets/img/mascot/split-pdf.svg" alt="" width="46" height="46" aria-hidden="true" onerror="this.style.display='none'"></span>
-            <span class="ts-tool__name">Split PDF</span>
-          </span>
-          <span class="ts-tool__desc">Extract one page per file, type your own page ranges, or cut the document into chunks of N pages.</span>
-        </a>
-        <a class="ts-tool" href="/protect-pdf">
-          <span class="ts-tool__top">
-            <span class="ts-tool__mascot"><img src="/assets/img/mascot/protect-pdf.svg" alt="" width="46" height="46" aria-hidden="true" onerror="this.style.display='none'"></span>
-            <span class="ts-tool__name">Protect PDF</span>
-          </span>
-          <span class="ts-tool__desc">Add a password and encryption to a PDF, and choose what readers may print, copy or modify.</span>
-        </a>
-        <a class="ts-tool" href="/unlock-pdf">
-          <span class="ts-tool__top">
-            <span class="ts-tool__mascot"><img src="/assets/img/mascot/unlock-pdf.svg" alt="" width="46" height="46" aria-hidden="true" onerror="this.style.display='none'"></span>
-            <span class="ts-tool__name">Unlock PDF</span>
-          </span>
-          <span class="ts-tool__desc">Remove the password from a PDF you already know the password for — done locally, never uploaded.</span>
-        </a>
-        <a class="ts-tool" href="/pdf-to-images">
-          <span class="ts-tool__top">
-            <span class="ts-tool__mascot"><img src="/assets/img/mascot/pdf-to-images.svg" alt="" width="46" height="46" aria-hidden="true" onerror="this.style.display='none'"></span>
-            <span class="ts-tool__name">PDF to Images</span>
-          </span>
-          <span class="ts-tool__desc">Export every page as PNG or JPEG at the resolution you need, then download them as a zip.</span>
-        </a>
-        <a class="ts-tool" href="/organize-pdf">
-          <span class="ts-tool__top">
-            <span class="ts-tool__mascot"><img src="/assets/img/mascot/organize-pdf.svg" alt="" width="46" height="46" aria-hidden="true" onerror="this.style.display='none'"></span>
-            <span class="ts-tool__name">Organize PDF</span>
-          </span>
-          <span class="ts-tool__desc">Reorder, rotate and delete pages on a visual grid. Drag pages into place and save the result.</span>
-        </a>
-        <a class="ts-tool" href="/extract-text-pdf">
-          <span class="ts-tool__top">
-            <span class="ts-tool__mascot"><img src="/assets/img/mascot/extract-text-pdf.svg" alt="" width="46" height="46" aria-hidden="true" onerror="this.style.display='none'"></span>
-            <span class="ts-tool__name">Extract Text</span>
-          </span>
-          <span class="ts-tool__desc">Pull the text layer out of a PDF, or run OCR on scanned pages. Copy it, or download it as a .txt file.</span>
-        </a>
-        <a class="ts-tool" href="/desktop">
-          <span class="ts-tool__top">
-            <span class="ts-tool__mascot"><img src="/assets/img/mascot/desktop.svg" alt="" width="46" height="46" aria-hidden="true" onerror="this.style.display='none'"></span>
-            <span class="ts-tool__name">Desktop app</span>
-          </span>
-          <span class="ts-tool__desc">For very large jobs — thousands of pages or images. Same tools, running on disk with no memory ceiling.</span>
-        </a>
+      <section class="ts-toolbox" id="ts-toolbox" aria-label="PDF tools">
+        <noscript>
+          <p>JavaScript is required for the tools themselves, but here are the direct links:
+            <a href="/image-to-pdf">Image to PDF</a>,
+            <a href="/merge-pdf">Merge PDF</a>,
+            <a href="/compress-pdf">Compress PDF</a>,
+            <a href="/split-pdf">Split PDF</a>,
+            <a href="/protect-pdf">Protect PDF</a>,
+            <a href="/unlock-pdf">Unlock PDF</a>,
+            <a href="/pdf-to-images">PDF to Images</a>,
+            <a href="/organize-pdf">Organize PDF</a>,
+            <a href="/extract-text-pdf">Extract Text</a>,
+            <a href="/desktop">Desktop app</a>.
+          </p>
+        </noscript>
       </section>
 
       <section class="ts-steps" aria-label="How it works">
@@ -262,8 +215,15 @@
   import { renderShell } from '/assets/js/ui/shell.js';
   import { icon } from '/assets/js/ui/icons.js';
   import { t } from '/assets/js/ui/i18n.js';
+  import { renderToolbox } from '/assets/js/ui/toolbox.js';
 
   const { railBody } = renderShell({ slug: '' });
+
+  /* The hero already carries the mascot, title and subtitle, so the toolbox
+     renders its controls, grid and desktop strip without repeating them. */
+  const host = document.getElementById('ts-toolbox');
+  if (host) renderToolbox(host, { masthead: false });
+
   if (railBody) {
     const links = [
       ['image-to-pdf', 'tool.image-to-pdf.title'],

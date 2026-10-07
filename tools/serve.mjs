@@ -38,7 +38,27 @@ const MIME = {
   '.map': 'application/json; charset=utf-8',
 };
 
-/** Parse a Pages `_redirects` file: `from  to  [status]` (supports `*` suffix). */
+/**
+ * Split a Cloudflare source path into segment matchers.
+ * A segment is either literal, a bare placeholder (`:year`), or a placeholder
+ * with a literal suffix (`:slug.html`) — that last form is why a naive
+ * "starts with a colon means a whole segment" emulation is dangerous: it makes
+ * `/:year/:month/:slug.html` swallow `/assets/js/ui/pwa.js`.
+ */
+function compileSource(from) {
+  return from.split('/').map((segment) => {
+    const m = /^:([A-Za-z_][A-Za-z0-9_]*)(.*)$/.exec(segment);
+    if (!m) return { literal: segment };
+    return { name: m[1], suffix: m[2] || '' };
+  });
+}
+
+/**
+ * Parse a Pages `_redirects` file: `from  to  [status]`.
+ * Supports a trailing `*` splat and Cloudflare's `:placeholder` syntax in both
+ * its bare and suffixed forms, so the local preview exercises the same rules
+ * production will.
+ */
 async function loadRedirects() {
   const file = path.join(ROOT, '_redirects');
   if (!fs.existsSync(file)) return [];
@@ -49,8 +69,45 @@ async function loadRedirects() {
     .filter((line) => line && !line.startsWith('#'))
     .map((line) => {
       const [from, to, status] = line.split(/\s+/);
-      return { from, to, status: Number(status) || 302 };
+      return { from, to, status: Number(status) || 302, segments: compileSource(from), splat: from.endsWith('/*') };
     });
+}
+
+/** Match one rule against a path; returns captured values or null. */
+function matchRule(rule, urlPath) {
+  if (rule.splat) {
+    const prefix = rule.from.slice(0, -1);
+    if (!urlPath.startsWith(prefix)) return null;
+    return { splat: urlPath.slice(prefix.length) };
+  }
+
+  const pathParts = urlPath.split('/');
+  if (rule.segments.length !== pathParts.length) return null;
+
+  const captures = {};
+  for (let i = 0; i < rule.segments.length; i++) {
+    const seg = rule.segments[i];
+    const part = pathParts[i];
+    if (seg.literal !== undefined) {
+      if (seg.literal !== part) return null;
+      continue;
+    }
+    if (seg.suffix) {
+      if (!part.endsWith(seg.suffix) || part.length <= seg.suffix.length) return null;
+      captures[seg.name] = part.slice(0, part.length - seg.suffix.length);
+    } else {
+      if (!part) return null;
+      captures[seg.name] = part;
+    }
+  }
+  return captures;
+}
+
+/** Fill `:name` and `:splat` placeholders in a destination. */
+function expandTarget(to, captures) {
+  return to
+    .replace(/:splat/g, captures.splat != null ? captures.splat : '')
+    .replace(/:([A-Za-z_][A-Za-z0-9_]*)/g, (m, name) => (captures[name] != null ? captures[name] : m));
 }
 
 const args = process.argv.slice(2);
@@ -83,25 +140,16 @@ const server = http.createServer(async (req, res) => {
   let urlPath = req.url || '/';
 
   for (const rule of redirects) {
+    const captures = matchRule(rule, urlPath);
+    if (!captures) continue;
     if (rule.status === 200) {
       /* Cloudflare "rewrite" rule (e.g. `/ / 200`): serve the target content
          at this URL instead of redirecting. */
-      if (rule.from === urlPath) urlPath = rule.to;
-      else if (rule.from.endsWith('/*') && urlPath.startsWith(rule.from.slice(0, -1))) {
-        urlPath = rule.to.replace(':splat', urlPath.slice(rule.from.length - 1));
-      }
+      urlPath = expandTarget(rule.to, captures);
       continue;
     }
-    if (rule.from.endsWith('/*')) {
-      const prefix = rule.from.slice(0, -1);
-      if (urlPath.startsWith(prefix)) {
-        res.writeHead(rule.status, { Location: rule.to.replace(':splat', urlPath.slice(prefix.length)) });
-        return res.end();
-      }
-    } else if (rule.from === urlPath) {
-      res.writeHead(rule.status, { Location: rule.to });
-      return res.end();
-    }
+    res.writeHead(rule.status, { Location: expandTarget(rule.to, captures) });
+    return res.end();
   }
 
   // Like Pages: /slug/ behaves as /slug

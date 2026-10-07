@@ -30,6 +30,46 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const CACHE = path.join(ROOT, '.cache', 'tarballs');
 const VENDOR = path.join(ROOT, 'apps', 'web', 'vendor');
 
+/**
+ * Optional OCR payload, installed only with `--with-ocr`.
+ *
+ * It is deliberately separate from MANIFEST: the engine core is ~2 MB and the
+ * language data is ~12.6 MB for English + Arabic. The site lazy-loads all of it,
+ * so a user who never turns OCR on never downloads a byte of it — but the files
+ * still belong in the repository so the feature works with no runtime CDN.
+ */
+export const OCR_MANIFEST = [
+  {
+    name: 'tesseract.js',
+    version: '7.0.0',
+    license: 'Apache-2.0',
+    purpose: 'OCR engine (worker + main bundle)',
+    dir: 'apps/web/vendor/ocr',
+    files: [
+      { from: 'dist/tesseract.min.js', to: 'tesseract.min.js' },
+      { from: 'dist/worker.min.js', to: 'worker.min.js' },
+      { from: 'LICENSE.md', to: 'LICENSE.md' },
+    ],
+  },
+  {
+    name: 'tesseract.js-core',
+    version: '7.0.0',
+    license: 'Apache-2.0',
+    purpose: 'Tesseract compiled to WebAssembly (LSTM + SIMD build)',
+    dir: 'apps/web/vendor/ocr',
+    files: [
+      { from: 'tesseract-core-simd-lstm.wasm.js', to: 'tesseract-core-simd-lstm.wasm.js' },
+      { from: 'LICENSE', to: 'CORE-LICENSE' },
+    ],
+  },
+];
+
+/** Language data, fetched from the tesseract.js project's own tessdata host. */
+export const OCR_LANGS = [
+  { lang: 'eng', url: 'https://tessdata.projectnaptha.com/4.0.0/eng.traineddata.gz' },
+  { lang: 'ara', url: 'https://tessdata.projectnaptha.com/4.0.0/ara.traineddata.gz' },
+];
+
 /* ------------------------------------------------------------------ manifest */
 
 /** Pinned engines. `files` are tarball paths relative to `package/`. */
@@ -172,11 +212,12 @@ async function cmdList(spec) {
   }
 }
 
-async function cmdInstall() {
+async function cmdInstall(withOcr = false) {
   await fsp.mkdir(VENDOR, { recursive: true });
   const lock = { generatedAt: new Date().toISOString(), packages: [] };
-  for (const pkg of MANIFEST) {
-    const dir = path.join(VENDOR, pkg.name.replace('/', '__'));
+  const packages = withOcr ? [...MANIFEST, ...OCR_MANIFEST] : MANIFEST;
+  for (const pkg of packages) {
+    const dir = pkg.dir ? path.join(ROOT, pkg.dir) : path.join(VENDOR, pkg.name.replace('/', '__'));
     await fsp.mkdir(dir, { recursive: true });
     const { buf } = await fetchTarball(pkg.name, pkg.version);
     const tarballSha = sha256(buf);
@@ -225,6 +266,34 @@ async function cmdInstall() {
       files: installed,
     });
   }
+  if (withOcr) {
+    const langDir = path.join(VENDOR, 'ocr', 'lang');
+    await fsp.mkdir(langDir, { recursive: true });
+    for (const entry of OCR_LANGS) {
+      const out = path.join(langDir, `${entry.lang}.traineddata.gz`);
+      let buf;
+      if (fs.existsSync(out)) {
+        buf = await fsp.readFile(out);
+        console.log(`  ✓ lang ${entry.lang}  (cached, ${buf.length} B)`);
+      } else {
+        const res = await fetch(entry.url, { headers: { 'user-agent': 'toolseer-vendor' } });
+        if (!res.ok) throw new Error(`language download failed ${res.status} for ${entry.url}`);
+        buf = Buffer.from(await res.arrayBuffer());
+        await fsp.writeFile(out, buf);
+        console.log(`  ✓ lang ${entry.lang}  →  ${path.relative(ROOT, out)}  (${buf.length} B)`);
+      }
+      lock.packages.push({
+        name: `tessdata-${entry.lang}`,
+        version: '4.0.0',
+        license: 'Apache-2.0',
+        purpose: `OCR language data (${entry.lang})`,
+        tarball: entry.url,
+        tarballSha256: sha256(buf),
+        files: [{ file: path.relative(ROOT, out).replace(/\\/g, '/'), bytes: buf.length, sha256: sha256(buf) }],
+      });
+    }
+  }
+
   const lockPath = path.join(VENDOR, 'vendor.lock.json');
   await fsp.writeFile(lockPath, JSON.stringify(lock, null, 2) + '\n');
   console.log(`\nwrote ${path.relative(ROOT, lockPath)}`);
@@ -261,11 +330,12 @@ const invokedDirectly = process.argv[1] && path.resolve(process.argv[1]) === fil
 
 if (invokedDirectly) {
   const [cmd, arg] = process.argv.slice(2);
+  const withOcr = process.argv.includes('--with-ocr');
   if (cmd === 'list' && arg) await cmdList(arg);
-  else if (cmd === 'install') await cmdInstall();
+  else if (cmd === 'install') await cmdInstall(withOcr);
   else if (cmd === 'verify') await cmdVerify();
   else {
-    console.log('usage: node tools/vendor.mjs <list <pkg>@<ver> | install | verify>');
+    console.log('usage: node tools/vendor.mjs <list <pkg>@<ver> | install [--with-ocr] | verify>');
     process.exitCode = 2;
   }
 }

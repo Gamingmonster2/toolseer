@@ -283,6 +283,67 @@ if (!SKIP_VENDOR) {
   }
 }
 
+/* -------------------------------------------------------------- PWA gate --- */
+
+{
+  const pwaFiles = [
+    'manifest.webmanifest',
+    'sw.js',
+    'offline.html',
+    'assets/js/ui/pwa.js',
+    'assets/img/favicon.svg',
+    'assets/img/apple-touch-icon.png',
+    'assets/img/pwa/icon-192.png',
+    'assets/img/pwa/icon-512.png',
+    'assets/img/pwa/maskable-512.png',
+  ];
+  for (const rel of pwaFiles) {
+    ok(fs.existsSync(path.join(WEB, rel)), 'pwa', `missing ${rel}`);
+  }
+
+  /* the manifest must parse and must point at files that exist */
+  const manifestPath = path.join(WEB, 'manifest.webmanifest');
+  if (fs.existsSync(manifestPath)) {
+    let manifest = null;
+    try { manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8')); }
+    catch (err) { ok(false, 'pwa', `manifest is not valid JSON (${err.message})`); }
+    if (manifest) {
+      ok(manifest.start_url === '/', 'pwa', `start_url should be "/" (got ${manifest.start_url})`);
+      ok(manifest.scope === '/', 'pwa', `scope should be "/" (got ${manifest.scope})`);
+      ok(manifest.theme_color === '#0040ff', 'pwa', `theme_color should be #0040ff (got ${manifest.theme_color})`);
+      const icons = Array.isArray(manifest.icons) ? manifest.icons : [];
+      ok(icons.length >= 2, 'pwa', 'manifest needs at least two icons');
+      ok(icons.some((i) => i.purpose === 'maskable'), 'pwa', 'manifest needs a maskable icon');
+      for (const entry of icons) {
+        const src = String(entry.src || '').replace(/^\//, '');
+        ok(fs.existsSync(path.join(WEB, src)), 'pwa', `manifest icon does not exist: ${entry.src}`);
+        ok(Boolean(entry.sizes && entry.type && entry.purpose), 'pwa', `icon ${entry.src} needs sizes, type and purpose`);
+      }
+    }
+  }
+
+  /* every page must carry the install declarations */
+  const pageFiles = [];
+  const collect = (dir, depth = 0) => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (entry.isDirectory()) {
+        if (['assets', 'vendor', 'node_modules'].includes(entry.name)) continue;
+        collect(path.join(dir, entry.name), depth + 1);
+      } else if (entry.name.endsWith('.html') && entry.name !== 'offline.html') {
+        pageFiles.push(path.join(dir, entry.name));
+      }
+    }
+  };
+  collect(WEB);
+  for (const file of pageFiles) {
+    const html = fs.readFileSync(file, 'utf8');
+    const rel = path.relative(WEB, file).replace(/\\/g, '/');
+    ok(html.includes('rel="manifest"'), 'pwa', `${rel} has no manifest link`);
+    ok(html.includes('__toolseerInstallPrompt'), 'pwa', `${rel} does not capture beforeinstallprompt`);
+  }
+  console.log(`   (pwa: ${pageFiles.length} pages wired, ${pwaFiles.length} files present)`);
+}
+
 /* -------------------------------------------------------------- summary ---- */
 
 function walk(dir, acc = []) {

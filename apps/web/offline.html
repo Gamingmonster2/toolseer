@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>You are offline — ToolSeer</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0040ff">
+<meta name="description" content="ToolSeer is offline on this device right now. The tools that run in your browser keep working once their page has been loaded.">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/toolseer.css">
+<style>
+  /* Fallback so this page is readable even if toolseer.css is not cached yet.
+     It only defines tokens and nothing that clashes with a `ts-*` class. */
+  :root {
+    --ts-bg: #f7f8fa; --ts-surface: #fff; --ts-text: #111827; --ts-text-muted: #6b7280;
+    --ts-border: #e5e7eb; --ts-primary: #0040ff; --ts-text-on-primary: #fff;
+    --ts-primary-soft: #eef2ff; --ts-radius: 12px; --ts-radius-lg: 16px;
+    --ts-font: "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+  }
+  html[data-theme="dark"] {
+    --ts-bg: #0b1120; --ts-surface: #111827; --ts-text: #f1f5f9; --ts-text-muted: #94a3b8;
+    --ts-border: #1f2937; --ts-primary: #4d7cff; --ts-primary-soft: rgba(77, 124, 255, .14);
+  }
+  @media (prefers-color-scheme: dark) {
+    html:not([data-theme="light"]) {
+      --ts-bg: #0b1120; --ts-surface: #111827; --ts-text: #f1f5f9; --ts-text-muted: #94a3b8;
+      --ts-border: #1f2937; --ts-primary: #4d7cff; --ts-primary-soft: rgba(77, 124, 255, .14);
+    }
+  }
+  body { margin: 0; background: var(--ts-bg); color: var(--ts-text); font-family: var(--ts-font); }
+  .ts-offline { max-width: 720px; margin: 0 auto; padding: 48px 22px 72px; }
+  .ts-offline__card {
+    background: var(--ts-surface); border: 1px solid var(--ts-border);
+    border-radius: var(--ts-radius-lg); padding: 30px 26px;
+  }
+  .ts-offline__mark {
+    width: 66px; height: 66px; border-radius: 18px; background: var(--ts-primary-soft);
+    color: var(--ts-primary); display: flex; align-items: center; justify-content: center;
+    margin-bottom: 18px;
+  }
+  .ts-offline h1 { font-size: clamp(25px, 4vw, 33px); margin: 0 0 10px; letter-spacing: -.02em; }
+  .ts-offline p { color: var(--ts-text-muted); line-height: 1.6; margin: 0 0 14px; }
+  .ts-offline ul { margin: 0 0 16px; padding-inline-start: 20px; color: var(--ts-text-muted); line-height: 1.7; }
+  .ts-offline__actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 22px; }
+  .ts-offline__link { color: var(--ts-primary); font-weight: 600; text-decoration: none; }
+  .ts-offline__link:hover { text-decoration: underline; }
+  .ts-offline__tools {
+    margin-top: 26px; padding-top: 20px; border-top: 1px solid var(--ts-border);
+    display: flex; flex-wrap: wrap; gap: 8px 16px;
+  }
+  .ts-offline__tools a { color: var(--ts-primary); text-decoration: none; font-size: 14.5px; }
+  .ts-offline__tools a:hover { text-decoration: underline; }
+  .ts-offline__note { font-size: 13px; color: var(--ts-text-muted); margin-top: 22px; }
+</style>
+<script>
+/* Optional: matches the rest of the site. The page is fully usable without it. */
+(function () {
+  try {
+    var t = localStorage.getItem('toolseer:theme');
+    if (t !== 'light' && t !== 'dark') {
+      t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    document.documentElement.dataset.theme = t;
+    if (localStorage.getItem('toolseer:lang') === 'ar') {
+      document.documentElement.lang = 'ar';
+      document.documentElement.dir = 'rtl';
+    }
+  } catch (e) { /* keep the CSS default */ }
+})();
+</script>
+</head>
+<body>
+<main class="ts-offline">
+  <div class="ts-offline__card">
+    <div class="ts-offline__mark" aria-hidden="true">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 3v9"></path><path d="M8.5 8.5 12 12l3.5-3.5"></path>
+        <path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"></path>
+      </svg>
+    </div>
+
+    <h1>You are offline</h1>
+    <p>
+      ToolSeer cannot reach the network from this device right now. Nothing is lost: your files are
+      already on this device, and every tool processes them here — nothing is ever uploaded.
+    </p>
+
+    <ul>
+      <li>A tool you have already opened keeps working offline, including making your PDF.</li>
+      <li>A tool you have not opened yet needs one online visit so its engine can be stored here.</li>
+      <li>Anything you downloaded earlier stays in your downloads folder.</li>
+    </ul>
+
+    <div class="ts-offline__actions">
+      <a class="ts-btn ts-btn--primary ts-btn--lg" href="/">Try again</a>
+      <a class="ts-offline__link" href="/offline.html">Reload this page</a>
+    </div>
+
+    <div class="ts-offline__tools" aria-label="ToolSeer tools">
+      <a href="/image-to-pdf">Image to PDF</a>
+      <a href="/merge-pdf">Merge PDF</a>
+      <a href="/compress-pdf">Compress PDF</a>
+      <a href="/split-pdf">Split PDF</a>
+      <a href="/protect-pdf">Protect PDF</a>
+      <a href="/unlock-pdf">Unlock PDF</a>
+      <a href="/pdf-to-images">PDF to Images</a>
+      <a href="/organize-pdf">Organize PDF</a>
+      <a href="/extract-text-pdf">Extract Text</a>
+      <a href="/">All tools</a>
+    </div>
+
+    <p class="ts-offline__note">
+      This page is stored on your device by ToolSeer's service worker, so it opens without a
+      connection. If ToolSeer seems stuck on an old version, open
+      <a class="ts-offline__link" href="/?sw=off">/?sw=off</a> once and then reload.
+    </p>
+  </div>
+</main>
+</body>
+</html>

@@ -29,3 +29,10 @@ Desktop.ini
 .chrome-diag*
 .chrome-dbg*
 
+
+.cache/*.txt
+.cache/*.jpg
+.chrome-pause*
+.chrome-step*
+.chrome-ocr*
+

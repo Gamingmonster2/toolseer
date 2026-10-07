@@ -20,7 +20,7 @@
  *   </div>
  */
 import { icon } from './icons.js';
-import { t, reflect, langButton, onLangChange, getLang, toggleLang } from './i18n.js';
+import { t, reflect, langButton, onLangChange, getLang, toggleLang, hasKey } from './i18n.js';
 
 export const SITE = {
   name: 'ToolSeer',
@@ -31,6 +31,9 @@ export const SITE = {
   repoUrl: 'https://github.com/',
   releasesUrl: 'https://github.com/toolseer/toolseer-desktop/releases/latest',
 };
+
+/** True when this same page is running inside the Tauri desktop shell. */
+export const isDesktop = () => typeof window !== 'undefined' && Boolean(window.__TAURI__);
 
 /* ------------------------------------------------------------------ theme -- */
 
@@ -195,6 +198,135 @@ const NAV = [
 /* ------------------------------------------------------------------ shell -- */
 
 /**
+ * The desktop shell gets a real window toolbar (home / back / forward / reload
+ * on the left, minimise / close on the right) — the pattern the owner's
+ * reference app uses. On the web this renders nothing at all: no dead buttons.
+ */
+function renderTitlebar(app) {
+  if (!app || !isDesktop()) return;
+
+  const bar = document.createElement('div');
+  bar.className = 'ts-titlebar';
+
+  const mk = (ico, label, onClick, extra = '') => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = `ts-titlebar__btn${extra ? ' ' + extra : ''}`;
+    b.setAttribute('aria-label', label);
+    b.title = label;
+    b.innerHTML = icon(ico, { size: 17 });
+    b.addEventListener('click', () => { try { onClick(); } catch { /* shell API missing */ } });
+    return b;
+  };
+
+  const home = () => { window.location.href = '/'; };
+  const go = (dir) => { if (dir === 'back') window.history.back(); else window.history.forward(); };
+
+  bar.append(
+    mk('house', t('titlebar.home'), home),
+    mk('arrow-left', t('titlebar.back'), () => go('back')),
+    mk('arrow-right', t('titlebar.forward'), () => go('forward')),
+    mk('arrow-clockwise', t('titlebar.reload'), () => window.location.reload()),
+  );
+
+  const spacer = document.createElement('div');
+  spacer.className = 'ts-titlebar__spacer';
+  const title = document.createElement('div');
+  title.className = 'ts-titlebar__title';
+  title.textContent = `${SITE.name} ${SITE.version}`;
+  const spacer2 = document.createElement('div');
+  spacer2.className = 'ts-titlebar__spacer';
+  bar.append(spacer, title, spacer2);
+
+  /* Window controls go through the shell API when it is actually present. */
+  const appWindow = () => {
+    const api = window.__TAURI__ && window.__TAURI__.window;
+    if (!api) return null;
+    if (typeof api.getCurrentWindow === 'function') return api.getCurrentWindow();
+    if (typeof api.getCurrent === 'function') return api.getCurrent();
+    return null;
+  };
+  bar.append(
+    mk('minus', t('titlebar.minimize'), () => appWindow()?.minimize()),
+    mk('x', t('titlebar.close'), () => appWindow()?.close(), 'ts-titlebar__close'),
+  );
+
+  app.prepend(bar);
+}
+
+/**
+ * Swap the placeholder brand glyph for the real logo file when it exists, so
+ * the mark can be redrawn without touching any page.
+ */
+async function hydrateBrandMark() {
+  const holder = document.querySelector('.ts-brand__mark');
+  if (!holder) return;
+  try {
+    const res = await fetch('/assets/img/brand/mark.svg');
+    if (!res.ok) return;
+    const text = await res.text();
+    const doc = new DOMParser().parseFromString(text, 'image/svg+xml');
+    const svg = doc.documentElement;
+    if (!svg || svg.nodeName.toLowerCase() !== 'svg') return;
+    svg.setAttribute('width', '22');
+    svg.setAttribute('height', '22');
+    svg.setAttribute('aria-hidden', 'true');
+    holder.innerHTML = '';
+    holder.append(svg);
+  } catch { /* keep the built-in glyph */ }
+}
+
+/**
+ * Install-to-home-screen affordance, wired to pwa.js. Nothing renders unless the
+ * browser can actually install (or is iOS, where a manual path exists) — no dead
+ * buttons, and any missing API degrades to no UI rather than an exception.
+ */
+async function wireInstallButton(actions) {
+  try {
+    const pwa = await import('./pwa.js');
+    if (!pwa || typeof pwa.initPwa !== 'function') return;
+    const api = pwa.initPwa();
+
+    const mount = (state) => {
+      const existing = actions.querySelector('.ts-install');
+      const showNative = Boolean(state && state.canInstall);
+      const showIos = Boolean(state && !state.isInstalled && !state.canInstall && state.isIosInstallable);
+      if (!showNative && !showIos) { if (existing) existing.remove(); return; }
+      if (existing) return;
+
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'ts-btn ts-btn--ghost ts-btn--sm ts-install';
+      btn.innerHTML = `${icon('download', { size: 16 })}<span>${t('pwa.install')}</span>`;
+      btn.addEventListener('click', async () => {
+        if (showNative) {
+          const result = await api.promptInstall();
+          if (result && result.outcome === 'accepted') btn.remove();
+          return;
+        }
+        const keys = typeof api.getIosInstallStepKeys === 'function' ? api.getIosInstallStepKeys() : [];
+        const steps = typeof api.getIosInstallSteps === 'function' ? api.getIosInstallSteps() : [];
+        const list = steps.length
+          ? `<ol>${steps.map((step, i) => `<li>${keys[i] && hasKey(keys[i]) ? t(keys[i]) : step}</li>`).join('')}</ol>`
+          : '';
+        openModal({ title: t('pwa.howto.title'), body: `<p>${t('pwa.howto.ios')}</p>${list}` });
+      });
+
+      const lang = actions.querySelector('.ts-lang');
+      if (lang) lang.after(btn);
+      else actions.prepend(btn);
+    };
+
+    if (typeof api.onChange === 'function') api.onChange(mount);
+    if (typeof api.onInstalled === 'function') {
+      api.onInstalled(() => actions.querySelector('.ts-install')?.remove());
+    }
+    /* initial state — initPwa already emitted once, but be explicit */
+    mount({ canInstall: api.canInstall(), isInstalled: api.isStandalone(), isIosInstallable: api.isIosInstallable() });
+  } catch { /* PWA module unavailable — no install UI, no error */ }
+}
+
+/**
  * Fill the page chrome.
  * @param {{slug?: string, rail?: {title?: string, subtitle?: string}, onThemeChange?: Function}} [opts]
  * @returns {{railBody: HTMLElement, rerender: Function}}
@@ -208,6 +340,7 @@ export function renderShell(opts = {}) {
   const header = document.getElementById('ts-header');
   const footer = document.getElementById('ts-footer');
   const app = document.querySelector('.ts-app');
+  renderTitlebar(app);
 
   /* --- support strip --- */
   if (supportHost) {
@@ -274,6 +407,7 @@ export function renderShell(opts = {}) {
     upgrade.innerHTML = `${icon('rocket', { size: 16 })}<span data-i18n="upgrade.label">${t('upgrade.label')}</span>`;
     upgrade.addEventListener('click', openUpgrade);
     actions.append(upgrade);
+    wireInstallButton(actions);
 
     header.append(burger, brand, nav, spacer, actions);
 
@@ -399,6 +533,7 @@ export function renderShell(opts = {}) {
 
   /* mascots must become inline SVGs to follow the theme (see hydrateMascots) */
   hydrateMascots().catch(() => { /* <img> fallback stays */ });
+  hydrateBrandMark().catch(() => { /* built-in glyph stays */ });
 
   return { railBody, rerender: () => reflect() };
 }

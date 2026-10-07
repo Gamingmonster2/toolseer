@@ -10,5 +10,29 @@
 /vendor/*
   Cache-Control: public, max-age=31536000, immutable
 
+# The service worker, the manifest and the offline page must never be served from
+# a stale HTTP cache: a cached worker keeps serving the old site to exactly the
+# users we are trying not to lose. Specific rules must come BEFORE /assets/*.
+/sw.js
+  Cache-Control: no-cache
+  Service-Worker-Allowed: /
+
+/manifest.webmanifest
+  Cache-Control: public, max-age=3600
+
+/offline.html
+  Cache-Control: public, max-age=3600
+
+# Unhashed CSS and JS revalidate on every deploy. A long TTL here would keep the
+# old toolkit.js alive long after the HTML that calls it changed.
+/assets/css/*
+  Cache-Control: no-cache
+
+/assets/js/*
+  Cache-Control: no-cache
+
+/assets/img/*
+  Cache-Control: public, max-age=86400
+
 /assets/*
   Cache-Control: public, max-age=86400

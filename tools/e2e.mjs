@@ -30,6 +30,7 @@ const arg = (name) => (args.includes(name) ? args[args.indexOf(name) + 1] : null
 const ONLY = arg('--only');
 const SHOT = args.includes('--shot');
 const CONVERT = arg('--convert');
+const WITH_SW = args.includes('--with-sw');
 
 const ROUTES = [
   { slug: '', url: '/' },
@@ -55,6 +56,21 @@ const problems = [];
 
 /* ------------------------------------------------------------- CDP client -- */
 
+/** No CDP call may hang forever: a stuck call must fail loudly instead. */
+const SEND_TIMEOUT_MS = 20000;
+
+/**
+ * The harness narrates which group of checks it is on. Two reasons: a timeout
+ * then names the step that stalled instead of a bare "Runtime.evaluate", and the
+ * console shows how far a run got before it died. Both matter because this is the
+ * only gate that needs a real browser, and one is not always available here.
+ */
+let currentStep = '';
+function step(name) {
+  currentStep = name;
+  process.stdout.write(`   · ${name}\n`);
+}
+
 class Cdp {
   constructor(wsUrl) {
     this.ws = new WebSocket(wsUrl);
@@ -79,19 +95,38 @@ class Cdp {
   async send(method, params = {}) {
     await this._open;
     const id = ++this.id;
-    const result = new Promise((resolve, reject) => this.pending.set(id, { resolve, reject }));
+    const result = new Promise((resolve, reject) => {
+      const timer = setTimeout(() => {
+        this.pending.delete(id);
+        reject(new Error(`CDP timeout after ${SEND_TIMEOUT_MS}ms: ${method}`));
+      }, SEND_TIMEOUT_MS);
+      this.pending.set(id, {
+        resolve: (v) => { clearTimeout(timer); resolve(v); },
+        reject: (e) => { clearTimeout(timer); reject(e); },
+      });
+    });
     this.ws.send(JSON.stringify({ id, method, params }));
     return result;
   }
-  async eval(expression, awaitPromise = true) {
-    const r = await this.send('Runtime.evaluate', {
-      expression,
-      returnByValue: true,
-      awaitPromise,
-      userGesture: true,
-    });
+  /**
+   * Evaluate in the page. `label` is not decoration: when a step times out the
+   * error names the step, so a stall points at a check instead of at the harness.
+   */
+  async eval(expression, awaitPromise = true, label = '') {
+    const tag = label || currentStep;
+    let r;
+    try {
+      r = await this.send('Runtime.evaluate', {
+        expression,
+        returnByValue: true,
+        awaitPromise,
+        userGesture: true,
+      });
+    } catch (err) {
+      throw new Error(`${tag ? `[${tag}] ` : ''}${err.message}`);
+    }
     if (r.exceptionDetails) {
-      throw new Error('page eval failed: ' + JSON.stringify(r.exceptionDetails).slice(0, 300));
+      throw new Error(`${tag ? `[${tag}] ` : ''}page eval failed: ` + JSON.stringify(r.exceptionDetails).slice(0, 300));
     }
     return r.result ? r.result.value : undefined;
   }
@@ -133,6 +168,19 @@ async function openTab(port, url) {
   return res.json();
 }
 
+/**
+ * Keep the service worker out of the functional tests. The SW is a caching layer
+ * whose whole job is to serve things from a previous version, which makes
+ * assertions about "the current build" non-deterministic; it gets its own,
+ * separate verification. `--with-sw` exercises the real thing instead.
+ */
+async function blockServiceWorker(cdp) {
+  if (WITH_SW) return;
+  try {
+    await cdp.send('Network.setBlockedURLs', { urls: ['*/sw.js', '*/sw.js?*'] });
+  } catch { /* older protocol — tests still run, just with the worker active */ }
+}
+
 /* ---------------------------------------------------------------- server --- */
 
 async function startServer() {
@@ -163,12 +211,15 @@ async function checkPage(cdp, route) {
   await cdp.send('Runtime.enable');
   await cdp.send('Network.enable');
   await cdp.send('Log.enable');
+  await blockServiceWorker(cdp);
   cdp.events = [];
 
+  step(`${label}: navigate`);
   const loaded = cdp.send('Page.navigate', { url: 'http://127.0.0.1:4173' + route.url });
   await Promise.race([loaded, sleep(15000)]);
 
   /* wait until the app shell has mounted (or a hard cap) */
+  step(`${label}: shell mount`);
   let mounted = false;
   for (let i = 0; i < 60 && !mounted; i++) {
     mounted = !!(await cdp.eval(`!!(document.querySelector('#ts-header .ts-brand, #ts-header a[href="/"]'))`));
@@ -176,12 +227,14 @@ async function checkPage(cdp, route) {
   }
   ok(mounted, 'shell mounted');
 
+  step(`${label}: head + heading`);
   const title = await cdp.eval('document.title');
   ok(title && title.length >= 10, 'title set', title);
 
   const h1 = await cdp.eval(`document.querySelectorAll('h1').length`);
   ok(h1 === 1, 'single h1', `found ${h1}`);
 
+  step(`${label}: shell containers`);
   const shell = await cdp.eval(`({
     header: !!document.querySelector('#ts-header'),
     rail: !!document.querySelector('#ts-rail'),
@@ -200,10 +253,12 @@ async function checkPage(cdp, route) {
   }
 
   /* broken images: every <img> must have loaded, unless it has an onerror guard */
+  step(`${label}: images`);
   const brokenImages = await cdp.eval(`[...document.images].filter(i => i.complete && i.naturalWidth === 0 && !i.hasAttribute('onerror') && !i.dataset.e2eIgnore).map(i => i.src)`);
   ok(brokenImages.length === 0, 'no broken images', brokenImages.join(', '));
 
   /* theme behaviour */
+  step(`${label}: theme toggle`);
   const theme1 = await cdp.eval(`document.documentElement.dataset.theme`);
   await cdp.eval(`document.querySelector('[data-theme-value="dark"]').click()`);
   await sleep(120);
@@ -212,6 +267,7 @@ async function checkPage(cdp, route) {
   await cdp.eval(`document.querySelector('[data-theme-value="light"]').click()`);
 
   /* language / RTL behaviour: assert a real toggle happened, in either direction */
+  step(`${label}: language toggle`);
   const langBtn = await cdp.eval(`!!document.querySelector('.ts-lang')`);
   if (langBtn) {
     const before = await cdp.eval(`({ lang: document.documentElement.lang, dir: document.documentElement.dir })`);
@@ -227,6 +283,7 @@ async function checkPage(cdp, route) {
   }
 
   /* console + page errors + failed requests, excluding favicon noise */
+  step(`${label}: console + network errors`);
   await sleep(300);
   const errorEvents = cdp.events.filter((e) =>
     (e.method === 'Runtime.exceptionThrown') ||
@@ -249,6 +306,7 @@ async function checkPage(cdp, route) {
   ok(softErrors.length === 0, 'no console/network errors', [...unique.keys()].join(' || ') || '');
 
   if (SHOT) {
+    step(`${label}: screenshots`);
     fs.mkdirSync(SHOTS, { recursive: true });
     for (const theme of ['light', 'dark']) {
       await cdp.eval(`document.documentElement.dataset.theme='${theme}'`);
@@ -350,6 +408,8 @@ async function openTool(port, slug) {
   const cdp = new Cdp(tab.webSocketDebuggerUrl);
   await cdp.send('Page.enable');
   await cdp.send('Runtime.enable');
+  await cdp.send('Network.enable');
+  await blockServiceWorker(cdp);
   await cdp.send('DOM.enable');
   await cdp.send('Page.navigate', { url: `http://127.0.0.1:4173/${slug}` });
   for (let i = 0; i < 60; i++) {
@@ -529,16 +589,110 @@ async function makeTestPng() {
   return file;
 }
 
+/* ------------------------------------------------- toolbox-hub behaviour -- */
+
+/** Exercises the hub the way a user does: search, star, filter, roadmap row. */
+async function checkToolbox(cdp) {
+  const r = { label: 'home · toolbox hub', ok: [], fail: [], warnings: [] };
+  const ok = (cond, name, detail = '') => cond ? r.ok.push(name) : r.fail.push(`${name}${detail ? ' — ' + detail : ''}`);
+
+  step('home: toolbox grid');
+  const mounted = await cdp.eval(`document.querySelectorAll('#ts-toolbox .ts-tool--link').length`);
+  ok(mounted === 9, 'nine working tool cards rendered', `${mounted} cards`);
+
+  const arts = await cdp.eval(`[...document.querySelectorAll('#ts-toolbox .ts-tool--link img.ts-tool__art')].filter(i => i.complete && i.naturalWidth > 0).length`);
+  ok(arts === 9, 'every card has a loaded illustration', `${arts}/9`);
+
+  const soon = await cdp.eval(`document.querySelectorAll('#ts-toolbox .ts-tool--soon').length`);
+  ok(soon >= 6, 'roadmap cards rendered with a Soon badge', `${soon} cards`);
+  const soonClickable = await cdp.eval(`document.querySelectorAll('#ts-toolbox .ts-tool--soon a').length`);
+  ok(soonClickable === 0, 'roadmap cards are not links (nothing to 404)');
+
+  const strip = await cdp.eval(`!!document.querySelector('#ts-toolbox .ts-desktopbar__inner')`);
+  ok(strip, 'desktop-integration strip rendered');
+
+  /* search filters live */
+  step('home: toolbox search');
+  await cdp.eval(`(() => {
+    const el = document.querySelector('#ts-tool-search');
+    el.value = 'compress';
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+  })()`);
+  await sleep(200);
+  const filtered = await cdp.eval(`document.querySelectorAll('#ts-toolbox .ts-tool--link').length`);
+  ok(filtered === 1, 'search narrows the grid to one match', `${filtered} shown`);
+  const searchClears = await cdp.eval(`document.querySelector('#ts-toolbox .ts-tool--soon') === null`);
+  ok(searchClears, 'roadmap row hides while searching');
+
+  /* Arabic synonym search — the market is Arabic-first */
+  await cdp.eval(`(() => {
+    const el = document.querySelector('#ts-tool-search');
+    el.value = 'دمج';
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+  })()`);
+  await sleep(200);
+  const arabicHit = await cdp.eval(`document.querySelectorAll('#ts-toolbox .ts-tool--link').length`);
+  ok(arabicHit === 1, 'Arabic synonym search finds merge', `${arabicHit} shown`);
+
+  /* clear */
+  await cdp.eval(`(() => {
+    const el = document.querySelector('#ts-tool-search');
+    el.value = '';
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+  })()`);
+  await sleep(200);
+
+  /* favourites */
+  step('home: toolbox favourites');
+  await cdp.eval(`document.querySelector('#ts-toolbox .ts-star').click()`);
+  await sleep(250);
+  const pressed = await cdp.eval(`document.querySelector('#ts-toolbox .ts-star').getAttribute('aria-pressed')`);
+  ok(pressed === 'true', 'star toggles its pressed state', pressed);
+  await cdp.eval(`[...document.querySelectorAll('#ts-toolbox .ts-filters__btn')].find(b => b.dataset.filter === 'favorites').click()`);
+  await sleep(250);
+  const favCount = await cdp.eval(`document.querySelectorAll('#ts-toolbox .ts-tool--link').length`);
+  ok(favCount === 1, 'favourites filter shows exactly the starred tool', `${favCount} shown`);
+
+  /* the empty state must be honest, not blank */
+  step('home: toolbox empty state');
+  await cdp.eval(`(() => {
+    const el = document.querySelector('#ts-tool-search');
+    el.value = 'zzzz-no-such-tool';
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+  })()`);
+  await sleep(250);
+  const emptyShown = await cdp.eval(`!document.querySelector('#ts-toolbox .ts-toolbox__empty').hidden`);
+  const emptyText = await cdp.eval(`document.querySelector('#ts-toolbox .ts-toolbox__empty')?.innerText || ''`);
+  ok(emptyShown && emptyText.length > 10, 'empty state explains the miss', emptyText.slice(0, 60));
+
+  /* reset for the screenshot */
+  await cdp.eval(`(() => {
+    const el = document.querySelector('#ts-tool-search');
+    el.value = '';
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+  })()`);
+  await cdp.eval(`[...document.querySelectorAll('#ts-toolbox .ts-filters__btn')].find(b => b.dataset.filter === 'all').click()`);
+  await sleep(250);
+
+  results.push(r);
+}
+
 /* ------------------------------------------------------------------ main -- */
 
 const server = await startServer();
 const browser = await startChrome();
 try {
-  for (const route of ROUTES.filter((r) => (ONLY ? r.slug === ONLY || (!ONLY && false) : true))) {
+  const matchesOnly = (route) => {
+    if (!ONLY) return true;
+    if (ONLY === 'home') return route.slug === '';
+    return route.slug === ONLY;
+  };
+  for (const route of ROUTES.filter(matchesOnly)) {
     const tab = await openTab(browser.port, 'about:blank');
     const cdp = new Cdp(tab.webSocketDebuggerUrl);
     try {
       results.push(await checkPage(cdp, route));
+      if (route.slug === '') await checkToolbox(cdp);
     } catch (err) {
       results.push({ label: route.slug || 'home', ok: [], fail: ['harness error: ' + err.message], warnings: [] });
     }
