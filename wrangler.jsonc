@@ -1,0 +1,30 @@
+// Cloudflare deployment configuration.
+//
+// WHY THIS FILE EXISTS
+// The project was created as a Worker with Git integration, so Cloudflare runs
+// `npx wrangler deploy` — and that command has no idea this is a static site.
+// Without a config it tries to guess a folder of HTML/CSS/JS and gives up with:
+//
+//   ✘ Could not detect a directory containing static files
+//
+// `assets.directory` below is the answer, and it is the same folder the classic
+// Pages flow would use (docs/MIGRATION.md): the files in `apps/web` ARE the
+// finished site, so there is no build step and nothing to compile.
+//
+// ⚠️ ONE LINE TO CHECK: `name` must equal your Worker's name in the Cloudflare
+// dashboard. If yours differs, change it here — a mismatch deploys to a
+// differently-named Worker and the URL you are watching stays empty.
+{
+  "name": "toolseer",
+  "compatibility_date": "2026-10-07",
+  "assets": {
+    // The deployable site. No build command, no package.json, on purpose.
+    "directory": "apps/web",
+    // `/merge-pdf` serves `merge-pdf/index.html` and `/merge-pdf/` redirects to
+    // it, which is the canonical form every page, sitemap entry and JSON-LD
+    // block in this project declares.
+    "html_handling": "auto-trailing-slash",
+    // Serve our own 404.html with a real 404 status instead of a blank page.
+    "not_found_handling": "404-page"
+  }
+}

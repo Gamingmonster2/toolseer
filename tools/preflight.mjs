@@ -98,6 +98,35 @@ report(
   "sw.js present · manifest start_url '/'"
 );
 
+/* The deploy configuration must agree with the folder it points at. This is the
+   check that would have caught the failed first deploy: Cloudflare ran
+   `npx wrangler deploy`, and with no `assets.directory` it refused to guess. */
+{
+  const wranglerPath = path.join(ROOT, 'wrangler.jsonc');
+  if (!fs.existsSync(wranglerPath)) {
+    report('deploy config present', false, 'no wrangler.jsonc — a Workers deploy cannot find the site');
+  } else {
+    const raw = fs.readFileSync(wranglerPath, 'utf8');
+    /* JSONC: strip comments before parsing. The pattern ignores `//` inside strings. */
+    const stripped = raw
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .split('\n')
+      .map((line) => line.replace(/(^|[^:"'])\/\/.*$/, '$1'))
+      .join('\n');
+    let cfg = null;
+    try { cfg = JSON.parse(stripped); } catch { /* reported below */ }
+    report('deploy config parses (wrangler.jsonc)', cfg !== null, cfg ? `name: ${cfg.name}` : 'invalid JSON');
+    if (cfg) {
+      const dir = cfg.assets && cfg.assets.directory;
+      const abs = dir ? path.join(ROOT, dir) : null;
+      report('deploy config points at a real folder', Boolean(abs) && fs.existsSync(abs), dir || '(no assets.directory)');
+      report('that folder holds the site', Boolean(abs) && fs.existsSync(path.join(abs, 'index.html')), 'index.html present');
+      report('worker name is set', typeof cfg.name === 'string' && cfg.name.length > 0,
+        'must match the Worker name in the Cloudflare dashboard');
+    }
+  }
+}
+
 if (!SKIP_BROWSER) {
   run('browser gate', path.join(ROOT, 'tools', 'e2e.mjs'), [], { optional: true });
 }

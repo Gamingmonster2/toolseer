@@ -96,6 +96,27 @@ Before any domain is touched, deploy and judge the result. Cloudflare Pages sett
 Do **not** add a `package.json` at the repository root to "help" Pages: it would make the platform
 attempt an install and a build step that this project does not have.
 
+### 6.0b If Cloudflare runs `npx wrangler deploy` instead
+
+Cloudflare has two products that can host this, and they fail differently:
+
+| What you created | What happens | What it needs |
+|---|---|---|
+| **Pages** project | Build command empty, output directory `apps/web` | nothing else |
+| **Worker** with Git integration | Cloudflare runs `npx wrangler deploy`, which cannot guess that this is a static site — it stops with *"Could not detect a directory containing static files"* | the `wrangler.jsonc` in this repository |
+
+`wrangler.jsonc` at the repository root declares `assets.directory: "apps/web"`, which is the same
+folder the Pages flow uses. With it present, `npx wrangler deploy` uploads the site as static assets
+and `_headers` / `_redirects` are still honoured (both are supported by Workers static assets).
+
+**One line to check:** `name` in `wrangler.jsonc` must equal your Worker's name in the Cloudflare
+dashboard. A mismatch deploys a *different* Worker, so the URL you are watching stays empty while the
+log says "success". `tools/preflight.mjs` reports the configured name on every run for exactly this
+reason.
+
+If you would rather use the Pages flow, delete the Worker and create the project as Pages instead —
+nothing in this repository changes either way.
+
 Then, on the `*.pages.dev` URL, run the continuity checker and walk the flow by hand:
 
 ```powershell

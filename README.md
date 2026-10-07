@@ -36,6 +36,7 @@ apps/web/            ← the deployable site (Cloudflare Pages root — no build
   vendor/            self-hosted engines, checksummed by vendor.lock.json
   <slug>/index.html  one folder per tool page (programmatic SEO)
 apps/desktop/        Tauri v2 scaffold + qpdf/PDFium engine layer (see docs/DESKTOP.md)
+wrangler.jsonc       deploy config: tells Cloudflare the site lives in apps/web
 docs/                ARCHITECTURE (frozen contracts), REPO-STUDY, DESKTOP, MASCOT,
                      TOOL-PAGE-GUIDE, SEO
 tools/               vendor · serve · check · e2e · make-icons (all zero-dependency node)
