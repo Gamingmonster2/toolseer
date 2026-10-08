@@ -108,12 +108,19 @@ export async function hydrateMascots(root = document) {
   }));
 }
 
+/**
+ * Theme. LIGHT IS THE DEFAULT, deliberately: the interface is designed on white
+ * with one blue accent, and that is how it should look to someone visiting for
+ * the first time. Dark mode is an explicit choice the user makes, remembered
+ * afterwards — it is no longer inferred from the operating system, because that
+ * silently gave a first-time visitor a theme nobody had reviewed.
+ */
 export function getTheme() {
   try {
     const saved = localStorage.getItem(THEME_KEY);
     if (saved === 'light' || saved === 'dark') return saved;
   } catch { /* ignore */ }
-  return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  return 'light';
 }
 
 export function setTheme(name) {

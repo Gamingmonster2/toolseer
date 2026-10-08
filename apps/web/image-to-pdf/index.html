@@ -25,11 +25,10 @@
 /* Applied before first paint: prevents a theme flash and fixes RTL early. */
 (function () {
   try {
+    /* Light is the default: a first-time visitor should see the reviewed design,
+       not whatever theme their operating system happens to prefer. */
     var t = localStorage.getItem('toolseer:theme');
-    if (t !== 'light' && t !== 'dark') {
-      t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    }
-    document.documentElement.dataset.theme = t;
+    document.documentElement.dataset.theme = (t === 'dark') ? 'dark' : 'light';
     if (localStorage.getItem('toolseer:lang') === 'ar') {
       document.documentElement.lang = 'ar';
       document.documentElement.dir = 'rtl';
