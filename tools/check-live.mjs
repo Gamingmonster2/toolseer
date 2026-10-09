@@ -167,6 +167,62 @@ for (const asset of ASSETS) {
   }
 }
 
+/* ------------------------------------------------------------ revision --- */
+
+/**
+ * Is the DEPLOYED build the one in this repository?
+ *
+ * The failure this catches is subtle and it already happened once: the site is up,
+ * every check passes, and the person testing it is looking at week-old code — so
+ * every fix they were told about appears not to work. Each marker below exists in
+ * exactly one revision, so their presence identifies what is actually live.
+ */
+{
+  const markers = [
+    {
+      what: 'the Rotate PDF tool exists',
+      check: async () => (await get(BASE + '/rotate-pdf', 'manual')).status === 200,
+      hint: 'missing → the deployment predates the simplified tool lineup',
+    },
+    {
+      what: 'the hub offers the current lineup',
+      check: async () => {
+        const res = await get(BASE + '/sitemap.xml');
+        if (res.status !== 200) return false;
+        const xml = await res.text();
+        return !/protect-pdf|unlock-pdf|extract-text-pdf/.test(xml) && /rotate-pdf/.test(xml);
+      },
+      hint: 'missing → the sitemap still advertises the retired tools',
+    },
+    {
+      what: 'the design pass is deployed (short header)',
+      check: async () => {
+        const res = await get(BASE + '/assets/css/toolseer.css');
+        if (res.status !== 200) return false;
+        const css = await res.text();
+        return /--ts-header-h:\s*60px/.test(css) && css.includes('--ts-ink');
+      },
+      hint: 'missing → the shorter header and the dark-mode art tokens are not live',
+    },
+    {
+      what: 'the language-loop fix is deployed',
+      check: async () => {
+        const res = await get(BASE + '/assets/js/ui/i18n.js');
+        if (res.status !== 200) return false;
+        return (await res.text()).includes('Array.from(listeners)');
+      },
+      hint: 'missing → the language button still locks the page',
+    },
+  ];
+
+  for (const marker of markers) {
+    let ok = false;
+    try { ok = await marker.check(); } catch { ok = false; }
+    rows.push({ ok, test: `revision · ${marker.what}`, detail: ok ? 'present' : marker.hint });
+    if (!ok) failures++;
+  }
+}
+
 /* -------------------------------------------------------------- sitemap --- */
 
 {
