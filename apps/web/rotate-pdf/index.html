@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rotate PDF — Turn PDF Pages Permanently, Free &amp; Offline | ToolSeer</title>
+<meta name="description" content="Rotate every page of a PDF by 90°, 180° or 270° and save it — in your browser. Nothing is uploaded, there is no signup and no watermark.">
+<link rel="canonical" href="https://toolseer.com/rotate-pdf">
+<meta name="theme-color" content="#0040ff">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ToolSeer">
+<meta property="og:title" content="Rotate PDF — turn pages permanently, free and offline">
+<meta property="og:description" content="Rotate every page of a PDF and save the result. Runs in your browser; nothing is uploaded.">
+<meta property="og:url" content="https://toolseer.com/rotate-pdf">
+<meta property="og:image" content="https://toolseer.com/assets/img/og/toolseer-og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Rotate PDF — free, offline, no upload">
+<meta name="twitter:description" content="Rotate PDF pages by 90°, 180° or 270° in your browser. No upload, no signup.">
+<meta name="twitter:image" content="https://toolseer.com/assets/img/og/toolseer-og.png">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
+<link rel="stylesheet" href="/assets/css/toolseer.css">
+<script>
+/* Light is the default: a first-time visitor should see the reviewed design,
+   not whatever theme their operating system happens to prefer. */
+(function () {
+  try {
+    var t = localStorage.getItem('toolseer:theme');
+    document.documentElement.dataset.theme = (t === 'dark') ? 'dark' : 'light';
+    if (localStorage.getItem('toolseer:lang') === 'ar') {
+      document.documentElement.lang = 'ar';
+      document.documentElement.dir = 'rtl';
+    }
+  } catch (e) { document.documentElement.dataset.theme = 'light'; }
+})();
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "name": "ToolSeer Rotate PDF",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Any (web browser)",
+      "url": "https://toolseer.com/rotate-pdf",
+      "description": "Rotate every page of a PDF by 90, 180 or 270 degrees and save the rotated document, entirely in the browser.",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "featureList": [
+        "Rotate a whole document in one click",
+        "90° clockwise, 90° anticlockwise or 180°",
+        "Rotation is written into the file, not just the viewer",
+        "No upload, no account, no watermark"
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://toolseer.com/" },
+        { "@type": "ListItem", "position": 2, "name": "Rotate PDF", "item": "https://toolseer.com/rotate-pdf" }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Does the rotation get saved into the file?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes. The page rotation is written into the PDF itself, so it appears rotated for everyone you send it to — in every viewer, on every device. It is not a view setting that only applies on your screen." }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I rotate only some pages?",
+          "acceptedAnswer": { "@type": "Answer", "text": "This tool turns every page by the same amount, which is what a sideways scan needs. To rotate individual pages, use Organize PDF: it shows every page as a thumbnail with its own rotate buttons." }
+        },
+        {
+          "@type": "Question",
+          "name": "Is the quality affected?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. Rotating changes one number per page in the file's page tree; the text, images and embedded fonts are copied untouched, so nothing is re-encoded and no quality is lost." }
+        },
+        {
+          "@type": "Question",
+          "name": "What if the page is already rotated?",
+          "acceptedAnswer": { "@type": "Answer", "text": "The new rotation is added to the existing one. A page already stored as 90° that you rotate another 90° becomes 180°, which is what you would expect, and repeated clicks never put the file into an invalid state." }
+        }
+      ]
+    }
+  ]
+}
+</script>
+<link rel="manifest" href="/manifest.webmanifest">
+<script>
+/* Capture the install prompt as early as possible: it can fire before the
+   deferred module runs, and the event is not replayable. */
+window.addEventListener('beforeinstallprompt', function (event) {
+  event.preventDefault();
+  window.__toolseerInstallPrompt = event;
+});
+</script>
+</head>
+<body>
+<a class="ts-skip-link" href="#ts-main">Skip to content</a>
+
+<div class="ts-app">
+  <div class="ts-support" id="ts-support"></div>
+
+  <aside class="ts-rail" id="ts-rail" aria-label="Tool settings"></aside>
+
+  <div class="ts-main">
+    <header class="ts-header" id="ts-header"></header>
+
+    <main class="ts-view" id="ts-main">
+      <section class="ts-hero">
+        <img class="ts-hero__mascot" src="/assets/img/mascot/base.svg" alt=""
+             aria-hidden="true" width="88" height="88" onerror="this.style.display='none'">
+        <h1 class="ts-hero__title" data-i18n="tool.rotate-pdf.title">Rotate PDF</h1>
+        <p class="ts-hero__sub">
+          Turn every page of a sideways scan upright and save it. One choice, one click —
+          the rotation is written into the file, and nothing is uploaded.
+        </p>
+      </section>
+
+      <div id="ts-tool" style="display:contents"></div>
+
+      <section class="ts-prose">
+        <h2>What "rotating a PDF" actually changes</h2>
+        <p>
+          A PDF page carries a <strong>rotation value</strong> alongside its size. That single number
+          tells every viewer how to turn the page before drawing it. Rotating here changes that number,
+          which is why the result is permanent: your reader, your printer, your email recipient and
+          their phone all inherit it. Nothing is redrawn, no pixel is re-encoded, and the text stays
+          selectable and searchable.
+        </p>
+        <p>
+          The rotation adds to whatever the page already had. A page stored at 90° that you turn
+          another 90° becomes 180°, and turning it twice more returns it to where it started — so you
+          can keep clicking until it looks right without risking a corrupt file.
+        </p>
+
+        <h3>When this is the tool you want</h3>
+        <ul>
+          <li><strong>A whole document is sideways</strong> — the classic case: a stack of pages scanned
+              in landscape and saved as portrait. Choose 90° once and every page is fixed.</li>
+          <li><strong>A phone photo of a document</strong> was captured in the wrong orientation and
+              exported to PDF.</li>
+          <li><strong>A print came out rotated</strong> and you want the file corrected rather than
+              changing the printer settings every time.</li>
+        </ul>
+
+        <h3>When it is not</h3>
+        <p>
+          If only <em>some</em> pages are wrong, rotating everything would break the rest. Use
+          <a href="/organize-pdf">Organize PDF</a> instead: it renders every page as a thumbnail with
+          its own rotate left and rotate right buttons, so you fix exactly the pages that need it. If
+          the problem is order rather than orientation, the same page handles that too.
+        </p>
+
+        <h3>Why a sideways scan happens at all</h3>
+        <p>
+          Most flatbed scanners feed a page in one fixed direction and record whatever orientation the
+          sheet was placed in. A stack copied in landscape therefore arrives as a portrait document
+          whose pages are visually turned on their side, and every viewer honours that because the
+          file itself says so. Turning the pages here corrects the document, rather than the way one
+          program happens to display it — which is why the fix survives being emailed, printed, or
+          opened on someone else's phone. That distinction matters: changing a viewer's own rotate
+          setting does nothing at all for the person you send the file to.
+        </p>
+      </section>
+
+      <section class="ts-faq" aria-label="Frequently asked questions">
+        <h2 style="font-size:21px;margin-bottom:2px">Frequently asked questions</h2>
+        <details open>
+          <summary>Does the rotation get saved into the file?</summary>
+          <p>Yes. The page rotation is written into the PDF itself, so it appears rotated for everyone you send it to — in every viewer, on every device. It is not a view setting that only applies on your screen.</p>
+        </details>
+        <details>
+          <summary>Can I rotate only some pages?</summary>
+          <p>This tool turns every page by the same amount, which is what a sideways scan needs. To rotate individual pages, use <a href="/organize-pdf">Organize PDF</a>: it shows every page as a thumbnail with its own rotate buttons.</p>
+        </details>
+        <details>
+          <summary>Is the quality affected?</summary>
+          <p>No. Rotating changes one number per page in the file's page tree; the text, images and embedded fonts are copied untouched, so nothing is re-encoded and no quality is lost.</p>
+        </details>
+        <details>
+          <summary>What if the page is already rotated?</summary>
+          <p>The new rotation is added to the existing one. A page already stored as 90° that you rotate another 90° becomes 180°, which is what you would expect, and repeated clicks never put the file into an invalid state.</p>
+        </details>
+      </section>
+
+      <section class="ts-prose">
+        <h2>Other tools</h2>
+        <p>
+          Straightening a document is usually one step in a longer job: <a href="/compress-pdf">compress it</a>
+          for email, <a href="/merge-pdf">merge it</a> with the rest of the paperwork,
+          <a href="/split-pdf">split out</a> the pages someone actually needs, or
+          <a href="/image-to-pdf">build a PDF</a> from photos first.
+        </p>
+      </section>
+
+      <footer class="ts-footer" id="ts-footer"></footer>
+    </main>
+  </div>
+</div>
+
+<script type="module">
+  import { defineTool } from '/assets/js/ui/toolkit.js';
+
+  defineTool({
+    slug: 'rotate-pdf',
+    accept: 'application/pdf,.pdf',
+    multiple: false,
+    minFiles: 1,
+    preview: 'rows',
+    dropIcon: 'arrow-clockwise',
+    emptyIcon: 'file-pdf',
+    actionIcon: 'arrow-clockwise',
+    dropHint: 'One PDF at a time · every page turns by the same amount',
+
+    settings: [
+      {
+        id: 'rotation', type: 'segment', default: '90',
+        hint: false,
+        options: [
+          { value: '90', icon: 'arrow-clockwise' },
+          { value: '180', icon: 'arrow-left' },
+          { value: '270', icon: 'arrow-right' },
+        ],
+      },
+    ],
+
+    async run({ files, settings, onProgress }) {
+      onProgress({ value: 0.15, label: 'Reading the PDF…' });
+      const input = await files[0].asInput();
+      const { organizePdf, pdfInfo } = await import('/assets/js/core/index.js');
+
+      const info = await pdfInfo(input.bytes);
+      if (!info.pageCount) {
+        throw Object.assign(new Error('The document reports no pages.'), { code: 'corrupt' });
+      }
+
+      /* Organize takes an explicit order and a per-source-page rotation, so
+         "rotate everything" is the whole document in order with one angle. */
+      const order = Array.from({ length: info.pageCount }, (_, i) => i + 1);
+      const degrees = Number(settings.rotation) || 90;
+      const rotate = {};
+      for (const page of order) rotate[String(page)] = degrees;
+
+      onProgress({ value: 0.55, label: `Turning ${info.pageCount} pages…` });
+      const result = await organizePdf(input.bytes, { order, rotate });
+
+      onProgress({ value: 1, label: 'Done' });
+      return {
+        outputs: [{ name: 'toolseer-rotated.pdf', bytes: result.bytes, type: 'application/pdf' }],
+        warnings: result.warnings || [],
+      };
+    },
+  });
+</script>
+</body>
+</html>

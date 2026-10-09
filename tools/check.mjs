@@ -36,12 +36,16 @@ const ROUTES = [
   { slug: 'merge-pdf', dir: 'merge-pdf' },
   { slug: 'compress-pdf', dir: 'compress-pdf' },
   { slug: 'split-pdf', dir: 'split-pdf' },
-  { slug: 'protect-pdf', dir: 'protect-pdf' },
-  { slug: 'unlock-pdf', dir: 'unlock-pdf' },
+  { slug: 'rotate-pdf', dir: 'rotate-pdf' },
   { slug: 'pdf-to-images', dir: 'pdf-to-images' },
   { slug: 'organize-pdf', dir: 'organize-pdf' },
-  { slug: 'extract-text-pdf', dir: 'extract-text-pdf' },
   { slug: 'desktop', dir: 'desktop' },
+  /* Kept in the tree but no longer offered in the hub: the owner judged them too
+     heavy to set up for a tools site. The gate still checks them, because a page
+     that exists and is reachable must not be broken or dishonest. */
+  { slug: 'protect-pdf', dir: 'protect-pdf' },
+  { slug: 'unlock-pdf', dir: 'unlock-pdf' },
+  { slug: 'extract-text-pdf', dir: 'extract-text-pdf' },
 ];
 
 const problems = [];

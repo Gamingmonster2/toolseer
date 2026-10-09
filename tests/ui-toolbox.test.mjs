@@ -34,15 +34,21 @@ function fakeStorage() {
 
 const slugs = (list) => list.map((tool) => tool.slug);
 
-test('the registry matches the ten Phase-1 routes', () => {
-  assert.equal(TOOLS.length, 9, 'nine interactive tools in the hub');
+test('the registry matches the lineup the owner asked for', () => {
+  /* One-click tools only. The owner removed the password and OCR pages on
+     2026-10-07: they needed too much configuration for a tools site. */
+  assert.equal(TOOLS.length, 7, 'seven interactive tools in the hub');
   for (const slug of [
-    'image-to-pdf', 'merge-pdf', 'compress-pdf', 'split-pdf', 'protect-pdf',
-    'unlock-pdf', 'pdf-to-images', 'organize-pdf', 'extract-text-pdf',
+    'image-to-pdf', 'merge-pdf', 'compress-pdf', 'split-pdf',
+    'rotate-pdf', 'pdf-to-images', 'organize-pdf',
   ]) {
     assert.ok(TOOLS.some((tool) => tool.slug === slug), `registry is missing ${slug}`);
   }
+  for (const removed of ['protect-pdf', 'unlock-pdf', 'extract-text-pdf']) {
+    assert.notOk(TOOLS.some((tool) => tool.slug === removed), `${removed} should no longer be offered`);
+  }
   assert.ok(SOON.length >= 6, 'the roadmap row stays populated');
+  assert.notOk(SOON.some((s) => s.id === 'rotate-pdf'), 'a shipped tool must leave the roadmap');
 });
 
 test('an empty query returns every tool in registry order', () => {
@@ -63,8 +69,19 @@ test('search is case-insensitive and ignores surrounding spaces', () => {
 test('search matches Arabic synonyms — the primary market', () => {
   assert.deepEqual(slugs(selectTools({ query: 'دمج' })), ['merge-pdf'], 'دمج finds merge');
   assert.deepEqual(slugs(selectTools({ query: 'ضغط' })), ['compress-pdf'], 'ضغط finds compress');
-  assert.deepEqual(slugs(selectTools({ query: 'كلمة مرور' })), ['protect-pdf'], 'كلمة مرور finds protect');
   assert.deepEqual(slugs(selectTools({ query: 'تقسيم' })), ['split-pdf'], 'تقسيم finds split');
+  assert.deepEqual(slugs(selectTools({ query: 'مقلوب' })), ['rotate-pdf'], 'مقلوب finds rotate');
+  /* "تدوير" legitimately finds two tools: the one-click rotator and Organize,
+     which rotates individual pages. Assert inclusion, not exclusivity. */
+  assert.ok(slugs(selectTools({ query: 'تدوير' })).includes('rotate-pdf'), 'تدوير finds rotate');
+});
+
+test('the tools the owner retired are no longer findable in the hub', () => {
+  const retired = ['protect-pdf', 'unlock-pdf', 'extract-text-pdf'];
+  for (const query of ['password', 'protect', 'unlock', 'encrypt', 'ocr', 'extract', 'حماية', 'كلمة مرور', 'استخراج']) {
+    const hits = slugs(selectTools({ query })).filter((slug) => retired.includes(slug));
+    assert.deepEqual(hits, [], `"${query}" must not surface a retired tool`);
+  }
 });
 
 test('search matches the visible description too', () => {
@@ -83,8 +100,8 @@ test('favourites filter keeps only starred tools and preserves registry order', 
 });
 
 test('favourites and search compose', () => {
-  const list = selectTools({ query: 'pdf', filter: 'favorites', favorites: ['compress-pdf', 'unlock-pdf'] });
-  assert.deepEqual(slugs(list), ['compress-pdf', 'unlock-pdf']);
+  const list = selectTools({ query: 'pdf', filter: 'favorites', favorites: ['compress-pdf', 'rotate-pdf'] });
+  assert.deepEqual(slugs(list), ['compress-pdf', 'rotate-pdf']);
 });
 
 test('recent ordering follows the recorded order, most recent first', () => {

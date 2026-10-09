@@ -42,12 +42,11 @@ export const TOOLS = [
     kw: ['extract', 'cut', 'divide', 'chunks', 'تقسيم', 'قص', 'فصل'],
   },
   {
-    slug: 'protect-pdf', icon: 'lock', group: 'secure',
-    kw: ['password', 'encrypt', 'secure', 'حماية', 'تشفير', 'كلمة مرور', 'قفل'],
-  },
-  {
-    slug: 'unlock-pdf', icon: 'lock-open', group: 'secure',
-    kw: ['remove password', 'decrypt', 'فك الحماية', 'إزالة كلمة المرور'],
+    /* One click, no settings worth reading — the shape of tool the owner asked
+       for after the password/OCR pages proved too heavy to use. */
+    slug: 'rotate-pdf', icon: 'arrow-clockwise', group: 'optimize',
+    kw: ['rotate', 'rotate pages', 'sideways', 'landscape', 'upright', 'scan',
+      'تدوير', 'ميلان', 'مقلوب', 'تعديل'],
   },
   {
     slug: 'pdf-to-images', icon: 'image', group: 'convert',
@@ -57,16 +56,12 @@ export const TOOLS = [
     slug: 'organize-pdf', icon: 'shuffle', group: 'organize',
     kw: ['reorder', 'rotate', 'delete', 'sort', 'ترتيب', 'تدوير', 'حذف', 'صفحات'],
   },
-  {
-    slug: 'extract-text-pdf', icon: 'magnifier', group: 'convert',
-    kw: ['text', 'copy', 'ocr', 'نص', 'استخراج', 'نسخ'],
-  },
 ];
 
 /** Roadmap cards: shown, honest, not clickable. */
 export const SOON = [
-  'rotate-pdf', 'watermark-pdf', 'page-numbers', 'pdf-to-word',
-  'sign-pdf', 'compare-pdf', 'repair-pdf', 'edit-metadata',
+  'watermark-pdf', 'page-numbers', 'crop-pdf', 'web-optimize-pdf',
+  'repair-pdf', 'edit-metadata', 'pdf-to-word', 'sign-pdf',
 ].map((id) => ({ id, icon: 'sparkle' }));
 
 /* --------------------------------------------------------------- storage -- */
@@ -337,7 +332,14 @@ export function renderToolbox(host, opts = {}) {
       img.width = 56;
       img.height = 56;
       img.loading = 'lazy';
-      img.addEventListener('error', () => { img.style.visibility = 'hidden'; });
+      /* A tool without its own illustration must fall back to the canonical
+         character rather than leaving an empty chip, so adding a tool never
+         requires a picture before it can ship. */
+      img.addEventListener('error', () => {
+        if (img.dataset.fallback === '1') { img.style.visibility = 'hidden'; return; }
+        img.dataset.fallback = '1';
+        img.src = '/assets/img/mascot/base.svg';
+      });
 
       const name = document.createElement('span');
       name.className = 'ts-tool__name';

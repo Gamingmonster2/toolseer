@@ -160,6 +160,12 @@ const EN = {
   'tool.organize-pdf.action': 'Save changes',
   'tool.extract-text-pdf.title': 'Extract Text from PDF',
   'tool.extract-text-pdf.action': 'Extract text',
+  'tool.rotate-pdf.title': 'Rotate PDF',
+  'tool.rotate-pdf.action': 'Rotate pages',
+
+  'opt.90': '90° right',
+  'opt.180': '180°',
+  'opt.270': '90° left',
 
   'setting.pageSize.label': 'Page size',
   'setting.pageSize.hint': 'Output page dimensions.',
@@ -316,6 +322,8 @@ const EN = {
   'toolbox.desc.pdf-to-images': 'Export every page as PNG or JPEG.',
   'toolbox.desc.organize-pdf': 'Reorder, rotate and delete pages visually.',
   'toolbox.desc.extract-text-pdf': 'Pull the text layer out of a PDF.',
+  'toolbox.desc.rotate-pdf': 'Straighten a sideways scan in one click.',
+  'setting.rotation.label': 'Turn every page',
 
   'toolbox.soon.rotate-pdf': 'Rotate PDF',
   'toolbox.soon.watermark-pdf': 'Add watermark',
@@ -462,6 +470,8 @@ const AR_EXTRA = {
   'toolbox.desc.pdf-to-images': 'صدّر كل صفحة كصورة PNG أو JPEG.',
   'toolbox.desc.organize-pdf': 'أعد ترتيب الصفحات ودوّرها واحذفها بصرياً.',
   'toolbox.desc.extract-text-pdf': 'استخرج طبقة النص من ملف PDF.',
+  'toolbox.desc.rotate-pdf': 'عدّل ميلان المستند الممسوح بضغطة واحدة.',
+  'setting.rotation.label': 'تدوير كل الصفحات',
 
   'toolbox.soon.rotate-pdf': 'تدوير PDF',
   'toolbox.soon.watermark-pdf': 'إضافة علامة مائية',
@@ -653,6 +663,12 @@ const AR = {
   'tool.organize-pdf.action': 'حفظ التغييرات',
   'tool.extract-text-pdf.title': 'استخراج النص من PDF',
   'tool.extract-text-pdf.action': 'استخرج النص',
+  'tool.rotate-pdf.title': 'تدوير PDF',
+  'tool.rotate-pdf.action': 'دوّر الصفحات',
+
+  'opt.90': '٩٠° لليمين',
+  'opt.180': '‏١٨٠°',
+  'opt.270': '٩٠° لليسار',
 
   'setting.pageSize.label': 'حجم الصفحة',
   'setting.pageSize.hint': 'أبعاد الصفحات الناتجة.',
@@ -792,7 +808,17 @@ export function setLang(lang, { persist = true } = {}) {
     try { localStorage.setItem(STORAGE_KEY, lang); } catch { /* ignore */ }
   }
   reflect();
-  listeners.forEach((fn) => fn(lang));
+
+  /* Snapshot before notifying. A listener that re-renders itself re-registers a
+     listener as part of its work, and `Set.forEach` VISITS entries added while it
+     is iterating — so the new listener fired immediately, re-rendered, registered
+     again, and the page locked in an endless loop. That single detail is why the
+     language button appeared dead and the site felt unresponsive after using it. */
+  for (const fn of Array.from(listeners)) {
+    try { fn(lang); } catch (err) {
+      if (typeof console !== 'undefined') console.error('[toolseer] i18n listener failed', err);
+    }
+  }
 }
 
 export function toggleLang() { setLang(current === 'ar' ? 'en' : 'ar'); }
