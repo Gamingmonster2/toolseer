@@ -301,6 +301,25 @@ if (!SKIP_VENDOR) {
   }
 }
 
+/* Keys the toolbox resolves from JavaScript. `data-i18n` attributes are checked
+   per page above, but the hub builds its labels in code, so a missing key there was
+   invisible to every gate and shipped as the literal key on screen
+   ("toolbox.soon.crop-pdf" rendered as a card title). This closes that hole. */
+{
+  const { TOOLS, SOON } = await import(pathToFileURL(path.join(WEB, 'assets', 'js', 'ui', 'toolbox.js')).href);
+  for (const tool of TOOLS) {
+    for (const key of [`tool.${tool.slug}.title`, `tool.${tool.slug}.action`, `toolbox.desc.${tool.slug}`]) {
+      ok(enKeys.has(key), 'i18n', `hub tool "${tool.slug}" needs the key ${key}`);
+      ok(arKeys.has(key), 'i18n', `hub tool "${tool.slug}" needs an Arabic ${key}`);
+    }
+  }
+  for (const item of SOON) {
+    ok(enKeys.has(`toolbox.soon.${item.id}`), 'i18n', `roadmap card "${item.id}" needs toolbox.soon.${item.id}`);
+    ok(arKeys.has(`toolbox.soon.${item.id}`), 'i18n', `roadmap card "${item.id}" needs an Arabic label`);
+  }
+  console.log(`   (hub: ${TOOLS.length} tools + ${SOON.length} roadmap cards, labels verified)`);
+}
+
 /* -------------------------------------------------------------- PWA gate --- */
 
 {
