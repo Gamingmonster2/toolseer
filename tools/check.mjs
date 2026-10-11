@@ -37,6 +37,7 @@ const ROUTES = [
   { slug: 'compress-pdf', dir: 'compress-pdf' },
   { slug: 'split-pdf', dir: 'split-pdf' },
   { slug: 'rotate-pdf', dir: 'rotate-pdf' },
+  { slug: 'add-page-numbers', dir: 'add-page-numbers' },
   { slug: 'pdf-to-images', dir: 'pdf-to-images' },
   { slug: 'organize-pdf', dir: 'organize-pdf' },
   { slug: 'desktop', dir: 'desktop' },

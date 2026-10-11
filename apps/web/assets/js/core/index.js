@@ -45,6 +45,7 @@ export {
   mergePdfs,
   splitPdf,
   organizePdf,
+  addPageNumbers,
   imagesToPdf,
   pdfInfo,
   parsePageRanges,

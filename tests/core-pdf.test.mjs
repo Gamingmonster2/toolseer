@@ -21,7 +21,7 @@ import {
   oraclePageTexts,
   oracleQpdfCheck,
 } from './fixtures.mjs';
-import { loadJSZip, loadPdfLib, mergePdfs, protectPdf, splitPdf, organizePdf, imagesToPdf, zipFiles } from '../apps/web/assets/js/core/index.js';
+import { loadJSZip, loadPdfLib, mergePdfs, protectPdf, splitPdf, organizePdf, addPageNumbers, imagesToPdf, zipFiles } from '../apps/web/assets/js/core/index.js';
 
 async function assertStructurallyValid(bytes, label) {
   const verdict = await oracleQpdfCheck(bytes);
@@ -444,3 +444,49 @@ test('zipFiles round-trips real engine output', async () => {
 test('zipFiles rejects an empty list', async () => {
   await assert.throwsCode(() => zipFiles([]), 'empty-input');
 });
+
+/* ------------------------------------------------------- addPageNumbers --- */
+
+test('addPageNumbers writes a real number that the text oracle can read back', async () => {
+  const source = await makePdf({ pages: 3 });
+  const { bytes, pageCount, warnings } = await addPageNumbers(source, { format: 'P{n}' });
+
+  assert.equal(pageCount, 3, 'the page count is unchanged');
+  assert.deepEqual(warnings, [], 'nothing to warn about');
+  await assertStructurallyValid(bytes, 'the numbered document');
+
+  /* Not just "a number was drawn" — the oracle extracts the text layer, so this
+     proves the digits are really in each page's content and on the right page. */
+  const texts = await oraclePageTexts(bytes);
+  assert.ok(texts[0].includes('P1'), `page 1 should carry P1, got ${JSON.stringify(texts[0])}`);
+  assert.ok(texts[1].includes('P2'), `page 2 should carry P2, got ${JSON.stringify(texts[1])}`);
+  assert.ok(texts[2].includes('P3'), `page 3 should carry P3, got ${JSON.stringify(texts[2])}`);
+});
+
+test('addPageNumbers honours format, starting number and the first-page skip', async () => {
+  const source = await makePdf({ pages: 3 });
+  const { bytes } = await addPageNumbers(source, {
+    format: 'Page {n} of {total}', startAt: 10, skipFirst: true,
+  });
+  const texts = await oraclePageTexts(bytes);
+  assert.notOk(texts[0].includes('Page'), 'the cover is left alone');
+  assert.ok(texts[1].includes('Page 11 of 3'), `page 2 counts from 10, got ${JSON.stringify(texts[1])}`);
+  assert.ok(texts[2].includes('Page 12 of 3'), `page 3 follows, got ${JSON.stringify(texts[2])}`);
+});
+
+test('addPageNumbers drops characters the built-in font cannot draw and says so', async () => {
+  const source = await makePdf({ pages: 1 });
+  const { bytes, warnings } = await addPageNumbers(source, { format: 'صفحة {n}' });
+  assert.deepEqual(warnings, ['font-latin-only'], 'the caller is told, not silently surprised');
+  await assertStructurallyValid(bytes, 'the document with a stripped format');
+  const texts = await oraclePageTexts(bytes);
+  assert.ok(texts[0].includes('1'), 'the number itself still appears');
+});
+
+test('addPageNumbers validates its options instead of writing nonsense', async () => {
+  const source = await makePdf({ pages: 1 });
+  await assert.throwsCode(() => addPageNumbers(source, { position: 'middle' }), 'invalid-option');
+  await assert.throwsCode(() => addPageNumbers(source, { size: 0 }), 'invalid-option');
+  await assert.throwsCode(() => addPageNumbers(source, { margin: -5 }), 'invalid-option');
+});
+

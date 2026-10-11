@@ -71,6 +71,7 @@ function describeWarning(w) {
     [/^password-removed$/, () => t('warning.passwordRemoved')],
     [/^images-shrunk:(\d+)$/, (m) => t('warning.imagesShrunk', { mb: m[1] })],
     [/^mobile-memory-risk$/, () => t('warning.mobileMemory')],
+    [/^font-latin-only$/, () => t('warning.fontLatinOnly')],
   ];
   for (const [re, fn] of map) {
     const m = re.exec(s);

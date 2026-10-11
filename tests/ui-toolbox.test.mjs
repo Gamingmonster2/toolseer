@@ -37,10 +37,10 @@ const slugs = (list) => list.map((tool) => tool.slug);
 test('the registry matches the lineup the owner asked for', () => {
   /* One-click tools only. The owner removed the password and OCR pages on
      2026-10-07: they needed too much configuration for a tools site. */
-  assert.equal(TOOLS.length, 7, 'seven interactive tools in the hub');
+  assert.equal(TOOLS.length, 8, 'eight interactive tools in the hub');
   for (const slug of [
     'image-to-pdf', 'merge-pdf', 'compress-pdf', 'split-pdf',
-    'rotate-pdf', 'pdf-to-images', 'organize-pdf',
+    'rotate-pdf', 'pdf-to-images', 'organize-pdf', 'add-page-numbers',
   ]) {
     assert.ok(TOOLS.some((tool) => tool.slug === slug), `registry is missing ${slug}`);
   }
@@ -49,6 +49,13 @@ test('the registry matches the lineup the owner asked for', () => {
   }
   assert.ok(SOON.length >= 6, 'the roadmap row stays populated');
   assert.notOk(SOON.some((s) => s.id === 'rotate-pdf'), 'a shipped tool must leave the roadmap');
+  assert.notOk(SOON.some((s) => s.id === 'page-numbers'), 'a shipped tool must leave the roadmap');
+  /* The roadmap must never advertise something the hub already offers — that is
+     how a visitor ends up clicking a card that does nothing. */
+  for (const card of SOON) {
+    assert.notOk(TOOLS.some((tool) => tool.slug === card.id),
+      `"${card.id}" is both in the hub and on the roadmap`);
+  }
 });
 
 test('an empty query returns every tool in registry order', () => {

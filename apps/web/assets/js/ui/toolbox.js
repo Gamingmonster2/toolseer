@@ -56,11 +56,17 @@ export const TOOLS = [
     slug: 'organize-pdf', icon: 'shuffle', group: 'organize',
     kw: ['reorder', 'rotate', 'delete', 'sort', 'ترتيب', 'تدوير', 'حذف', 'صفحات'],
   },
+  {
+    /* Pure text on the page: no image work, so it cannot fail for memory reasons —
+       the property every tool added from here on must have. */
+    slug: 'add-page-numbers', icon: 'hash', group: 'organize',
+    kw: ['page numbers', 'numbering', 'pagination', 'footer', 'أرقام', 'ترقيم', 'ترقيم الصفحات'],
+  },
 ];
 
 /** Roadmap cards: shown, honest, not clickable. */
 export const SOON = [
-  'watermark-pdf', 'page-numbers', 'crop-pdf', 'web-optimize-pdf',
+  'watermark-pdf', 'crop-pdf', 'web-optimize-pdf',
   'repair-pdf', 'edit-metadata', 'pdf-to-word', 'sign-pdf',
 ].map((id) => ({ id, icon: 'sparkle' }));
 

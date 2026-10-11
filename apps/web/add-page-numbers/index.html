@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Add Page Numbers to a PDF — Free, Offline, No Upload | ToolSeer</title>
+<meta name="description" content="Add page numbers to every page of a PDF and save it — in your browser. Choose the corner, the format and the starting number. Nothing is uploaded.">
+<link rel="canonical" href="https://toolseer.com/add-page-numbers">
+<meta name="theme-color" content="#0040ff">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ToolSeer">
+<meta property="og:title" content="Add page numbers to a PDF — free and offline">
+<meta property="og:description" content="Number every page of a PDF in one click. Runs in your browser; nothing is uploaded.">
+<meta property="og:url" content="https://toolseer.com/add-page-numbers">
+<meta property="og:image" content="https://toolseer.com/assets/img/og/toolseer-og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Add page numbers to a PDF — free, offline, no upload">
+<meta name="twitter:description" content="Number every page of a PDF in your browser. No upload, no signup, no watermark.">
+<meta name="twitter:image" content="https://toolseer.com/assets/img/og/toolseer-og.png">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
+<link rel="stylesheet" href="/assets/css/toolseer.css">
+<script>
+/* Light is the default: a first-time visitor should see the reviewed design,
+   not whatever theme their operating system happens to prefer. */
+(function () {
+  try {
+    var t = localStorage.getItem('toolseer:theme');
+    document.documentElement.dataset.theme = (t === 'dark') ? 'dark' : 'light';
+    if (localStorage.getItem('toolseer:lang') === 'ar') {
+      document.documentElement.lang = 'ar';
+      document.documentElement.dir = 'rtl';
+    }
+  } catch (e) { document.documentElement.dataset.theme = 'light'; }
+})();
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "name": "ToolSeer Add Page Numbers",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Any (web browser)",
+      "url": "https://toolseer.com/add-page-numbers",
+      "description": "Add page numbers to every page of a PDF, in the corner and format you choose, entirely in the browser.",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "featureList": [
+        "Numbers every page in one click",
+        "Choose the corner and the type size",
+        "Use a plain number or text like Page 3 of 12",
+        "Start from any number",
+        "No upload, no account, no watermark"
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://toolseer.com/" },
+        { "@type": "ListItem", "position": 2, "name": "Add page numbers", "item": "https://toolseer.com/add-page-numbers" }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Does it change my document?",
+          "acceptedAnswer": { "@type": "Answer", "text": "It copies your pages and draws a number on each one, then saves a new file. Your original is untouched, the existing text stays selectable and searchable, and nothing is re-encoded." }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I skip the cover page?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes — switch on \"Skip the first page\" and numbering starts on page two. The counter still counts the cover, so the number on the second page is 2, which is what a reader expects when they hold the printed document." }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I write \"Page 3 of 12\"?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes. Type any text in the format box and use {n} where the page number belongs and {total} for the number of pages, for example \"Page {n} of {total}\" or just \"{n}\"." }
+        },
+        {
+          "@type": "Question",
+          "name": "Why does my Arabic text disappear from the number?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Page numbers are drawn with a built-in Latin font so the file stays small and opens everywhere. Arabic or other non-Latin characters in the format box cannot be drawn by that font, so they are dropped and you are warned — the numbers themselves still appear." }
+        }
+      ]
+    }
+  ]
+}
+</script>
+<link rel="manifest" href="/manifest.webmanifest">
+<script>
+/* Capture the install prompt as early as possible: it can fire before the
+   deferred module runs, and the event is not replayable. */
+window.addEventListener('beforeinstallprompt', function (event) {
+  event.preventDefault();
+  window.__toolseerInstallPrompt = event;
+});
+</script>
+</head>
+<body>
+<a class="ts-skip-link" href="#ts-main">Skip to content</a>
+
+<div class="ts-app">
+  <div class="ts-support" id="ts-support"></div>
+
+  <aside class="ts-rail" id="ts-rail" aria-label="Tool settings"></aside>
+
+  <div class="ts-main">
+    <header class="ts-header" id="ts-header"></header>
+
+    <main class="ts-view" id="ts-main">
+      <section class="ts-hero">
+        <img class="ts-hero__mascot" src="/assets/img/mascot/base.svg" alt=""
+             aria-hidden="true" width="88" height="88" onerror="this.style.display='none'">
+        <h1 class="ts-hero__title" data-i18n="tool.add-page-numbers.title">Add Page Numbers</h1>
+        <p class="ts-hero__sub">
+          Number every page of a PDF so a printed stack stays in order. Choose the corner
+          and the wording, and the file is saved with a real text layer — nothing uploaded.
+        </p>
+      </section>
+
+      <div id="ts-tool" style="display:contents"></div>
+
+      <section class="ts-prose">
+        <h2>What this tool writes into your file</h2>
+        <p>
+          Each page gets a short piece of real text drawn into its content, positioned from the
+          page's own measurements. Because the number is text and not part of an image, it stays
+          sharp at any zoom, prints cleanly, and can be selected and searched like the rest of the
+          document. Your original pages are copied into a new file, so the PDF you started with is
+          never modified — if you dislike the result, simply delete the copy and try another corner.
+        </p>
+        <p>
+          The number is drawn just inside the margin you would leave when binding a document, which
+          keeps it clear of the printed content and away from the edge a printer might crop. The
+          built-in font is embedded by reference rather than as a font file, so numbering a
+          six-hundred page report adds only a few kilobytes rather than megabytes.
+        </p>
+
+        <h3>When you want this</h3>
+        <ul>
+          <li><strong>A contract or report</strong> that will be printed and handled on paper, where a
+              dropped page is a real problem.</li>
+          <li><strong>A bundle you assembled here</strong> — merge several documents first, then number
+              the result so the parts are easy to find and cite.</li>
+          <li><strong>A document numbered wrongly</strong>, for example one that restarts at 1 halfway
+              through: start from any number you choose and the rest follow.</li>
+        </ul>
+
+        <h3>What it deliberately does not do</h3>
+        <p>
+          It does not renumber existing numbers, and it cannot remove a number that is already part
+          of the page's printed content — if the original pages already show numbers, adding more
+          gives you two. In that case crop the margin first, or use the copies with the numbers you
+          prefer. It also cannot draw Arabic or other non-Latin characters in the numbering text:
+          the built-in font covers Latin letters, digits and punctuation only, and you will be told
+          when a character had to be dropped rather than silently losing it.
+        </p>
+
+        <h3>Numbering a document you built here</h3>
+        <p>
+          The natural order is to <a href="/merge-pdf">merge</a> the parts,
+          <a href="/rotate-pdf">straighten</a> anything that came out sideways, and then number the
+          finished file. If it needs to be smaller before you send it, <a href="/compress-pdf">compress it</a>,
+          and if you only need a section, <a href="/split-pdf">split it out</a> first so the numbers
+          match the pages people actually receive.
+        </p>
+      </section>
+
+      <section class="ts-faq" aria-label="Frequently asked questions">
+        <h2 style="font-size:21px;margin-bottom:2px">Frequently asked questions</h2>
+        <details open>
+          <summary>Does it change my document?</summary>
+          <p>It copies your pages and draws a number on each one, then saves a new file. Your original is untouched, the existing text stays selectable and searchable, and nothing is re-encoded.</p>
+        </details>
+        <details>
+          <summary>Can I skip the cover page?</summary>
+          <p>Yes — switch on "Skip the first page" and numbering starts on page two. The counter still counts the cover, so the number on the second page is 2, which is what a reader expects when they hold the printed document.</p>
+        </details>
+        <details>
+          <summary>Can I write "Page 3 of 12"?</summary>
+          <p>Yes. Type any text in the format box and use <code>{n}</code> where the page number belongs and <code>{total}</code> for the number of pages, for example "Page {n} of {total}" or just "{n}".</p>
+        </details>
+        <details>
+          <summary>Why does my Arabic text disappear from the number?</summary>
+          <p>Page numbers are drawn with a built-in Latin font so the file stays small and opens everywhere. Arabic or other non-Latin characters in the format box cannot be drawn by that font, so they are dropped and you are warned — the numbers themselves still appear.</p>
+        </details>
+      </section>
+
+      <section class="ts-prose">
+        <h2>Other tools</h2>
+        <p>
+          Need to correct the pages before numbering them? <a href="/organize-pdf">Organize PDF</a>
+          reorders, deletes and rotates individual pages, <a href="/pdf-to-images">PDF to images</a>
+          turns pages into pictures, and <a href="/image-to-pdf">Images to PDF</a> builds a document
+          from photos first.
+        </p>
+      </section>
+
+      <footer class="ts-footer" id="ts-footer"></footer>
+    </main>
+  </div>
+</div>
+
+<script type="module">
+  import { defineTool } from '/assets/js/ui/toolkit.js';
+
+  defineTool({
+    slug: 'add-page-numbers',
+    accept: 'application/pdf,.pdf',
+    multiple: false,
+    minFiles: 1,
+    preview: 'rows',
+    dropIcon: 'file-pdf',
+    emptyIcon: 'file-pdf',
+    actionIcon: 'hash',
+    dropHint: 'One PDF · numbers are added to a copy, never to your original',
+
+    settings: [
+      {
+        id: 'position', type: 'select', default: 'bottom-center', hint: false,
+        options: [
+          { value: 'bottom-center' }, { value: 'bottom-right' },
+          { value: 'bottom-left' }, { value: 'top-center' },
+        ],
+      },
+      {
+        id: 'format', type: 'text', default: '{n}',
+        placeholderKey: 'setting.format.placeholder',
+        hint: false,
+      },
+      {
+        id: 'skipFirst', type: 'segment', default: 'no',
+        options: [{ value: 'no' }, { value: 'yes' }],
+      },
+    ],
+
+    async run({ files, settings, onProgress }) {
+      onProgress({ value: 0.2, label: 'Reading the PDF…' });
+      const input = await files[0].asInput();
+      const { addPageNumbers, pdfInfo } = await import('/assets/js/core/index.js');
+
+      const info = await pdfInfo(input.bytes);
+      if (!info.pageCount) {
+        throw Object.assign(new Error('The document reports no pages.'), { code: 'corrupt' });
+      }
+
+      onProgress({ value: 0.55, label: `Numbering ${info.pageCount} pages…` });
+      const result = await addPageNumbers(input.bytes, {
+        position: settings.position,
+        format: settings.format,
+        skipFirst: settings.skipFirst === 'yes',
+        size: 11,
+        margin: 28,
+      });
+
+      onProgress({ value: 1, label: 'Done' });
+      return {
+        outputs: [{ name: 'toolseer-numbered.pdf', bytes: result.bytes, type: 'application/pdf' }],
+        pageCount: result.pageCount,
+        warnings: result.warnings || [],
+      };
+    },
+  });
+</script>
+</body>
+</html>

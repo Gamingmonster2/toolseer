@@ -655,6 +655,97 @@ export async function organizePdf(bytes, opts = {}) {
 }
 
 /**
+ * Draw a page number on every page.
+ *
+ * Text only: no canvas, no image decoding, no pixel buffer. It cannot fail for
+ * memory reasons, which is the whole point — the tools that have to be reliable
+ * on a phone are the ones that only touch the document's structure.
+ *
+ * @param {Uint8Array|ArrayBuffer} bytes
+ * @param {{ position?: 'top-left'|'top-center'|'top-right'|'bottom-left'|'bottom-center'|'bottom-right',
+ *           format?: string, startAt?: number, size?: number, margin?: number,
+ *           skipFirst?: boolean, maxBytes?: number }} [opts]
+ *   `format` may contain `{n}` for the number and `{total}` for the page count.
+ * @returns {Promise<{ bytes: Uint8Array, pageCount: number, warnings: string[] }>}
+ */
+export async function addPageNumbers(bytes, opts = {}) {
+  const source = toBytes(bytes);
+  assertSize(source, 'the document', opts.maxBytes);
+  const doc = await loadDocument(source, { encryptedCode: 'encrypted' });
+  const pageCount = doc.getPageCount();
+  if (!pageCount) throw new ToolError('corrupt', 'The PDF has no pages.');
+
+  const POSITIONS = [
+    'top-left', 'top-center', 'top-right',
+    'bottom-left', 'bottom-center', 'bottom-right',
+  ];
+  const position = opts.position === undefined ? 'bottom-center' : String(opts.position);
+  if (!POSITIONS.includes(position)) {
+    throw new ToolError('invalid-option', `position must be one of ${POSITIONS.join(', ')} (got ${describeValue(opts.position)}).`);
+  }
+
+  const startAt = opts.startAt === undefined ? 1 : Number(opts.startAt);
+  if (!Number.isFinite(startAt)) {
+    throw new ToolError('invalid-option', `startAt must be a number (got ${describeValue(opts.startAt)}).`);
+  }
+
+  const size = opts.size === undefined ? 11 : Number(opts.size);
+  if (!Number.isFinite(size) || size <= 0 || size > 200) {
+    throw new ToolError('invalid-option', `size must be between 1 and 200 (got ${describeValue(opts.size)}).`);
+  }
+
+  const margin = opts.margin === undefined ? 28 : Number(opts.margin);
+  if (!Number.isFinite(margin) || margin < 0) {
+    throw new ToolError('invalid-option', `margin must be zero or more (got ${describeValue(opts.margin)}).`);
+  }
+
+  const rawFormat = opts.format === undefined || String(opts.format).trim() === ''
+    ? '{n}'
+    : String(opts.format).slice(0, 60);
+  const skipFirst = opts.skipFirst === true;
+
+  const { PDFDocument, StandardFonts, rgb } = await pdfLib();
+  /* The base 14 fonts are WinAnsi-encoded: they can draw Latin letters, digits and
+     punctuation, and nothing else. Rather than fail the whole job because someone
+     typed an Arabic word into the number format, the unencodable characters are
+     dropped and the caller is told. */
+  const font = await doc.embedFont(StandardFonts.Helvetica);
+  const ink = rgb(0.15, 0.17, 0.22);
+  const warnings = [];
+
+  const [vertical, horizontal] = position.split('-');
+  doc.getPages().forEach((page, index) => {
+    if (skipFirst && index === 0) return;
+    let label = rawFormat
+      .replace(/\{n\}/g, String(startAt + index))
+      .replace(/\{total\}/g, String(pageCount));
+    if (/[^\u0000-\u00FF]/.test(label)) {
+      label = label.replace(/[^\u0000-\u00FF]/g, '');
+      if (!warnings.includes('font-latin-only')) warnings.push('font-latin-only');
+    }
+    if (!label.trim()) return;
+
+    let textWidth = size;
+    try { textWidth = font.widthOfTextAtSize(label, size); } catch { /* fall back */ }
+
+    const { width, height } = page.getSize();
+    const x = horizontal === 'left'
+      ? margin
+      : horizontal === 'right' ? width - margin - textWidth : (width - textWidth) / 2;
+    const y = vertical === 'top' ? height - margin - size : margin;
+
+    try {
+      page.drawText(label, { x, y, size, font, color: ink });
+    } catch (cause) {
+      warnings.push(`page-skipped:${index + 1}`);
+    }
+  });
+
+  const bytesOut = await saveDocument(doc);
+  return { bytes: bytesOut, pageCount, warnings };
+}
+
+/**
  * Build one PDF from images. JPEG and PNG bytes are embedded **without
  * re-encoding** (lossless); any other format must be decoded first.
  *
