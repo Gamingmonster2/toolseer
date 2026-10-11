@@ -20,8 +20,29 @@
  */
 const args = process.argv.slice(2);
 const arg = (name, fallback = null) => (args.includes(name) ? args[args.indexOf(name) + 1] : fallback);
-const BASE = (arg('--base') || 'https://toolseer.com').replace(/\/+$/, '');
+let BASE = (arg('--base') || 'https://toolseer.com').replace(/\/+$/, '');
 const EXTRA_LEGACY = args.filter((a) => a.startsWith('/') && !a.startsWith('/--'));
+
+/**
+ * Normalise to the canonical origin first.
+ *
+ * The host redirect runs BEFORE the site's own `_redirects` rules, so probing a
+ * non-canonical spelling produces two kinds of false result: every legacy URL
+ * appears to redirect to a path that then 404s, and every revision marker looks
+ * missing because the first response is a 301 rather than the page. Both happened
+ * while checking `www.toolseer.com` after the host consolidation, and both were
+ * the tool's fault, not the site's.
+ */
+{
+  try {
+    const res = await fetch(BASE + '/', { redirect: 'follow' });
+    const origin = new URL(res.url).origin;
+    if (origin !== new URL(BASE).origin) {
+      console.log(`note: ${BASE} redirects to ${origin} — checking ${origin} instead`);
+      BASE = origin;
+    }
+  } catch { /* unreachable: the checks below will report it properly */ }
+}
 
 const CANONICAL = [
   '/', '/image-to-pdf', '/merge-pdf', '/compress-pdf', '/split-pdf',
