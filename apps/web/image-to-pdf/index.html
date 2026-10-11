@@ -251,14 +251,18 @@ window.addEventListener('beforeinstallprompt', function (event) {
         minLabelKey: 'opt.low', maxLabelKey: 'opt.high',
       },
       {
-        /* The phone fix. Every image used to sit in memory at full resolution until
-           the whole PDF was assembled, so thirty camera photos needed a quarter of a
-           gigabyte and Android killed the tab. Shrinking each image before it enters
-           the document drops that by an order of magnitude; "auto" reads what the
-           device reports about itself and decides. */
-        id: 'maxEdge', type: 'select', default: 'auto',
+        /* DEFAULT IS PASS-THROUGH, and that is deliberate — it is the technique the
+           previous version of this tool used, and it is why that version handled an
+           unlimited number of photos on a phone (see legacy source, handleFiles +
+           convertFiles in toolseer.txt):
+             readAsDataURL → getImageProperties (header only) → addImage (raw bytes)
+           Nothing ever decoded the pixels. Memory grew with the FILE SIZES, never
+           with pixel buffers — whereas decoding a 12 MP photo costs ~48 MB of RGBA
+           for that one image. Resizing is therefore opt-in, and when chosen it
+           happens one image at a time. */
+        id: 'maxEdge', type: 'select', default: 'keepOriginal',
         options: [
-          { value: 'auto' }, { value: 'keepOriginal' },
+          { value: 'keepOriginal' }, { value: 'auto' },
           { value: 'edge1600' }, { value: 'edge1200' }, { value: 'edge800' },
         ],
       },
@@ -365,7 +369,13 @@ window.addEventListener('beforeinstallprompt', function (event) {
          is about to hold full-resolution photos in memory against advice. */
       const notes = [].concat(warnings || []);
       if (savedBytes > 0) notes.push(`images-shrunk:${Math.round(savedBytes / 1048576)}`);
-      if (constrained && !maxEdge && ordered.length > 8) notes.push('mobile-memory-risk');
+      /* Warn only about a real risk: full-resolution images, a genuinely large
+         batch, on a device that reported little memory. Warning on every phone
+         batch would be noise, and noise trains people to ignore warnings. */
+      const totalBytes = ordered.reduce((sum, item) => sum + (item.size || 0), 0);
+      if (!maxEdge && constrained && ordered.length > 20 && totalBytes > 80 * 1048576) {
+        notes.push('mobile-memory-risk');
+      }
 
       return {
         outputs: [{ name: `${base || 'toolseer-images'}.pdf`, bytes, type: 'application/pdf' }],

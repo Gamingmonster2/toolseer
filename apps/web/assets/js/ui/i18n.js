@@ -326,7 +326,7 @@ const EN = {
   'toolbox.desc.rotate-pdf': 'Straighten a sideways scan in one click.',
   'setting.rotation.label': 'Turn every page',
   'setting.maxEdge.label': 'Image size',
-  'setting.maxEdge.hint': 'Smaller images use far less memory and produce a much smaller PDF — important on a phone.',
+  'setting.maxEdge.hint': 'Original embeds your files untouched — fastest and lightest. Smaller sizes re-encode each image: far less memory for very large batches, and a much smaller PDF.',
 
   'opt.keepOriginal': 'Original size',
   'opt.edge1600': '1600 px — sharp',
