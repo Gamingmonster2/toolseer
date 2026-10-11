@@ -998,6 +998,27 @@ function mount(cfg) {
       b.addEventListener('click', () => downloadBytes(outputs[0].bytes, outputs[0].name, outputs[0].type));
       btnRow.append(b);
 
+      /* A real link to the same bytes, kept in the page.
+       *
+       * If the programmatic download is refused — which is what happens in an
+       * installed app on a phone — the user can tap this instead. A tap on a real
+       * anchor carrying a blob URL is always honoured, because the gesture is the
+       * user's own. The URL is held for five minutes rather than thirty seconds so
+       * a deliberate tap after reading the page still finds it alive. */
+      try {
+        const blob = outputs[0].bytes instanceof Blob
+          ? outputs[0].bytes
+          : new Blob([outputs[0].bytes], { type: outputs[0].type || 'application/pdf' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.className = 'ts-btn ts-btn--ghost';
+        link.href = url;
+        link.download = outputs[0].name;
+        link.rel = 'noopener';
+        link.innerHTML = `${icon('file-pdf', { size: 17 })}<span>${t('action.openFile')}</span>`;
+        btnRow.append(link);
+        setTimeout(() => URL.revokeObjectURL(url), 300_000);
+      } catch { /* the primary button is still there */ }
     } else {
       const all = document.createElement('button');
       all.type = 'button';
@@ -1068,9 +1089,18 @@ function mount(cfg) {
       hideProgress();
       lastResult = result;
       renderResult(result);
-      if (cfg.autoDownload && result && result.outputs && result.outputs.length === 1) {
-        downloadBytes(result.outputs[0].bytes, result.outputs[0].name, result.outputs[0].type);
-      }
+      /* There is deliberately NO automatic download here.
+       *
+       * A blob download started by a script — outside a real tap — is refused by
+       * mobile browsers once the user activation from the Run click has expired,
+       * which on a phone is well before a thirty-photo job finishes. The result
+       * looks like the tool simply did nothing, and the person then finds the
+       * PREVIOUS file and believes the same image was used again.
+       *
+       * The legacy version never had that problem because its download button lived
+       * in a success dialog and the tap happened there. Every download in this
+       * toolkit is now inside a click, and the card also offers a plain link the
+       * user can tap directly. */
       const elapsed = ((Date.now() - started) / 1000).toFixed(1);
       document.dispatchEvent(new CustomEvent('toolseer:done', { detail: { slug: cfg.slug, seconds: Number(elapsed) } }));
     } catch (err) {
