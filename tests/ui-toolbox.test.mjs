@@ -108,7 +108,9 @@ test('favourites filter keeps only starred tools and preserves registry order', 
 
 test('favourites and search compose', () => {
   const list = selectTools({ query: 'pdf', filter: 'favorites', favorites: ['compress-pdf', 'rotate-pdf'] });
-  assert.deepEqual(slugs(list), ['compress-pdf', 'rotate-pdf']);
+  /* Registry order, not the order they were starred in — and the registry runs
+     from the most reliable tool to the heaviest, so rotate precedes compress. */
+  assert.deepEqual(slugs(list), ['rotate-pdf', 'compress-pdf']);
 });
 
 test('recent ordering follows the recorded order, most recent first', () => {

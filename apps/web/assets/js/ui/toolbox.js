@@ -23,6 +23,13 @@ const isDesktop = () => typeof window !== 'undefined' && Boolean(window.__TAURI_
 /**
  * The tool registry: single source of truth for the hub.
  * `kw` holds extra search terms (including Arabic synonyms) that are never shown.
+ *
+ * ORDER MATTERS, and it is deliberate: the tool this project is known for comes
+ * first, then the order runs from "cannot realistically fail" to "does the most
+ * work and so is likeliest to hit a limit". The owner asked for exactly this, for
+ * a practical reason — if a tool ever misbehaves, the reliable ones are the ones a
+ * visitor reaches first, and the harder ones have room to be fixed over the
+ * following days without taking the front of the page down with them.
  */
 export const TOOLS = [
   {
@@ -34,33 +41,34 @@ export const TOOLS = [
     kw: ['combine', 'join', 'append', 'دمج', 'ضم', 'جمع'],
   },
   {
-    slug: 'compress-pdf', icon: 'gauge', group: 'optimize',
-    kw: ['smaller', 'reduce', 'size', 'optimise', 'optimize', 'ضغط', 'تصغير', 'حجم'],
+    /* Text drawn onto pages: no canvas, no decoding, no pixel buffer. */
+    slug: 'add-page-numbers', icon: 'hash', group: 'organize',
+    kw: ['page numbers', 'numbering', 'pagination', 'footer', 'أرقام', 'ترقيم', 'ترقيم الصفحات'],
+  },
+  {
+    slug: 'rotate-pdf', icon: 'arrow-clockwise', group: 'optimize',
+    kw: ['rotate', 'rotate pages', 'sideways', 'landscape', 'upright', 'scan',
+      'تدوير', 'ميلان', 'مقلوب', 'تعديل'],
   },
   {
     slug: 'split-pdf', icon: 'scissors', group: 'organize',
     kw: ['extract', 'cut', 'divide', 'chunks', 'تقسيم', 'قص', 'فصل'],
   },
   {
-    /* One click, no settings worth reading — the shape of tool the owner asked
-       for after the password/OCR pages proved too heavy to use. */
-    slug: 'rotate-pdf', icon: 'arrow-clockwise', group: 'optimize',
-    kw: ['rotate', 'rotate pages', 'sideways', 'landscape', 'upright', 'scan',
-      'تدوير', 'ميلان', 'مقلوب', 'تعديل'],
-  },
-  {
-    slug: 'pdf-to-images', icon: 'image', group: 'convert',
-    kw: ['png', 'jpg', 'jpeg', 'export', 'صورة', 'صور', 'تصدير'],
-  },
-  {
     slug: 'organize-pdf', icon: 'shuffle', group: 'organize',
     kw: ['reorder', 'rotate', 'delete', 'sort', 'ترتيب', 'تدوير', 'حذف', 'صفحات'],
   },
   {
-    /* Pure text on the page: no image work, so it cannot fail for memory reasons —
-       the property every tool added from here on must have. */
-    slug: 'add-page-numbers', icon: 'hash', group: 'organize',
-    kw: ['page numbers', 'numbering', 'pagination', 'footer', 'أرقام', 'ترقيم', 'ترقيم الصفحات'],
+    /* Heaviest of the set: every page is drawn into a canvas in turn. */
+    slug: 'pdf-to-images', icon: 'image', group: 'convert',
+    kw: ['png', 'jpg', 'jpeg', 'export', 'صورة', 'صور', 'تصدير'],
+  },
+  {
+    /* Last on purpose. It rewrites the whole document, so on a phone it is the
+       one most likely to meet a memory limit — and the owner's rule is that a
+       tool which might fail belongs below the ones that cannot. */
+    slug: 'compress-pdf', icon: 'gauge', group: 'optimize',
+    kw: ['smaller', 'reduce', 'size', 'optimise', 'optimize', 'ضغط', 'تصغير', 'حجم'],
   },
 ];
 

@@ -857,7 +857,7 @@ function mount(cfg) {
    *
    * The readable form is `<base>-<pages>-<YYYYMMDD-HHMM>`, so files sort in the
    * order they were made, the count is visible at a glance, and two conversions in
-   * the same minute still differ by the page count.
+   * are distinct even when they happen in the same minute.
    */
   function stampName(name, count) {
     const raw = String(name || 'toolseer');
@@ -866,10 +866,11 @@ function mount(cfg) {
     const base = (dot > 0 ? raw.slice(0, dot) : raw) || 'toolseer';
     /* Idempotent: stamping an already-stamped name must return it untouched, or a
        name would grow a new suffix every time it passes through. */
-    if (/-\d{8}-\d{4}$/.test(base)) return raw;
+    if (/-\d{8}-\d{6}$/.test(base)) return raw;
     const now = new Date();
     const pad = (n) => String(n).padStart(2, '0');
-    const stamp = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}`;
+    const stamp = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}`
+      + `-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
     return `${base}${count ? `-${count}` : ''}-${stamp}${ext}`;
   }
 
@@ -883,38 +884,6 @@ function mount(cfg) {
     a.click();
     a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 30_000);
-  }
-
-  /**
-   * Save through the operating system instead of the download manager.
-   *
-   * This exists because of a mobile-only failure that looks like the tool doing
-   * nothing at all: in an INSTALLED app on Android, a download started from a blob
-   * URL is often blocked or lands somewhere the file picker cannot see, while the
-   * identical code works on a desktop browser. The share sheet puts the file
-   * where the user expects it — Files, Drive, an email — and it is the one path
-   * that behaves the same installed and uninstalled.
-   */
-  async function shareBytes(bytes, name, type = 'application/pdf') {
-    try {
-      const file = new File([bytes instanceof Blob ? bytes : new Blob([bytes], { type })], name, { type });
-      if (typeof navigator.canShare === 'function' && navigator.canShare({ files: [file] })
-        && typeof navigator.share === 'function') {
-        await navigator.share({ files: [file], title: name });
-        return true;
-      }
-    } catch { /* the user dismissed it, or the platform refused */ }
-    return false;
-  }
-
-  /** True when this device can save through the share sheet rather than a download. */
-  function canShareBytes(name, type = 'application/pdf') {
-    try {
-      const file = new File([new Uint8Array([0])], name, { type });
-      return typeof navigator.share === 'function'
-        && typeof navigator.canShare === 'function'
-        && navigator.canShare({ files: [file] });
-    } catch { return false; }
   }
 
   async function downloadAllZip(outputs) {
@@ -1029,21 +998,6 @@ function mount(cfg) {
       b.addEventListener('click', () => downloadBytes(outputs[0].bytes, outputs[0].name, outputs[0].type));
       btnRow.append(b);
 
-      /* On a phone, offer the operating system's own save sheet as well. In an
-         installed app a blob download can be blocked or vanish, which reads as the
-         tool doing nothing; the share sheet always puts the file somewhere the
-         user can find it. Rendered only when the platform actually supports it. */
-      if (canShareBytes(outputs[0].name, outputs[0].type)) {
-        const s = document.createElement('button');
-        s.type = 'button';
-        s.className = 'ts-btn ts-btn--ghost';
-        s.innerHTML = `${icon('upload', { size: 17 })}<span>${t('action.share')}</span>`;
-        s.addEventListener('click', async () => {
-          const ok = await shareBytes(outputs[0].bytes, outputs[0].name, outputs[0].type);
-          if (!ok) downloadBytes(outputs[0].bytes, outputs[0].name, outputs[0].type);
-        });
-        btnRow.append(s);
-      }
     } else {
       const all = document.createElement('button');
       all.type = 'button';
