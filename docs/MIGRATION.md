@@ -24,12 +24,37 @@ workers and different installed shortcuts.
 So: pick one — I recommend **`www.toolseer.com`** as canonical, because the live old site already
 serves `www` — and 301 the other to it. Do that in the same change as the cutover, not later.
 
-Why it matters concretely: a shortcut installed from `www` will keep working after the cutover, and
-will land on the new hub, because `start_url` is `"/"` **on that same origin**. A shortcut installed
-from the apex will not see `www`'s manifest; it follows whatever the apex serves. If the apex is the
-one that changes, those users are fine too — but only if both hosts end up serving the new site. If
-you leave `www` on Blogger and move only the apex, half the audience stays on the old page. Choose,
-redirect, then switch.
+### Update — measured after the domain moved (2026-10-07)
+
+The rule above was written before the move and its recommendation is now **superseded by what the
+pages themselves declare**. `node tools/check-hosts.mjs --host toolseer.com` reports:
+
+```
+✓ https://toolseer.com/        200 — serves the site
+✓ https://www.toolseer.com/    200 — serves the site
+✓ http://toolseer.com/         200 — serves the site      ← no HTTPS redirect
+✓ http://www.toolseer.com/     200 — serves the site      ← no HTTPS redirect
+✗ exactly one canonical host serves the site
+```
+
+Four live origins means four caches, four install targets, and four copies of the same content as far
+as a search engine is concerned. Two of them are plain **HTTP**, where browsers refuse to register a
+service worker at all — so anyone landing on an `http://` address gets no offline mode and no install
+button.
+
+Every page's `<link rel="canonical">`, the sitemap and every `og:url` already say
+`https://toolseer.com/...` — apex, no `www`. So make the host behaviour agree with what the pages
+already claim. **No code change is needed.** The three settings:
+
+| Where | Setting | Value |
+|---|---|---|
+| SSL/TLS → Edge Certificates | **Always Use HTTPS** | **On** — both `http://` spellings then 301 to `https://` |
+| Rules → Redirect Rules | redirect for `www.toolseer.com/*` | **301** to `https://toolseer.com/$1` (dynamic, preserving path and query) |
+| SSL/TLS → Edge Certificates | HSTS | optional, only after the two above are confirmed |
+
+Then re-run `node tools/check-hosts.mjs --host toolseer.com`; it must print one canonical host and one
+redirect target. Until it does, a shortcut someone installed on `www` keeps its own copy of the site
+and will not pick up a single future deploy.
 
 ## 2. The legacy subdomain must be `noindex` (the other one that bites)
 
