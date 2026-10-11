@@ -857,6 +857,38 @@ function mount(cfg) {
     setTimeout(() => URL.revokeObjectURL(url), 30_000);
   }
 
+  /**
+   * Save through the operating system instead of the download manager.
+   *
+   * This exists because of a mobile-only failure that looks like the tool doing
+   * nothing at all: in an INSTALLED app on Android, a download started from a blob
+   * URL is often blocked or lands somewhere the file picker cannot see, while the
+   * identical code works on a desktop browser. The share sheet puts the file
+   * where the user expects it — Files, Drive, an email — and it is the one path
+   * that behaves the same installed and uninstalled.
+   */
+  async function shareBytes(bytes, name, type = 'application/pdf') {
+    try {
+      const file = new File([bytes instanceof Blob ? bytes : new Blob([bytes], { type })], name, { type });
+      if (typeof navigator.canShare === 'function' && navigator.canShare({ files: [file] })
+        && typeof navigator.share === 'function') {
+        await navigator.share({ files: [file], title: name });
+        return true;
+      }
+    } catch { /* the user dismissed it, or the platform refused */ }
+    return false;
+  }
+
+  /** True when this device can save through the share sheet rather than a download. */
+  function canShareBytes(name, type = 'application/pdf') {
+    try {
+      const file = new File([new Uint8Array([0])], name, { type });
+      return typeof navigator.share === 'function'
+        && typeof navigator.canShare === 'function'
+        && navigator.canShare({ files: [file] });
+    } catch { return false; }
+  }
+
   async function downloadAllZip(outputs) {
     try {
       const { zipFiles } = await core();
@@ -965,6 +997,22 @@ function mount(cfg) {
       b.innerHTML = `${icon('download', { size: 17 })}<span>${t('action.download')}</span>`;
       b.addEventListener('click', () => downloadBytes(outputs[0].bytes, outputs[0].name, outputs[0].type));
       btnRow.append(b);
+
+      /* On a phone, offer the operating system's own save sheet as well. In an
+         installed app a blob download can be blocked or vanish, which reads as the
+         tool doing nothing; the share sheet always puts the file somewhere the
+         user can find it. Rendered only when the platform actually supports it. */
+      if (canShareBytes(outputs[0].name, outputs[0].type)) {
+        const s = document.createElement('button');
+        s.type = 'button';
+        s.className = 'ts-btn ts-btn--ghost';
+        s.innerHTML = `${icon('upload', { size: 17 })}<span>${t('action.share')}</span>`;
+        s.addEventListener('click', async () => {
+          const ok = await shareBytes(outputs[0].bytes, outputs[0].name, outputs[0].type);
+          if (!ok) downloadBytes(outputs[0].bytes, outputs[0].name, outputs[0].type);
+        });
+        btnRow.append(s);
+      }
     } else {
       const all = document.createElement('button');
       all.type = 'button';
