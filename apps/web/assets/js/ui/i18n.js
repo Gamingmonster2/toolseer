@@ -324,6 +324,13 @@ const EN = {
   'toolbox.desc.extract-text-pdf': 'Pull the text layer out of a PDF.',
   'toolbox.desc.rotate-pdf': 'Straighten a sideways scan in one click.',
   'setting.rotation.label': 'Turn every page',
+  'setting.maxEdge.label': 'Image size',
+  'setting.maxEdge.hint': 'Smaller images use far less memory and produce a much smaller PDF — important on a phone.',
+
+  'opt.keepOriginal': 'Original size',
+  'opt.edge1600': '1600 px — sharp',
+  'opt.edge1200': '1200 px — balanced',
+  'opt.edge800': '800 px — smallest',
 
   'toolbox.soon.rotate-pdf': 'Rotate PDF',
   'toolbox.soon.watermark-pdf': 'Add watermark',
@@ -361,6 +368,8 @@ const EN = {
   'warning.reencoded': '{name} was re-encoded to fit the PDF format, which can reduce its quality.',
   'warning.textLayerLost': 'Pages were rebuilt as images, so text inside the result is no longer selectable.',
   'warning.passwordRemoved': 'The password protection was removed.',
+  'warning.imagesShrunk': 'Images were reduced in size before being placed ({mb} MB less held in memory). The pages still print sharply.',
+  'warning.mobileMemory': 'This device has limited memory and the images kept their full resolution. If the job fails, switch “Image size” away from “Original size”.',
 
   'pwa.install': 'Install app',
   'pwa.installed': 'ToolSeer is installed on this device.',
@@ -444,6 +453,8 @@ const AR_EXTRA = {
   'warning.reencoded': 'أُعيد ترميز {name} ليتوافق مع صيغة PDF، مما قد يقلل جودته.',
   'warning.textLayerLost': 'أُعيد بناء الصفحات كصور، لذا لن يكون النص داخل الناتج قابلاً للتحديد.',
   'warning.passwordRemoved': 'أُزيلت حماية كلمة المرور.',
+  'warning.imagesShrunk': 'صُغِّرت الصور قبل إدراجها (توفير {mb} ميغابايت من الذاكرة). الصفحات ما زالت تُطبع بوضوح.',
+  'warning.mobileMemory': 'ذاكرة هذا الجهاز محدودة والصور بقيت بدقتها الأصلية. إن فشلت العملية، غيّر «حجم الصورة» من «الحجم الأصلي».',
 
   /* --- toolbox hub --- */
   'toolbox.title': 'صندوق أدوات تول سير',
@@ -474,6 +485,13 @@ const AR_EXTRA = {
   'toolbox.desc.extract-text-pdf': 'استخرج طبقة النص من ملف PDF.',
   'toolbox.desc.rotate-pdf': 'عدّل ميلان المستند الممسوح بضغطة واحدة.',
   'setting.rotation.label': 'تدوير كل الصفحات',
+  'setting.maxEdge.label': 'حجم الصورة',
+  'setting.maxEdge.hint': 'الصور الأصغر تستهلك ذاكرة أقل بكثير وتُنتج ملفاً أصغر — وهذا مهم على الهاتف.',
+
+  'opt.keepOriginal': 'الحجم الأصلي',
+  'opt.edge1600': '١٦٠٠ بكسل — واضح',
+  'opt.edge1200': '١٢٠٠ بكسل — متوازن',
+  'opt.edge800': '٨٠٠ بكسل — الأصغر',
 
   'toolbox.soon.rotate-pdf': 'تدوير PDF',
   'toolbox.soon.watermark-pdf': 'إضافة علامة مائية',

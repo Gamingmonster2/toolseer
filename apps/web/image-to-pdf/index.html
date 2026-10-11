@@ -251,6 +251,18 @@ window.addEventListener('beforeinstallprompt', function (event) {
         minLabelKey: 'opt.low', maxLabelKey: 'opt.high',
       },
       {
+        /* The phone fix. Every image used to sit in memory at full resolution until
+           the whole PDF was assembled, so thirty camera photos needed a quarter of a
+           gigabyte and Android killed the tab. Shrinking each image before it enters
+           the document drops that by an order of magnitude; "auto" reads what the
+           device reports about itself and decides. */
+        id: 'maxEdge', type: 'select', default: 'auto',
+        options: [
+          { value: 'auto' }, { value: 'keepOriginal' },
+          { value: 'edge1600' }, { value: 'edge1200' }, { value: 'edge800' },
+        ],
+      },
+      {
         id: 'filename', type: 'text', default: 'toolseer-images', hint: false,
         placeholderKey: 'setting.filename.label',
       },
@@ -258,6 +270,53 @@ window.addEventListener('beforeinstallprompt', function (event) {
 
     async run({ files, settings, onProgress }) {
       onProgress({ value: 0.08, label: 'Reading images…' });
+
+      /* ---- how big may each image be? -------------------------------------
+         On a phone, memory is the thing that fails. `navigator.deviceMemory`
+         reports GB of RAM (Chromium only) and a coarse pointer means a touch
+         device, so a modest phone or an unknown touch device gets 1600 px — still
+         sharp for print, but roughly one twentieth of a 12 MP camera photo. */
+      const deviceMemory = Number(navigator.deviceMemory || 0);
+      const touchOnly = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+      const constrained = (deviceMemory > 0 && deviceMemory <= 4) || (deviceMemory === 0 && touchOnly);
+
+      const choice = String(settings.maxEdge || 'auto');
+      const maxEdge = choice === 'auto'
+        ? (constrained ? 1600 : 0)
+        : choice === 'keepOriginal' ? 0
+          : Number((choice.match(/\d+/) || [0])[0]) || 0;
+
+      /* Shrink one image, or hand back the original bytes when it is already small
+         enough. The bitmap is closed immediately: that is the whole point. */
+      const shrink = async (input) => {
+        if (!maxEdge) return input;
+        if (typeof createImageBitmap !== 'function') return input;
+        try {
+          const blob = new Blob([input.bytes], { type: input.type || 'image/jpeg' });
+          const bitmap = await createImageBitmap(blob);
+          const longest = Math.max(bitmap.width, bitmap.height);
+          if (longest <= maxEdge) {
+            if (typeof bitmap.close === 'function') bitmap.close();
+            return input;
+          }
+          const scale = maxEdge / longest;
+          const width = Math.max(1, Math.round(bitmap.width * scale));
+          const height = Math.max(1, Math.round(bitmap.height * scale));
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, width, height);
+          ctx.drawImage(bitmap, 0, 0, width, height);
+          if (typeof bitmap.close === 'function') bitmap.close();
+          const out = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.85));
+          if (!out) return input;
+          return { name: input.name, type: 'image/jpeg', bytes: new Uint8Array(await out.arrayBuffer()) };
+        } catch {
+          return input; /* never fail the job because an optimisation failed */
+        }
+      };
 
       /* The Sorting control has to actually do something — a control that changes
          nothing is a false affordance. It reorders the pages, exactly as its hint
@@ -274,8 +333,14 @@ window.addEventListener('beforeinstallprompt', function (event) {
       }
 
       const images = [];
+      let savedBytes = 0;
       for (let i = 0; i < ordered.length; i++) {
-        images.push(await ordered[i].asInput());
+        const input = await ordered[i].asInput();
+        const ready = await shrink(input);
+        savedBytes += input.bytes.length - ready.bytes.length;
+        /* Only the shrunken bytes are kept; the full-resolution buffer goes out of
+           scope here, which is what keeps a thirty-photo job inside a phone's RAM. */
+        images.push(ready);
         onProgress({
           value: 0.1 + (0.5 * (i + 1)) / ordered.length,
           label: `Reading image ${i + 1} of ${ordered.length}…`,
@@ -294,9 +359,17 @@ window.addEventListener('beforeinstallprompt', function (event) {
 
       onProgress({ value: 1, label: 'Done' });
       const base = (settings.filename || 'toolseer-images').replace(/\.pdf$/i, '');
+
+      /* Two honest advisories: one when the images had to be shrunk (so the user
+         knows why the result is smaller than the originals), and one when a phone
+         is about to hold full-resolution photos in memory against advice. */
+      const notes = [].concat(warnings || []);
+      if (savedBytes > 0) notes.push(`images-shrunk:${Math.round(savedBytes / 1048576)}`);
+      if (constrained && !maxEdge && ordered.length > 8) notes.push('mobile-memory-risk');
+
       return {
         outputs: [{ name: `${base || 'toolseer-images'}.pdf`, bytes, type: 'application/pdf' }],
-        warnings: [].concat(warnings || [], pageCount ? [] : []),
+        warnings: notes,
       };
     },
   });
