@@ -845,6 +845,32 @@ function mount(cfg) {
 
   function hideProgress() { progress.hidden = true; progress.innerHTML = ''; }
 
+  /**
+   * Make every output name unique, once, for every tool.
+   *
+   * Without this, converting twice produces the same file name and the operating
+   * system stops to ask whether to download it again — every single time. The
+   * previous version of this project never had that problem because it stamped the
+   * name itself (`ToolSeer_V3_${Date.now()}.pdf`), and the lesson is worth keeping:
+   * a user should never have to rename anything to avoid a collision.
+   *
+   * The readable form is `<base>-<pages>-<YYYYMMDD-HHMM>`, so files sort in the
+   * order they were made, the count is visible at a glance, and two conversions in
+   * the same minute still differ by the page count.
+   */
+  function stampName(name, count) {
+    const raw = String(name || 'toolseer');
+    const dot = raw.lastIndexOf('.');
+    const base = (dot > 0 ? raw.slice(0, dot) : raw).replace(/-(?:\d+p|\d+)\b.*$/, '') || 'toolseer';
+    const ext = dot > 0 ? raw.slice(dot) : '';
+    if (/-\d{8}-\d{4}$/.test(base)) return raw; /* already stamped: leave it alone */
+    const now = new Date();
+    const pad = (n) => String(n).padStart(2, '0');
+    const stamp = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}`;
+    const pages = count ? `-${count}` : '';
+    return `${base}${pages}-${stamp}${ext}`;
+  }
+
   function downloadBytes(bytes, name, type = 'application/pdf') {
     const blob = bytes instanceof Blob ? bytes : new Blob([bytes], { type });
     const url = URL.createObjectURL(blob);
@@ -963,7 +989,10 @@ function mount(cfg) {
       return;
     }
 
-    const outputs = result.outputs || [];
+    const outputs = (result.outputs || []).map((out) => ({
+      ...out,
+      name: stampName(out.name, out.pages || result.pageCount || null),
+    }));
     if (!outputs.length) return;
 
     const card = document.createElement('div');
