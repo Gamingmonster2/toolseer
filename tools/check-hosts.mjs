@@ -39,43 +39,75 @@ async function probe(url) {
 
 console.log(`\nCANONICAL HOST CHECK — ${HOST}\n`);
 
+/**
+ * Follow a redirect chain to its end.
+ *
+ * The contract is "every spelling ends up on the canonical host", not "in one
+ * hop" — `http://www` legitimately takes two (Always Use HTTPS upgrades the
+ * scheme, then the www rule rewrites the host). What is never acceptable is a
+ * chain that loops or dead-ends, and neither is visible from a single response:
+ * the status code and the Location header both look plausible on their own.
+ */
+async function follow(start, maxHops = 5) {
+  let url = start;
+  const hops = [];
+  for (let i = 0; i < maxHops; i++) {
+    const r = await probe(url);
+    if (r.error) return { error: r.error, hops, url };
+    hops.push({ url, status: r.status, location: r.location });
+    const redirecting = r.status >= 300 && r.status < 400 && r.location;
+    if (!redirecting) return { hops, final: url, status: r.status };
+    let next;
+    try { next = new URL(r.location, url).href; } catch { next = r.location; }
+    if (next === url || hops.some((hop) => hop.url === next)) return { loop: true, hops, url, next };
+    url = next;
+  }
+  return { tooMany: true, hops, url };
+}
+
+const canonical = `https://${HOST}/`;
 const serving = [];
 for (const url of VARIANTS) {
-  const r = await probe(url);
-  if (r.error) {
-    rows.push({ ok: false, test: url, detail: `unreachable: ${r.error}` });
+  const chain = await follow(url);
+
+  if (chain.error) {
+    rows.push({ ok: false, test: url, detail: `unreachable: ${chain.error}` });
+    failures++;
+    continue;
+  }
+  if (chain.loop) {
+    rows.push({
+      ok: false,
+      test: url,
+      detail: `LOOP: 301 to itself — the browser gives up with ERR_TOO_MANY_REDIRECTS`,
+    });
+    failures++;
+    continue;
+  }
+  if (chain.tooMany) {
+    rows.push({ ok: false, test: url, detail: `more than 5 redirects, last at ${chain.url}` });
     failures++;
     continue;
   }
 
-  /* A redirect whose Location is the URL that was requested is not a redirect at
-     all — it is an infinite loop, and the browser shows an error page instead of
-     the site. Only following the chain finds it, because the status code and the
-     Location both look plausible on their own. */
-  if (r.status >= 300 && r.status < 400) {
-    let target = '';
-    try { target = new URL(r.location, url).href; } catch { target = r.location; }
-    if (target === url) {
-      rows.push({
-        ok: false,
-        test: url,
-        detail: `LOOP: ${r.status} to itself — the browser gives up with ERR_TOO_MANY_REDIRECTS`,
-      });
-      failures++;
-      continue;
-    }
-  }
+  const serves = chain.status === 200;
+  const finalHost = (() => { try { return new URL(chain.final).host; } catch { return ''; } })();
+  const landsOnCanonical = finalHost === HOST;
+  const hops = chain.hops.length - 1;
+  /* Only a variant that answers 200 WITHOUT redirecting "serves" the site. A
+     variant that redirects to it is doing its job, but it is not a second origin. */
+  const direct = serves && hops === 0;
 
-  const redirects = r.status >= 300 && r.status < 400;
-  const serves = r.status === 200;
+  if (direct) serving.push(url);
 
-  if (serves) serving.push(url);
   rows.push({
-    ok: serves || redirects,
+    ok: landsOnCanonical && serves,
     test: url,
-    detail: serves ? `200 — serves the site` : `${r.status} → ${r.location || '(no location)'}`,
+    detail: direct
+      ? '200 — serves the site'
+      : `${hops} hop${hops === 1 ? '' : 's'} → ${chain.final}${landsOnCanonical ? '' : ' (WRONG HOST)'}`,
   });
-  if (!serves && !redirects) failures++;
+  if (!landsOnCanonical || !serves) failures++;
 }
 
 /* Exactly one host may serve the site; the rest must redirect to it. */
