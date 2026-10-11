@@ -861,14 +861,15 @@ function mount(cfg) {
   function stampName(name, count) {
     const raw = String(name || 'toolseer');
     const dot = raw.lastIndexOf('.');
-    const base = (dot > 0 ? raw.slice(0, dot) : raw).replace(/-(?:\d+p|\d+)\b.*$/, '') || 'toolseer';
     const ext = dot > 0 ? raw.slice(dot) : '';
-    if (/-\d{8}-\d{4}$/.test(base)) return raw; /* already stamped: leave it alone */
+    const base = (dot > 0 ? raw.slice(0, dot) : raw) || 'toolseer';
+    /* Idempotent: stamping an already-stamped name must return it untouched, or a
+       name would grow a new suffix every time it passes through. */
+    if (/-\d{8}-\d{4}$/.test(base)) return raw;
     const now = new Date();
     const pad = (n) => String(n).padStart(2, '0');
     const stamp = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}`;
-    const pages = count ? `-${count}` : '';
-    return `${base}${pages}-${stamp}${ext}`;
+    return `${base}${count ? `-${count}` : ''}-${stamp}${ext}`;
   }
 
   function downloadBytes(bytes, name, type = 'application/pdf') {
