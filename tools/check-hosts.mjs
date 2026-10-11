@@ -47,6 +47,25 @@ for (const url of VARIANTS) {
     failures++;
     continue;
   }
+
+  /* A redirect whose Location is the URL that was requested is not a redirect at
+     all — it is an infinite loop, and the browser shows an error page instead of
+     the site. Only following the chain finds it, because the status code and the
+     Location both look plausible on their own. */
+  if (r.status >= 300 && r.status < 400) {
+    let target = '';
+    try { target = new URL(r.location, url).href; } catch { target = r.location; }
+    if (target === url) {
+      rows.push({
+        ok: false,
+        test: url,
+        detail: `LOOP: ${r.status} to itself — the browser gives up with ERR_TOO_MANY_REDIRECTS`,
+      });
+      failures++;
+      continue;
+    }
+  }
+
   const redirects = r.status >= 300 && r.status < 400;
   const serves = r.status === 200;
 
