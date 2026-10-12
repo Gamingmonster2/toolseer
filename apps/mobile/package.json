@@ -1,0 +1,25 @@
+{
+  "name": "toolseer-mobile",
+  "version": "1.3.0",
+  "private": true,
+  "description": "ToolSeer for Android — the same verified engines as the site, in a native shell that saves files natively instead of through a browser download.",
+  "scripts": {
+    "add:android": "cap add android",
+    "sync": "cap sync android",
+    "open": "cap open android",
+    "build:debug": "cap sync android && cd android && gradlew.bat assembleDebug",
+    "build:release": "cap sync android && cd android && gradlew.bat bundleRelease",
+    "run": "cap run android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.0.0",
+    "@capacitor/core": "^7.0.0",
+    "@capacitor/filesystem": "^7.0.0",
+    "@capacitor/share": "^7.0.0",
+    "@capacitor-community/file-opener": "^7.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.0.0"
+  },
+  "comment": "webDir points at the deployed site folder, so the app ships exactly the tree the gates verify — one source of truth, no copy to drift."
+}

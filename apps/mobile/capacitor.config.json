@@ -1,0 +1,28 @@
+{
+  "appId": "com.toolseer.app",
+  "appName": "ToolSeer",
+  "webDir": "../web",
+  "bundledWebRuntime": false,
+  "android": {
+    "allowMixedContent": false,
+    "captureInput": false,
+    "webContentsDebuggingEnabled": false
+  },
+  "server": {
+    "androidScheme": "https",
+    "hostname": "toolseer.com"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 300,
+      "backgroundColor": "#ffffff",
+      "showSpinner": false
+    }
+  },
+  "comment": [
+    "webDir is ../web on purpose: the Android app bundles the SAME folder Cloudflare",
+    "serves, so the 557 static checks and the 113 engine tests cover the shipped app too.",
+    "androidScheme https keeps the app on a secure origin, which the service worker and",
+    "the Web Crypto calls require."
+  ]
+}

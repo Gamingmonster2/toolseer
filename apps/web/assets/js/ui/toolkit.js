@@ -22,6 +22,7 @@
 import { icon } from './icons.js';
 import { t, reflect, onLangChange, hasKey } from './i18n.js';
 import { renderShell, openModal, SITE } from './shell.js';
+import { isNativeApp, nativeSave } from './native-save.js';
 
 /* ------------------------------------------------------------ utilities -- */
 
@@ -874,7 +875,7 @@ function mount(cfg) {
     return `${base}${count ? `-${count}` : ''}-${stamp}${ext}`;
   }
 
-  function downloadBytes(bytes, name, type = 'application/pdf') {
+  function classicDownload(bytes, name, type = 'application/pdf') {
     const blob = bytes instanceof Blob ? bytes : new Blob([bytes], { type });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -884,6 +885,20 @@ function mount(cfg) {
     a.click();
     a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 30_000);
+  }
+
+  /**
+   * Save the result. Inside the Android app the bytes go to the device's Documents
+   * folder through native code — no blob URL, no gesture rule, no name collision.
+   * On the website, and if a plugin is missing, the ordinary download runs instead.
+   * Either way the user gets the file; only the route changes.
+   */
+  function downloadBytes(bytes, name, type = 'application/pdf') {
+    if (isNativeApp()) {
+      nativeSave(bytes, name, type).catch(() => classicDownload(bytes, name, type));
+      return;
+    }
+    classicDownload(bytes, name, type);
   }
 
   async function downloadAllZip(outputs) {
