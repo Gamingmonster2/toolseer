@@ -58,7 +58,8 @@
   <span class="badge" id="access-badge">الوصول إلى ملفاتك</span>
   <h2>لماذا يطلب التطبيق الوصول؟</h2>
   <p class="note">لأن الأدوات تعمل على ملفاتك، ولا شيء غير ذلك.</p>
-  <div class="row"><span class="tick">✓</span><p><b>قراءة الملفات التي تختارها</b><br>لتفتح الصور وملفات PDF وتحوّلها.</p></div>
+  <div class="row"><span class="tick">✓</span><p><b>الوصول إلى صورك</b><br>لتفتح الصور من الاستوديو وتحوّلها — تُقرأ الصور التي تختارها فقط.</p></div>
+  <div class="row"><span class="tick">✓</span><p><b>الوصول إلى ملفاتك (PDF)</b><br>ملفات PDF لا تكون في الاستوديو بل في «الملفات» — يفتح التطبيق مدير الملفات لتختار منها، بلا رفع ولا نسخ.</p></div>
   <div class="row"><span class="tick">✓</span><p><b>حفظ النتيجة في Documents</b><br>لتجد ملفك في مدير الملفات وفي أي قارئ PDF.</p></div>
   <div class="row"><span class="tick">✕</span><p><b>لا إنترنت · لا حساب · لا تتبّع</b><br>لا نرسل ملفاتك إلى أي مكان، ويمكنك فصل الإنترنت والتطبيق يعمل.</p></div>
 </section>
@@ -99,8 +100,9 @@
   if (bridge && bridge.requestAccess) {
     var state = bridge.requestAccess();
     var badge = document.getElementById('access-badge');
-    if (state === 'not-needed') badge.textContent = 'لا حاجة لأي إذن على هذا الإصدار';
-    else if (state === 'granted') badge.textContent = 'الوصول ممنوح';
+    if (state === 'granted') badge.textContent = 'الوصول ممنوح ✓';
+    else if (state === 'asked') badge.textContent = 'بانتظار موافقتك…';
+    else badge.textContent = 'الوصول إلى الصور والملفات';
   }
 
   window.onToolSeerAccess = function (result) {

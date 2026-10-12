@@ -11,6 +11,10 @@
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
+    <!-- Photos, so the gallery can be offered directly. Play requires a declaration for
+         this permission in the Data safety form; the app reads only what the user picks
+         and never uploads anything. -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
     <application
         android:allowBackup="false"
