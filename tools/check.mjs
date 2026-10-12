@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 /**
- * tools/check.mjs — the repository integrity gate.
+ * tools/check.mjs â€” the repository integrity gate.
  *
  * Verifies everything that can be verified WITHOUT a browser:
- *   route inventory · per-page SEO structure · JSON-LD vs visible FAQ parity ·
- *   runtime-CDN ban · asset existence · i18n completeness · JS syntax ·
- *   vendor checksums · prose volume.
+ *   route inventory آ· per-page SEO structure آ· JSON-LD vs visible FAQ parity آ·
+ *   runtime-CDN ban آ· asset existence آ· i18n completeness آ· JS syntax آ·
+ *   vendor checksums آ· prose volume.
  *
  * The browser-level verification lives in tools/e2e.mjs.
  *
@@ -86,7 +86,7 @@ function allAssets(html) {
 
 function wordCount(text) {
   const cleaned = text.replace(/<[^>]+>/g, ' ').replace(/&[a-z]+;/gi, ' ');
-  return (cleaned.match(/[\p{L}\p{N}]+(?:['’-][\p{L}\p{N}]+)*/gu) || []).length;
+  return (cleaned.match(/[\p{L}\p{N}]+(?:['â€™-][\p{L}\p{N}]+)*/gu) || []).length;
 }
 
 /* -------------------------------------------------------------- i18n gate -- */
@@ -247,7 +247,7 @@ for (const route of ONLY ? ROUTES.filter((r) => r.slug === ONLY) : ROUTES) {
   if (route.slug) ok(words >= 300, where, `prose only ${words} words (need 300+)`);
 
   /* Inline module syntax. Every tool page carries its own <script type="module">
-     and nothing else parses it — a typo there ships a page whose engine silently
+     and nothing else parses it â€” a typo there ships a page whose engine silently
      never runs. Extracted to a temp file because `node --check` must not be given
      a pipe in a confined sandbox. */
   const modules = [...html.matchAll(/<script type="module"[^>]*>([\s\S]*?)<\/script>/gi)];
@@ -281,7 +281,7 @@ for (const f of walk(path.join(WEB, 'assets', 'js')).filter((f) => f.endsWith('.
 
 if (!SKIP_VENDOR) {
   if (!fs.existsSync(VENDOR_LOCK)) {
-    problems.push('[vendor] vendor.lock.json missing — run node tools/vendor.mjs install');
+    problems.push('[vendor] vendor.lock.json missing â€” run node tools/vendor.mjs install');
   } else {
     const lock = JSON.parse(fs.readFileSync(VENDOR_LOCK, 'utf8'));
     for (const pkg of lock.packages) {
@@ -321,6 +321,31 @@ if (!SKIP_VENDOR) {
   console.log(`   (hub: ${TOOLS.length} tools + ${SOON.length} roadmap cards, labels verified)`);
 }
 
+/* Icons a page asks for. Same class of gap as the hub labels above: the name is a
+   string in the page, so a typo renders an empty space that no other check noticed —
+   "unknown icon \"hash\"" reached a phone before anything complained. */
+{
+  const iconsText = fs.readFileSync(path.join(WEB, 'assets', 'js', 'ui', 'icons.js'), 'utf8');
+  const defined = new Set([...iconsText.matchAll(/^\s{2}'?([a-z0-9-]+)'?:\s*'/gm)].map((m) => m[1]));
+  const htmlFiles = [];
+  (function walk(dir) {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) walk(full);
+      else if (entry.name.endsWith('.html')) htmlFiles.push(full);
+    }
+  })(WEB);
+  const wanted = new Set();
+  for (const file of htmlFiles) {
+    const text = fs.readFileSync(file, 'utf8');
+    for (const m of text.matchAll(/(?:actionIcon|dropIcon|emptyIcon|icon)::?\s*'([a-z0-9-]+)'/g)) wanted.add(m[1]);
+    for (const m of text.matchAll(/(?:actionIcon|dropIcon|emptyIcon|icon):\s*'([a-z0-9-]+)'/g)) wanted.add(m[1]);
+  }
+  for (const name of wanted) {
+    ok(defined.has(name), 'icons', `a page asks for the icon "${name}", which icons.js does not define`);
+  }
+  console.log(`   (icons: ${wanted.size} referenced by pages, ${defined.size} defined)`);
+}
 /* -------------------------------------------------------------- PWA gate --- */
 
 {
@@ -395,10 +420,10 @@ function walk(dir, acc = []) {
 
 const mode = ONLY ? ` (--only ${ONLY})` : '';
 if (problems.length) {
-  console.log(`\n❌ check FAILED${mode} — ${problems.length} problem(s) across ${checks} checks:\n`);
-  for (const p of problems) console.log(`  • ${p}`);
+  console.log(`\nâ‌Œ check FAILED${mode} â€” ${problems.length} problem(s) across ${checks} checks:\n`);
+  for (const p of problems) console.log(`  â€¢ ${p}`);
   process.exitCode = 1;
 } else {
-  console.log(`\n✅ check PASSED${mode} — ${checks} checks, 0 problems`);
+  console.log(`\nâœ… check PASSED${mode} â€” ${checks} checks, 0 problems`);
   process.exitCode = 0;
 }

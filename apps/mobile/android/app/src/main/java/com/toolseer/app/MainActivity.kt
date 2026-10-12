@@ -13,6 +13,7 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Base64
+import android.util.Log
 import android.webkit.JavascriptInterface
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
@@ -46,6 +47,11 @@ class MainActivity : Activity() {
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if ((applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0) {
+            WebView.setWebContentsDebuggingEnabled(true)
+            Log.i(TAG, "WebView debugging enabled for this debug build")
+        }
 
         webView = WebView(this).apply {
             settings.javaScriptEnabled = true
@@ -118,6 +124,7 @@ class MainActivity : Activity() {
         ): Boolean {
             pendingFileCallback?.onReceiveValue(null)
             pendingFileCallback = callback
+            Log.i(TAG, "chooser asked: accept=" + params?.acceptTypes?.joinToString(",") + " mode=" + params?.mode)
 
             val accepted = params?.acceptTypes?.toList().orEmpty().joinToString(" ").lowercase()
             val wantsImages = accepted.isEmpty() || accepted.contains("image")
@@ -165,16 +172,28 @@ class MainActivity : Activity() {
             super.onActivityResult(requestCode, resultCode, data)
             return
         }
-        val callback = pendingFileCallback ?: return
+        /* Every line below exists so a silent failure can be told apart from a
+           mis-delivered one. Without this, "nothing happened" is all anyone can say. */
+        Log.i(TAG, "onActivityResult: code=" + requestCode + " result=" + resultCode
+            + " data=" + (data != null) + " clip=" + (data?.clipData?.itemCount ?: -1)
+            + " uri=" + data?.data)
+
+        val callback = pendingFileCallback
         pendingFileCallback = null
+        if (callback == null) {
+            Log.w(TAG, "onActivityResult with no pending callback - the web page stopped waiting")
+            return
+        }
 
         if (resultCode != RESULT_OK || data == null) {
+            Log.w(TAG, "no file returned")
             callback.onReceiveValue(null)
             return
         }
         val uris = mutableListOf<Uri>()
         data.clipData?.let { clip -> for (i in 0 until clip.itemCount) uris.add(clip.getItemAt(i).uri) }
         data.data?.let { uris.add(it) }
+        Log.i(TAG, "returning " + uris.size + " file(s) to the page: " + uris.joinToString(","))
         callback.onReceiveValue(if (uris.isEmpty()) null else uris.toTypedArray())
     }
 
@@ -347,6 +366,7 @@ class MainActivity : Activity() {
     }
 
     companion object {
+        private const val TAG = "ToolSeerPick"
         private const val HOST = "appassets.androidplatform.net"
         private const val HOME = "https://$HOST/index.html"
         private const val WELCOME = "https://$HOST/welcome.html"

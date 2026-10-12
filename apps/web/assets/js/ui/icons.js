@@ -26,6 +26,7 @@ const P = {
   lock: '<rect x="4.5" y="10.5" width="15" height="10" rx="2"/><path d="M8 10.5V7.6a4 4 0 0 1 8 0v2.9"/><path d="M12 14.5v2.5"/>',
   'lock-open': '<rect x="4.5" y="10.5" width="15" height="10" rx="2"/><path d="M8 10.5V7.6a4 4 0 0 1 7.5-1.9"/><path d="M12 14.5v2.5"/>',
   gauge: '<path d="M20.5 17.5a9 9 0 1 0-17 0"/><path d="M12 17.5 16 9"/><circle cx="12" cy="17.5" r="1.4"/>',
+  hash: '<path d="M9 3.5 7.5 20.5M16.5 3.5 15 20.5M3.8 9h16.4M3 15h16.4"/>',
   shuffle: '<path d="M17 3.5 21 7l-4 3.5"/><path d="M17 13.5 21 17l-4 3.5"/><path d="M3 7h4.2c1.6 0 3 .8 3.8 2.2l2 3.6c.8 1.4 2.2 2.2 3.8 2.2H21"/><path d="M3 17h4.2c1.6 0 3-.8 3.8-2.2"/><path d="M21 7h-3.2c-1.4 0-2.7.6-3.6 1.7"/>',
   magnifier: '<circle cx="10.5" cy="10.5" r="6.5"/><path d="m20 20-4.8-4.8"/><path d="M8.5 10.5h4M10.5 8.5v4"/>',
   'text-t': '<path d="M4 6.5V4.5h16v2"/><path d="M12 4.5v15"/><path d="M8.5 19.5h7"/>',
