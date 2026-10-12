@@ -1,0 +1,8 @@
+﻿# build output and the site copy made at build time
+app/build/
+app/src/main/assets/www/
+.gradle/
+build/
+# the signing key must never be in the repository
+keystore.properties
+keystore/*.keystore
