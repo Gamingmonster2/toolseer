@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- Files copied in from the picker, so the WebView always reads them from this
+         app rather than from a provider it may not be able to resolve. -->
+    <cache-path name="picked" path="picked/" />
+</paths>

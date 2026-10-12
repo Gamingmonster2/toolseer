@@ -12,6 +12,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import android.provider.OpenableColumns
 import android.util.Base64
 import android.util.Log
 import android.webkit.JavascriptInterface
@@ -23,6 +24,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import java.io.File
 import java.io.IOException
 
@@ -45,8 +47,19 @@ class MainActivity : Activity() {
     private val prefs: SharedPreferences by lazy { getSharedPreferences("toolseer", MODE_PRIVATE) }
 
     @SuppressLint("SetJavaScriptEnabled")
+    private fun cleanupCache() {
+        try {
+            val dir = File(cacheDir, "picked")
+            val cutoff = System.currentTimeMillis() - 24L * 60 * 60 * 1000
+            dir.listFiles()?.forEach { if (it.lastModified() < cutoff) it.delete() }
+        } catch (e: Exception) {
+            // never worth failing a launch over
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        cleanupCache()
 
         if ((applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0) {
             WebView.setWebContentsDebuggingEnabled(true)
@@ -127,40 +140,47 @@ class MainActivity : Activity() {
             Log.i(TAG, "chooser asked: accept=" + params?.acceptTypes?.joinToString(",") + " mode=" + params?.mode)
 
             val accepted = params?.acceptTypes?.toList().orEmpty().joinToString(" ").lowercase()
-            val wantsImages = accepted.isEmpty() || accepted.contains("image")
-            val wantsDocuments = accepted.isEmpty()
-                || accepted.contains("pdf")
+            val multiple = params?.mode == FileChooserParams.MODE_OPEN_MULTIPLE
+
+            /* An empty accept string used to be read as "images", which could send a PDF
+               tool to the gallery. It is read as unknown now, and unknown goes to the
+               document browser, which can show photos as well as files. */
+            val imageOnly = accepted.contains("image")
+                && !accepted.contains("pdf")
+                && !accepted.contains("word")
+                && !accepted.contains("sheet")
+                && !accepted.contains("presentation")
+                && !accepted.contains("text")
+                && !accepted.contains("*/*")
+            val alsoWantsDocuments = accepted.contains("pdf")
                 || accepted.contains("word")
                 || accepted.contains("sheet")
                 || accepted.contains("presentation")
                 || accepted.contains("text")
                 || accepted.contains("*/*")
-            val multiple = params?.mode == FileChooserParams.MODE_OPEN_MULTIPLE
-
-            /* Photos live in the gallery and PDFs live in the file browser. One intent
-               cannot serve both well, and trying to forced the owner's phone into an
-               unfiltered document browser that showed him nothing usable. So the right
-               source is chosen per tool, and when a tool accepts either, BOTH are
-               offered in one system dialog. */
-            val images = galleryIntent(multiple)
-            val documents = documentsIntent(multiple)
-
-            val primary = when {
-                wantsImages && !wantsDocuments -> images
-                wantsDocuments && !wantsImages -> documents
-                else -> images
-            }
-            val extras = when {
-                wantsImages && wantsDocuments -> arrayOf(documents)
-                else -> emptyArray()
-            }
+            val needsBoth = accepted.contains("image") && alsoWantsDocuments
 
             return try {
-                val chooser = Intent.createChooser(primary, "اختر من الصور أو الملفات")
-                if (extras.isNotEmpty()) chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, extras)
-                startActivityForResult(chooser, REQUEST_FILES)
+                when {
+                    /* The photo picker works and is the right door for photos: it needs no
+                       permission and returns exactly what was chosen. */
+                    imageOnly -> startActivityForResult(galleryIntent(multiple), REQUEST_FILES)
+
+                    /* Documents go straight through. No Intent.createChooser wrapper: the
+                       extra layer is what silently swallowed the result for PDFs, and
+                       removing it is the whole point of this change. */
+                    !needsBoth -> startActivityForResult(documentsIntent(multiple), REQUEST_FILES)
+
+                    else -> {
+                        val chooser = Intent.createChooser(galleryIntent(multiple), "اختر من الصور أو الملفات")
+                        chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(documentsIntent(multiple)))
+                        startActivityForResult(chooser, REQUEST_FILES)
+                    }
+                }
+                Log.i(TAG, "launched: imageOnly=" + imageOnly + " needsBoth=" + needsBoth + " multiple=" + multiple)
                 true
             } catch (e: Exception) {
+                Log.e(TAG, "could not open a picker", e)
                 pendingFileCallback = null
                 false
             }
@@ -193,8 +213,9 @@ class MainActivity : Activity() {
         val uris = mutableListOf<Uri>()
         data.clipData?.let { clip -> for (i in 0 until clip.itemCount) uris.add(clip.getItemAt(i).uri) }
         data.data?.let { uris.add(it) }
-        Log.i(TAG, "returning " + uris.size + " file(s) to the page: " + uris.joinToString(","))
-        callback.onReceiveValue(if (uris.isEmpty()) null else uris.toTypedArray())
+        val readable = if (uris.isEmpty()) emptyArray() else toReadableUris(uris)
+        Log.i(TAG, "returning " + readable.size + " file(s) to the page: " + readable.joinToString(","))
+        callback.onReceiveValue(if (readable.isEmpty()) null else readable)
     }
 
     /**
@@ -231,6 +252,43 @@ class MainActivity : Activity() {
             putExtra(Intent.EXTRA_ALLOW_MULTIPLE, multiple)
         }
 
+    /**
+     * Give the page URIs the app itself serves.
+     *
+     * Chromium has to resolve whatever URI it is handed, and a provider it cannot
+     * resolve turns into silence on the page — no error, no file, nothing. Copying into
+     * our own cache and serving it through FileProvider removes that dependency. If the
+     * copy fails for any reason the original URI is returned, so nothing is lost.
+     */
+    private fun toReadableUris(uris: List<Uri>): Array<Uri> {
+        val out = mutableListOf<Uri>()
+        for (uri in uris) {
+            val ours = try { copyToCache(uri) } catch (e: Exception) { Log.w(TAG, "copy failed: " + e.message); null }
+            out.add(ours ?: uri)
+        }
+        return out.toTypedArray()
+    }
+
+    private fun copyToCache(uri: Uri): Uri? {
+        val rawName = displayName(uri) ?: ("picked-" + System.currentTimeMillis())
+        val safe = rawName.replace(Regex("[^A-Za-z0-9._-]"), "_")
+        val dir = File(cacheDir, "picked").apply { mkdirs() }
+        val target = File(dir, safe)
+        contentResolver.openInputStream(uri)?.use { input ->
+            target.outputStream().use { output -> input.copyTo(output) }
+        } ?: return null
+        Log.i(TAG, "copied " + rawName + " (" + target.length() + " bytes) into the app cache")
+        return FileProvider.getUriForFile(this, packageName + ".fileprovider", target)
+    }
+
+    private fun displayName(uri: Uri): String? = try {
+        contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use { cursor ->
+            if (cursor.moveToFirst() && !cursor.isNull(0)) cursor.getString(0) else null
+        }
+    } catch (e: Exception) {
+        null
+    }
+
     private fun mimeOf(p: String): String = when (p.substringAfterLast('.', "").lowercase()) {
         "html" -> "text/html"
         "js", "mjs" -> "text/javascript"
@@ -263,6 +321,23 @@ class MainActivity : Activity() {
 
         @JavascriptInterface
         fun appVersion(): String = "1.3"
+
+        /**
+         * Open the document browser directly, whatever the tool asked for. Offered as a
+         * fallback when a picker returns nothing, which on some OEM file managers is a
+         * question of which provider answered rather than of permissions.
+         */
+        @JavascriptInterface
+        fun openDocuments(): Boolean = try {
+            runOnUiThread {
+                pendingFileCallback = null
+                startActivityForResult(documentsIntent(true), REQUEST_FILES)
+            }
+            true
+        } catch (e: Exception) {
+            Log.e(TAG, "fallback document browser failed", e)
+            false
+        }
 
         /** Offered from the settings drawer when access was declined earlier. */
         @JavascriptInterface
