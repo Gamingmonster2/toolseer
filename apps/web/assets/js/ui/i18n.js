@@ -39,9 +39,13 @@ const EN = {
   'lang.other': 'العربية',
 
   'support.text': 'All processing happens on your device — your files are never uploaded.',
+  'support.rail': 'Support the app',
   'support.cta': 'Support development',
   'support.close': 'Dismiss',
 
+  'native.fromFiles': 'From files',
+  'native.myFiles': 'My files',
+  'native.myFilesHint': 'Adds the most recent file this app made',
   'action.choose': 'Choose files',
   'action.addMore': 'Add more files',
   'action.clearAll': 'Clear all',
@@ -597,9 +601,13 @@ const AR = {
   'lang.other': 'English',
 
   'support.text': 'كل المعالجة تتم على جهازك — ملفاتك لا تُرفع إلى أي خادم.',
+  'support.rail': 'دعم التطبيق',
   'support.cta': 'ادعم التطوير',
   'support.close': 'إغلاق',
 
+  'native.fromFiles': 'من الملفات',
+  'native.myFiles': 'ملفاتي',
+  'native.myFilesHint': 'يضيف أحدث ملف أنشأه التطبيق',
   'action.choose': 'اختر الملفات',
   'action.addMore': 'إضافة ملفات',
   'action.clearAll': 'حذف الكل',

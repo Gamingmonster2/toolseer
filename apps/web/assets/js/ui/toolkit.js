@@ -212,6 +212,39 @@ function mount(cfg) {
   renderDropInner();
   drop.append(input);
 
+  /* Inside the app, two doors that are always visible. The picker chosen from the accept
+     types is convenient but invisible, and once the welcome flow is behind you there was
+     no lasting way to reach a PDF at all — which is precisely what the owner reported. */
+  if (isNativeApp()) {
+    const nativeRow = document.createElement('div');
+    nativeRow.className = 'ts-drop__native';
+
+    const fromFiles = document.createElement('button');
+    fromFiles.type = 'button';
+    fromFiles.className = 'ts-btn ts-btn--ghost';
+    fromFiles.innerHTML = `${icon('file-pdf', { size: 16 })}<span>${t('native.fromFiles')}</span>`;
+    fromFiles.addEventListener('click', (event) => {
+      event.stopPropagation();
+      window.ToolSeerNative.openDocuments();
+    });
+
+    const mine = document.createElement('button');
+    mine.type = 'button';
+    mine.className = 'ts-btn ts-btn--ghost';
+    mine.title = t('native.myFilesHint');
+    mine.innerHTML = `${icon('stack', { size: 16 })}<span>${t('native.myFiles')}</span>`;
+    mine.addEventListener('click', async (event) => {
+      event.stopPropagation();
+      const { listMyFiles, collectPicked } = await import('./picked-files.js');
+      const items = listMyFiles();
+      if (!items.length) return;
+      collectPicked([items[0].name]);
+    });
+
+    nativeRow.append(fromFiles, mine);
+    drop.append(nativeRow);
+  }
+
   const privacy = document.createElement('div');
   privacy.className = 'ts-note';
   privacy.innerHTML = `${icon('shield', { size: 15 })}<span>${t('privacy.note')}</span>`;

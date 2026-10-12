@@ -390,7 +390,11 @@ export function renderShell(opts = {}) {
   renderLegacyBar(app);
 
   /* --- support strip --- */
-  if (supportHost) {
+  /* Moved into the settings rail. It used to sit across the top of every page, which
+     the owner called annoying — and he is right: it is the first thing a visitor sees
+     and it has nothing to do with the job they came for. */
+  if (supportHost) supportHost.remove();
+  if (false && supportHost) {
     const KEY = 'toolseer:support-dismissed';
     let dismissed = false;
     try { dismissed = sessionStorage.getItem(KEY) === '1'; } catch { /* ignore */ }
@@ -542,6 +546,17 @@ export function renderShell(opts = {}) {
     legal.append(disclaimerBtn);
 
     foot.append(themeSeg, version, legal);
+    /* Support, in the settings rather than across the top of every page. */
+    if (SITE.supportUrl) {
+      const support = document.createElement('a');
+      support.className = 'ts-rail__support';
+      support.href = SITE.supportUrl;
+      support.target = '_blank';
+      support.rel = 'noopener';
+      support.innerHTML = `${icon('heart', { size: 15, cls: 'ts-support__icon' })}<span data-i18n="support.rail">${t('support.rail')}</span>`;
+      foot.append(support);
+    }
+
     rail.append(head, railBody, foot);
   }
 
