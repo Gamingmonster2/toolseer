@@ -424,7 +424,8 @@ export function renderToolbox(host, opts = {}) {
  * This is GitHub's "latest release" form: it always serves the newest asset with this
  * exact file name, so publishing 1.4 does not require touching the site.
  */
-export const ANDROID_APK_URL = '/download/toolseer-1.3-android.apk';
+export const ANDROID_APK_URL =
+  'https://github.com/Gamingmonster2/toolseer/releases/latest/download/toolseer-1.3-android.apk';
 
 
 async function renderDesktopRow(row) {

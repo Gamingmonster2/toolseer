@@ -1180,3 +1180,29 @@ html[dir="rtl"] .ts-legacybar__link svg { transform: scaleX(-1); }
   .ts-rail__scrim { z-index: 90 !important; }
   .ts-header { z-index: 80 !important; }
 }
+
+
+/* --- the Android download section --- */
+.ts-download {
+  display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+  padding: 18px 20px;
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-lg, 16px);
+  background: var(--ts-surface);
+  box-shadow: var(--ts-shadow-sm, 0 1px 2px rgba(15,23,42,.06));
+}
+.ts-download__art { flex: none; color: var(--ts-ink); }
+.ts-download__body { flex: 1 1 320px; min-width: 260px; }
+.ts-download__title { margin: 0 0 4px; font-size: 19px; font-weight: 700; }
+.ts-download__text { margin: 0 0 8px; color: var(--ts-text-muted); font-size: 14.5px; }
+.ts-download__list { margin: 0; padding-inline-start: 20px; color: var(--ts-text-muted); font-size: 14px; }
+.ts-download__list li { margin-block: 3px; }
+.ts-download__side { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 0 0 auto; }
+.ts-download__meta { font-size: 12.5px; color: var(--ts-text-subtle); }
+.ts-download__cta { width: 100%; justify-content: center; }
+.ts-download__note { font-size: 12px; color: var(--ts-text-subtle); }
+@media (max-width: 640px) {
+  .ts-download { flex-direction: column; align-items: stretch; text-align: center; }
+  .ts-download__art { margin: 0 auto; }
+  .ts-download__list { text-align: start; }
+}
