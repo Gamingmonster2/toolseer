@@ -71,6 +71,9 @@ val syncWeb = tasks.register<Copy>("syncWeb") {
     from("../../../web")
     into(layout.projectDirectory.dir("src/main/assets/www"))
     exclude("**/*.map")
+    // The site carries the Android installer for download; the app itself must not
+    // contain a copy of itself.
+    exclude("download/**")
 }
 
 tasks.named("preBuild") { dependsOn(syncWeb) }
