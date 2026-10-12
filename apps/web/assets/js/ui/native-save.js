@@ -21,9 +21,13 @@
 /** True only inside the packaged app; false on the website and in tests. */
 export function isNativeApp() {
   try {
+    if (typeof window === 'undefined') return false;
+    /* The bridge the Android app actually installs. Checked first because it is the
+       one that exists in the shipped APK. */
+    if (window.ToolSeerNative && typeof window.ToolSeerNative.saveBase64 === 'function') return true;
+    /* Kept for a Capacitor build, should one ever replace the plain project. */
     return Boolean(
-      typeof window !== 'undefined'
-      && window.Capacitor
+      window.Capacitor
       && typeof window.Capacitor.isNativePlatform === 'function'
       && window.Capacitor.isNativePlatform(),
     );
@@ -55,6 +59,20 @@ function toBase64(bytes) {
  *         browser download rather than losing the user's work.
  */
 export async function nativeSave(bytes, name, type = 'application/pdf') {
+  /* The Android app's own bridge. It writes through MediaStore to the public
+     Documents collection and returns the location, or a string starting with
+     "error:" — which is turned into a throw so the caller can fall back rather than
+     leave the user with nothing. */
+  if (typeof window !== 'undefined' && window.ToolSeerNative
+    && typeof window.ToolSeerNative.saveBase64 === 'function') {
+    const written = window.ToolSeerNative.saveBase64(name, toBase64(bytes), type);
+    const result = String(written == null ? '' : written);
+    if (!result || result.startsWith('error:')) {
+      throw new Error(result || 'The app could not write the file.');
+    }
+    return result;
+  }
+
   const filesystem = plugin('Filesystem');
   if (!filesystem || typeof filesystem.writeFile !== 'function') {
     throw new Error('The file system plugin is not available in this build.');
