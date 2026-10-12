@@ -53,6 +53,17 @@ class MainActivity : Activity() {
             settings.allowFileAccess = false
             settings.allowContentAccess = true
             settings.mediaPlaybackRequiresUserGesture = false
+            // Honour the page's viewport meta, and fit the page to the window. Without
+            // these two the WebView lays the site out at desktop width: the page is
+            // wider than the screen, drifts sideways, and the responsive breakpoint
+            // never matches — so the settings drawer stays off-screen while the scrim
+            // still dims the page. One cause, three symptoms.
+            settings.useWideViewPort = true
+            settings.loadWithOverviewMode = true
+            settings.setSupportZoom(false)
+            settings.builtInZoomControls = false
+            settings.displayZoomControls = false
+            settings.textZoom = 100
             webViewClient = AssetClient()
             webChromeClient = Chooser()
             addJavascriptInterface(Bridge(), "ToolSeerNative")
@@ -108,18 +119,24 @@ class MainActivity : Activity() {
             pendingFileCallback?.onReceiveValue(null)
             pendingFileCallback = callback
 
-            val accepted = params?.acceptTypes?.joinToString(" ").orEmpty().lowercase()
-            val mime = when {
-                accepted.contains("image") -> "image/*"
-                accepted.contains("pdf") -> "application/pdf"
-                else -> "*/*"
-            }
+            val acceptTypes = params?.acceptTypes?.toList().orEmpty()
+            /* Real MIME types only: ".pdf" and friends are extensions, and passing one
+               as a filter makes some providers show an empty list. */
+            val mimeTypes = acceptTypes
+                .filter { it.contains('/') && !it.contains('*') }
+                .distinct()
+                .toTypedArray()
 
-            val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
                 addCategory(Intent.CATEGORY_OPENABLE)
-                type = mime
-                // Without this the system picker returns a single file and multi-select
-                // — the whole point of the images-to-PDF flow — is impossible.
+                /* Deliberately broad. Narrowing the base type is what made PDFs from
+                   Files, Downloads and Drive invisible: a provider that does not
+                   advertise application/pdf cannot answer the query at all. Filtering
+                   with EXTRA_MIME_TYPES keeps the list relevant without hiding files. */
+                type = "*/*"
+                if (mimeTypes.isNotEmpty()) putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes)
+                // Without this the picker returns one file, and multi-select is the whole
+                // point of the images-to-PDF flow.
                 putExtra(Intent.EXTRA_ALLOW_MULTIPLE, params?.mode == FileChooserParams.MODE_OPEN_MULTIPLE)
             }
 

@@ -1153,3 +1153,30 @@ html[dir="rtl"] .ts-legacybar__link svg { transform: scaleX(-1); }
   .ts-filters { flex: 1; justify-content: space-between; }
   .ts-toolbox__count { display: none; }
 }
+
+
+/* --- app drawer hardening --- */
+/* The settings drawer is essential on a phone: every tool's options live in it.
+   Positioning it with logical insets rather than a transform means right-to-left
+   cannot send it off the wrong edge, and the explicit z-index keeps it above the
+   header and the scrim whatever else is on the page. */
+@media (max-width: 880px) {
+  .ts-rail {
+    position: fixed !important;
+    inset-block: 0 !important;
+    inset-inline-start: 0 !important;
+    inset-inline-end: auto !important;
+    width: min(340px, 88vw) !important;
+    max-height: none !important;
+    z-index: 100 !important;
+    transform: none !important;
+    margin-inline-start: -110% !important;
+    transition: margin-inline-start .22s ease !important;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: var(--ts-surface);
+  }
+  .ts-rail.is-open { margin-inline-start: 0 !important; }
+  .ts-rail__scrim { z-index: 90 !important; }
+  .ts-header { z-index: 80 !important; }
+}
