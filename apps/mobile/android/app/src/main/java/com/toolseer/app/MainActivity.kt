@@ -407,6 +407,25 @@ class MainActivity : Activity() {
         }
     }
 
+    /**
+     * The folder this app owns: Android/media/<package>/files.
+     *
+     * No permission is needed for it on any supported version, the user can see it in
+     * any file manager, and — the point of the whole exercise — the app can LIST it. A
+     * picker can only ever hand over one file at a time; a folder it owns can be
+     * browsed, which is what makes reusing a result in the next tool possible.
+     */
+    private fun mediaDir(): File {
+        val dirs = getExternalMediaDirs()
+        val base = if (dirs.isNotEmpty() && dirs[0] != null) dirs[0]!! else File(filesDir, "media")
+        val dir = File(base, "files")
+        dir.mkdirs()
+        return dir
+    }
+
+    private fun jsonEscape(s: String): String =
+        s.replace("\\", "\\\\").replace("\"", "\\\"")
+
     private fun writeToDocuments(name: String, bytes: ByteArray, mime: String): Uri? {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val values = ContentValues().apply {
