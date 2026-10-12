@@ -23,6 +23,7 @@ import { icon } from './icons.js';
 import { t, reflect, onLangChange, hasKey } from './i18n.js';
 import { renderShell, openModal, SITE } from './shell.js';
 import { isNativeApp, nativeSave } from './native-save.js';
+import './picked-files.js';
 
 /* ------------------------------------------------------------ utilities -- */
 

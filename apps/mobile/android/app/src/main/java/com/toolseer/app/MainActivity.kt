@@ -51,6 +51,8 @@ class MainActivity : Activity() {
 
     private lateinit var webView: WebView
     private var pendingFileCallback: ValueCallback<Array<Uri>>? = null
+    /** Files picked but not yet collected by the page; survives the activity. */
+    private val pendingPicked = mutableListOf<String>()
     private val prefs: SharedPreferences by lazy { getSharedPreferences("toolseer", MODE_PRIVATE) }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -198,12 +200,10 @@ class MainActivity : Activity() {
 
         val callback = pendingFileCallback
         pendingFileCallback = null
-        if (callback == null) {
-            Log.w(TAG, "result with no pending callback")
-            return
-        }
+
         if (resultCode != RESULT_OK || data == null) {
-            callback.onReceiveValue(null)
+            Log.w(TAG, "the picker returned nothing")
+            callback?.onReceiveValue(null)
             return
         }
 
@@ -211,13 +211,40 @@ class MainActivity : Activity() {
         data.clipData?.let { clip -> for (i in 0 until clip.itemCount) picked.add(clip.getItemAt(i).uri) }
         data.data?.let { picked.add(it) }
         if (picked.isEmpty()) {
-            callback.onReceiveValue(null)
+            callback?.onReceiveValue(null)
             return
         }
 
+        /* The file is secured FIRST, in the app's own folder and cache, before anything
+           is handed anywhere. Even if the callback is gone — which is what the device
+           log proved happens — the file is now inside the app and the page can fetch it
+           by name. Losing the callback stops meaning losing the file. */
         val readable = toReadableUris(picked)
-        Log.i(TAG, "handing " + readable.size + " file(s) to the page")
-        callback.onReceiveValue(readable)
+        val kept = mutableListOf<String>()
+        for (uri in picked) {
+            try {
+                val name = displayName(uri) ?: ("file-" + System.currentTimeMillis())
+                val target = File(mediaDir(), name.replace(Regex("[^A-Za-z0-9._-]"), "_"))
+                contentResolver.openInputStream(uri)?.use { input ->
+                    target.outputStream().use { output -> input.copyTo(output) }
+                }
+                kept.add(target.name)
+            } catch (e: Exception) {
+                Log.w(TAG, "could not keep " + uri + ": " + e.message)
+            }
+        }
+        pendingPicked.clear()
+        pendingPicked.addAll(kept)
+        Log.i(TAG, "kept " + kept.size + " file(s) in the app folder, callback=" + (callback != null))
+
+        /* Tell the page by name. This path does not need the callback at all, so it works
+           whether or not Android kept the original instance alive. */
+        if (kept.isNotEmpty()) {
+            val csv = kept.joinToString(",").replace("'", "")
+            webView.post { webView.evaluateJavascript("window.onToolSeerPicked && window.onToolSeerPicked('" + csv + "')", null) }
+        }
+
+        if (callback != null) callback.onReceiveValue(readable) else Log.i(TAG, "no callback; the page will fetch by name")
     }
 
     /* ------------------------------------------------------- picked files --- */
@@ -423,6 +450,14 @@ class MainActivity : Activity() {
             File(mediaDir(), File(name).name).delete()
         } catch (e: Exception) {
             false
+        }
+
+        /** Names of files picked since the page last asked. */
+        @JavascriptInterface
+        fun takePicked(): String {
+            val names = pendingPicked.toList()
+            pendingPicked.clear()
+            return "[" + names.joinToString(",") { "\"" + jsonEscape(it) + "\"" } + "]"
         }
 
         @JavascriptInterface
