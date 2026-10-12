@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ToolSeer</title>
+<style>
+  :root { --brand:#0040ff; --ink:#0f172a; --muted:#5b6b86; --line:#e3e8f2; }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { margin:0; height:100%; }
+  body {
+    font:16px/1.7 -apple-system,"Segoe UI",Roboto,"Noto Naskh Arabic",sans-serif;
+    color:var(--ink); background:#fff;
+    display:flex; flex-direction:column; padding:28px 22px calc(22px + env(safe-area-inset-bottom));
+    padding-top:calc(28px + env(safe-area-inset-top));
+  }
+  .slide { display:none; flex:1; flex-direction:column; justify-content:center; gap:16px; text-align:center; }
+  .slide.on { display:flex; }
+  .art { width:120px; height:120px; margin:0 auto; }
+  h1 { font-size:25px; margin:0; letter-spacing:-.02em; }
+  h2 { font-size:20px; margin:0; }
+  p { color:var(--muted); margin:0; }
+  ul { text-align:start; color:var(--muted); margin:0; padding-inline-start:20px; }
+  li { margin-block:7px; }
+  .row { display:flex; gap:10px; align-items:flex-start; text-align:start; }
+  .row b { color:var(--ink); }
+  .tick { flex:none; width:26px; height:26px; border-radius:50%; background:#eef2ff; color:var(--brand);
+          display:grid; place-items:center; font-weight:700; }
+  .dots { display:flex; gap:7px; justify-content:center; margin-block:18px 14px; }
+  .dot { width:7px; height:7px; border-radius:50%; background:var(--line); }
+  .dot.on { background:var(--brand); width:20px; border-radius:4px; }
+  button {
+    font:inherit; font-weight:600; border:0; border-radius:14px; padding:15px 18px;
+    background:var(--brand); color:#fff; width:100%;
+  }
+  button.ghost { background:#fff; color:var(--muted); border:1px solid var(--line); }
+  .note { font-size:13px; color:var(--muted); }
+  .badge { display:inline-block; font-size:13px; color:var(--brand); background:#eef2ff;
+           border-radius:999px; padding:4px 12px; margin:0 auto; }
+</style>
+</head>
+<body>
+
+<!-- 1: what this is -->
+<section class="slide on" id="s1">
+  <img class="art" src="/assets/img/brand/mark.svg" alt="">
+  <h1>ToolSeer</h1>
+  <p>أدوات PDF تعمل على جهازك — بلا رفع، بلا حساب، وبلا إنترنت.</p>
+  <ul>
+    <li>صور ← PDF بضغطة واحدة</li>
+    <li>دمج · تقسيم · ضغط · تدوير · أرقام صفحات</li>
+    <li>ملفاتك لا تغادر هاتفك أبداً</li>
+  </ul>
+</section>
+
+<!-- 2: what it needs, and why -->
+<section class="slide" id="s2">
+  <span class="badge" id="access-badge">الوصول إلى ملفاتك</span>
+  <h2>لماذا يطلب التطبيق الوصول؟</h2>
+  <p class="note">لأن الأدوات تعمل على ملفاتك، ولا شيء غير ذلك.</p>
+  <div class="row"><span class="tick">✓</span><p><b>قراءة الملفات التي تختارها</b><br>لتفتح الصور وملفات PDF وتحوّلها.</p></div>
+  <div class="row"><span class="tick">✓</span><p><b>حفظ النتيجة في Documents</b><br>لتجد ملفك في مدير الملفات وفي أي قارئ PDF.</p></div>
+  <div class="row"><span class="tick">✕</span><p><b>لا إنترنت · لا حساب · لا تتبّع</b><br>لا نرسل ملفاتك إلى أي مكان، ويمكنك فصل الإنترنت والتطبيق يعمل.</p></div>
+</section>
+
+<!-- 3: how it works -->
+<section class="slide" id="s3">
+  <h2>كيف تستخدمه؟</h2>
+  <ul>
+    <li><b>١)</b> اضغط «اختر الملفات» واختر صوراً أو ملف PDF — يمكنك اختيار عشرات الصور مرة واحدة.</li>
+    <li><b>٢)</b> رتّبها بأسهم التقديم والتأخير إن أردت، ثم اختر الإعدادات من الشريط الجانبي (زر ☰).</li>
+    <li><b>٣)</b> اضغط «تشغيل» — تُحفظ النتيجة في مجلد Documents وتُفتح مباشرة.</li>
+  </ul>
+  <p class="note">نصيحة: للملفات الضخمة جداً (مئات الصفحات) استخدم تطبيق الويندوز من الموقع.</p>
+</section>
+
+<div class="dots" id="dots"><span class="dot on"></span><span class="dot"></span><span class="dot"></span></div>
+<div style="display:grid; gap:9px">
+  <button id="next">التالي</button>
+  <button class="ghost" id="skip">تخطّي</button>
+</div>
+
+<script>
+  var step = 0;
+  var slides = [document.getElementById('s1'), document.getElementById('s2'), document.getElementById('s3')];
+  var dots = document.getElementById('dots').children;
+  var nextBtn = document.getElementById('next');
+  var bridge = window.ToolSeerNative || null;
+
+  function show(i) {
+    step = Math.max(0, Math.min(slides.length - 1, i));
+    slides.forEach(function (s, n) { s.classList.toggle('on', n === step); });
+    for (var d = 0; d < dots.length; d++) dots[d].classList.toggle('on', d === step);
+    nextBtn.textContent = step === slides.length - 1 ? 'ابدأ الاستخدام' : 'التالي';
+  }
+
+  /* The system picker needs no permission on Android 13+, and the screen says so
+     rather than asking for something that would help nobody. */
+  if (bridge && bridge.requestAccess) {
+    var state = bridge.requestAccess();
+    var badge = document.getElementById('access-badge');
+    if (state === 'not-needed') badge.textContent = 'لا حاجة لأي إذن على هذا الإصدار';
+    else if (state === 'granted') badge.textContent = 'الوصول ممنوح';
+  }
+
+  window.onToolSeerAccess = function (result) {
+    document.getElementById('access-badge').textContent =
+      result === 'granted' ? 'تم منح الوصول' : 'لم يُمنح الوصول — يمكنك المتابعة، وسيسألك النظام عند اختيار ملف';
+  };
+
+  nextBtn.addEventListener('click', function () {
+    if (step === slides.length - 1) {
+      if (bridge && bridge.finishOnboarding) bridge.finishOnboarding();
+      else location.href = '/index.html';
+      return;
+    }
+    /* Ask on the permission screen, once, before the user reaches the tools. */
+    show(step + 1);
+  });
+
+  document.getElementById('skip').addEventListener('click', function () {
+    if (bridge && bridge.finishOnboarding) bridge.finishOnboarding();
+    else location.href = '/index.html';
+  });
+</script>
+</body>
+</html>
