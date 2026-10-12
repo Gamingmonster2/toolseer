@@ -416,6 +416,18 @@ export function renderToolbox(host, opts = {}) {
 
 /* --------------------------------------------------------- desktop strip -- */
 
+/**
+ * The Android download. One constant, because the URL is the only thing that has to
+ * change when a release is re-cut, and a link that has to be hunted through eight files
+ * is a link that goes stale.
+ *
+ * This is GitHub's "latest release" form: it always serves the newest asset with this
+ * exact file name, so publishing 1.4 does not require touching the site.
+ */
+export const ANDROID_APK_URL =
+  'https://github.com/Gamingmonster2/toolseer/releases/latest/download/toolseer-1.3-android.apk';
+
+
 async function renderDesktopRow(row) {
   const desktop = isDesktop();
   const wrap = document.createElement('div');
@@ -443,7 +455,17 @@ async function renderDesktopRow(row) {
   status.textContent = t('toolbox.desktop.unavailable');
   text.append(title, body, status);
 
-  wrap.append(art, text);
+  /* The Android app, available now — and the honest counterpart to the desktop row:
+     the browser cannot do everything on a phone, and this is where the rest lives. */
+  const android = document.createElement('a');
+  android.className = 'ts-btn ts-btn--ghost';
+  android.href = ANDROID_APK_URL;
+  android.rel = 'noopener';
+  android.setAttribute('data-ts-android', '1');
+  android.innerHTML = `${icon('download', { size: 17 })}<span>${t('toolbox.android.cta')}</span>`
+    + '<span style="opacity:.7;font-size:12px">1.3 · 18.6 MB</span>';
+
+  wrap.append(art, text, android);
 
   if (!desktop) {
     const cta = document.createElement('a');

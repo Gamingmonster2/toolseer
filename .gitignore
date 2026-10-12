@@ -36,3 +36,5 @@ Desktop.ini
 .chrome-step*
 .chrome-ocr*
 
+# release artifacts: they belong in GitHub Releases, not in git
+dist/
