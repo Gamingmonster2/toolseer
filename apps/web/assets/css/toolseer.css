@@ -1206,3 +1206,32 @@ html[dir="rtl"] .ts-legacybar__link svg { transform: scaleX(-1); }
   .ts-download__art { margin: 0 auto; }
   .ts-download__list { text-align: start; }
 }
+
+
+/* --- the Android trial notice --- */
+.ts-download__notice {
+  flex-basis: 100%;
+  margin-top: 6px;
+  padding: 14px 16px;
+  border: 1px solid #f0c36d;
+  border-inline-start: 4px solid #e8a33d;
+  border-radius: 12px;
+  background: #fff8e8;
+  color: #4a3608;
+}
+html[data-theme="dark"] .ts-download__notice {
+  border-color: #6b5320;
+  border-inline-start-color: #e8a33d;
+  background: #2a2210;
+  color: #f3e3bd;
+}
+.ts-download__notice-head { font-size: 15px; margin-bottom: 6px; }
+.ts-download__notice-text { margin: 0 0 8px; font-size: 14px; line-height: 1.65; }
+.ts-download__notice-steps { margin: 0 0 8px; padding-inline-start: 20px; font-size: 14px; line-height: 1.65; }
+.ts-download__notice-steps li { margin-block: 3px; }
+.ts-download__notice-help { margin: 0; font-size: 14px; }
+.ts-download__wa {
+  display: inline-block; margin-inline-start: 6px; padding: 3px 10px;
+  border-radius: 999px; background: #25d366; color: #06331a; font-weight: 700;
+  text-decoration: none; direction: ltr;
+}
