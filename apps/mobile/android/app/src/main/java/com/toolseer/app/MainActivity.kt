@@ -3,14 +3,13 @@ package com.toolseer.app
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.ContentValues
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
 import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.util.Base64
@@ -29,16 +28,24 @@ import java.io.File
 import java.io.IOException
 
 /**
- * The whole native side of ToolSeer.
+ * The entire native side of ToolSeer.
  *
- * Three jobs:
+ * Four jobs, and nothing else:
  *  1. Serve the bundled web app from a secure origin, so ES modules and fetch behave
  *     exactly as they do on toolseer.com.
- *  2. Handle the file chooser. A bare WebView silently ignores <input type="file">,
- *     so without onShowFileChooser below NOTHING can be opened — which is precisely
- *     the failure the owner reported as "I cannot open the images".
- *  3. Save a finished file to the device's Documents collection, because the
- *     browser's own download path is what refused and hid files on a phone.
+ *  2. Handle the file chooser. A bare WebView silently ignores the file input element,
+ *     so without onShowFileChooser nothing can be opened at all.
+ *  3. Copy whatever was picked into this app's own cache and hand the page a URI served
+ *     by our own FileProvider. Chromium resolves that itself; a foreign provider's URI
+ *     is what produced "I choose the file and nothing happens".
+ *  4. Own a folder — Android/media/<package>/files — and expose it as a small file API.
+ *     No permission is needed for it on any supported version, the user can see it in
+ *     any file manager, and because the app can LIST it, a result made by one tool can
+ *     be fed straight into the next one. That is the round trip a picker cannot offer.
+ *
+ * The bridge methods are declared directly on the Activity. A @JavascriptInterface that
+ * ends up nested inside another function compiles perfectly and is simply absent from
+ * the page — which is exactly what happened when this file was patched in place.
  */
 class MainActivity : Activity() {
 
@@ -47,23 +54,12 @@ class MainActivity : Activity() {
     private val prefs: SharedPreferences by lazy { getSharedPreferences("toolseer", MODE_PRIVATE) }
 
     @SuppressLint("SetJavaScriptEnabled")
-    private fun cleanupCache() {
-        try {
-            val dir = File(cacheDir, "picked")
-            val cutoff = System.currentTimeMillis() - 24L * 60 * 60 * 1000
-            dir.listFiles()?.forEach { if (it.lastModified() < cutoff) it.delete() }
-        } catch (e: Exception) {
-            // never worth failing a launch over
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         cleanupCache()
 
-        if ((applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0) {
+        if ((applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0) {
             WebView.setWebContentsDebuggingEnabled(true)
-            Log.i(TAG, "WebView debugging enabled for this debug build")
         }
 
         webView = WebView(this).apply {
@@ -72,11 +68,8 @@ class MainActivity : Activity() {
             settings.allowFileAccess = false
             settings.allowContentAccess = true
             settings.mediaPlaybackRequiresUserGesture = false
-            // Honour the page's viewport meta, and fit the page to the window. Without
-            // these two the WebView lays the site out at desktop width: the page is
-            // wider than the screen, drifts sideways, and the responsive breakpoint
-            // never matches — so the settings drawer stays off-screen while the scrim
-            // still dims the page. One cause, three symptoms.
+            // Without these two the WebView lays the site out at desktop width, so the
+            // page is wider than the screen and the responsive breakpoint never matches.
             settings.useWideViewPort = true
             settings.loadWithOverviewMode = true
             settings.setSupportZoom(false)
@@ -101,7 +94,12 @@ class MainActivity : Activity() {
         webView.saveState(outState)
     }
 
-    /** Serves the APK's own assets on a secure origin, including directory routes. */
+    override fun onBackPressed() {
+        if (webView.canGoBack()) webView.goBack() else super.onBackPressed()
+    }
+
+    /* ------------------------------------------------------------ assets --- */
+
     private inner class AssetClient : WebViewClient() {
         override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? {
             val url = request.url ?: return null
@@ -112,7 +110,6 @@ class MainActivity : Activity() {
 
             open(candidate)?.let { return it }
             if (!candidate.contains('.')) open(candidate.trimEnd('/') + "/index.html")?.let { return it }
-            // Files that belong to the shell rather than the website (the welcome flow).
             open(raw)?.let { return it }
             return null
         }
@@ -124,11 +121,8 @@ class MainActivity : Activity() {
         }
     }
 
-    /**
-     * The file chooser. This is the piece whose absence made the app useless: the
-     * page asks for files, the WebView asks us, and without an answer the request is
-     * dropped and every tool looks broken.
-     */
+    /* ------------------------------------------------------------ chooser --- */
+
     private inner class Chooser : WebChromeClient() {
         override fun onShowFileChooser(
             view: WebView?,
@@ -137,47 +131,33 @@ class MainActivity : Activity() {
         ): Boolean {
             pendingFileCallback?.onReceiveValue(null)
             pendingFileCallback = callback
-            Log.i(TAG, "chooser asked: accept=" + params?.acceptTypes?.joinToString(",") + " mode=" + params?.mode)
 
             val accepted = params?.acceptTypes?.toList().orEmpty().joinToString(" ").lowercase()
             val multiple = params?.mode == FileChooserParams.MODE_OPEN_MULTIPLE
 
-            /* An empty accept string used to be read as "images", which could send a PDF
-               tool to the gallery. It is read as unknown now, and unknown goes to the
-               document browser, which can show photos as well as files. */
             val imageOnly = accepted.contains("image")
-                && !accepted.contains("pdf")
-                && !accepted.contains("word")
-                && !accepted.contains("sheet")
-                && !accepted.contains("presentation")
-                && !accepted.contains("text")
-                && !accepted.contains("*/*")
-            val alsoWantsDocuments = accepted.contains("pdf")
-                || accepted.contains("word")
-                || accepted.contains("sheet")
-                || accepted.contains("presentation")
-                || accepted.contains("text")
-                || accepted.contains("*/*")
-            val needsBoth = accepted.contains("image") && alsoWantsDocuments
+                && !accepted.contains("pdf") && !accepted.contains("word")
+                && !accepted.contains("sheet") && !accepted.contains("presentation")
+                && !accepted.contains("text") && !accepted.contains("*/*")
+            val alsoDocuments = accepted.contains("pdf") || accepted.contains("word")
+                || accepted.contains("sheet") || accepted.contains("presentation")
+                || accepted.contains("text") || accepted.contains("*/*")
+            val needsBoth = accepted.contains("image") && alsoDocuments
+
+            Log.i(TAG, "chooser: accept=" + accepted + " imageOnly=" + imageOnly + " both=" + needsBoth)
 
             return try {
                 when {
-                    /* The photo picker works and is the right door for photos: it needs no
-                       permission and returns exactly what was chosen. */
                     imageOnly -> startActivityForResult(galleryIntent(multiple), REQUEST_FILES)
-
-                    /* Documents go straight through. No Intent.createChooser wrapper: the
-                       extra layer is what silently swallowed the result for PDFs, and
-                       removing it is the whole point of this change. */
+                    // Documents go straight through: no createChooser wrapper, which is a
+                    // known way to lose the result on a number of devices.
                     !needsBoth -> startActivityForResult(documentsIntent(multiple), REQUEST_FILES)
-
                     else -> {
                         val chooser = Intent.createChooser(galleryIntent(multiple), "اختر من الصور أو الملفات")
                         chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(documentsIntent(multiple)))
                         startActivityForResult(chooser, REQUEST_FILES)
                     }
                 }
-                Log.i(TAG, "launched: imageOnly=" + imageOnly + " needsBoth=" + needsBoth + " multiple=" + multiple)
                 true
             } catch (e: Exception) {
                 Log.e(TAG, "could not open a picker", e)
@@ -187,44 +167,8 @@ class MainActivity : Activity() {
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode != REQUEST_FILES) {
-            super.onActivityResult(requestCode, resultCode, data)
-            return
-        }
-        /* Every line below exists so a silent failure can be told apart from a
-           mis-delivered one. Without this, "nothing happened" is all anyone can say. */
-        Log.i(TAG, "onActivityResult: code=" + requestCode + " result=" + resultCode
-            + " data=" + (data != null) + " clip=" + (data?.clipData?.itemCount ?: -1)
-            + " uri=" + data?.data)
-
-        val callback = pendingFileCallback
-        pendingFileCallback = null
-        if (callback == null) {
-            Log.w(TAG, "onActivityResult with no pending callback - the web page stopped waiting")
-            return
-        }
-
-        if (resultCode != RESULT_OK || data == null) {
-            Log.w(TAG, "no file returned")
-            callback.onReceiveValue(null)
-            return
-        }
-        val uris = mutableListOf<Uri>()
-        data.clipData?.let { clip -> for (i in 0 until clip.itemCount) uris.add(clip.getItemAt(i).uri) }
-        data.data?.let { uris.add(it) }
-        val readable = if (uris.isEmpty()) emptyArray() else toReadableUris(uris)
-        Log.i(TAG, "returning " + readable.size + " file(s) to the page: " + readable.joinToString(","))
-        callback.onReceiveValue(if (readable.isEmpty()) null else readable)
-    }
-
-    /**
-     * The gallery. Android 13's photo picker needs no permission and shows exactly the
-     * photos the user chooses; older versions ask the media store for images, which is
-     * why the read permission is still requested on those.
-     */
-    private fun galleryIntent(multiple: Boolean): Intent {
-        val picker = if (Build.VERSION.SDK_INT >= 33) {
+    private fun galleryIntent(multiple: Boolean): Intent =
+        if (Build.VERSION.SDK_INT >= 33) {
             Intent(MediaStore.ACTION_PICK_IMAGES).apply {
                 type = "image/*"
                 if (multiple) putExtra(MediaStore.EXTRA_PICK_IMAGES_MAX, 100)
@@ -236,15 +180,7 @@ class MainActivity : Activity() {
                 putExtra(Intent.EXTRA_ALLOW_MULTIPLE, multiple)
             }
         }
-        return picker
-    }
 
-    /**
-     * The file browser, for PDFs and anything else that is not a photo. Deliberately
-     * unfiltered: a provider that does not advertise a narrow type cannot answer a
-     * filtered query at all, which is what made PDFs invisible. The page validates what
-     * it receives and says so if the choice was wrong.
-     */
     private fun documentsIntent(multiple: Boolean): Intent =
         Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
@@ -252,18 +188,46 @@ class MainActivity : Activity() {
             putExtra(Intent.EXTRA_ALLOW_MULTIPLE, multiple)
         }
 
-    /**
-     * Give the page URIs the app itself serves.
-     *
-     * Chromium has to resolve whatever URI it is handed, and a provider it cannot
-     * resolve turns into silence on the page — no error, no file, nothing. Copying into
-     * our own cache and serving it through FileProvider removes that dependency. If the
-     * copy fails for any reason the original URI is returned, so nothing is lost.
-     */
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode != REQUEST_FILES) {
+            super.onActivityResult(requestCode, resultCode, data)
+            return
+        }
+        Log.i(TAG, "result: code=" + resultCode + " data=" + (data != null)
+            + " clip=" + (data?.clipData?.itemCount ?: -1) + " uri=" + data?.data)
+
+        val callback = pendingFileCallback
+        pendingFileCallback = null
+        if (callback == null) {
+            Log.w(TAG, "result with no pending callback")
+            return
+        }
+        if (resultCode != RESULT_OK || data == null) {
+            callback.onReceiveValue(null)
+            return
+        }
+
+        val picked = mutableListOf<Uri>()
+        data.clipData?.let { clip -> for (i in 0 until clip.itemCount) picked.add(clip.getItemAt(i).uri) }
+        data.data?.let { picked.add(it) }
+        if (picked.isEmpty()) {
+            callback.onReceiveValue(null)
+            return
+        }
+
+        val readable = toReadableUris(picked)
+        Log.i(TAG, "handing " + readable.size + " file(s) to the page")
+        callback.onReceiveValue(readable)
+    }
+
+    /* ------------------------------------------------------- picked files --- */
+
     private fun toReadableUris(uris: List<Uri>): Array<Uri> {
         val out = mutableListOf<Uri>()
         for (uri in uris) {
-            val ours = try { copyToCache(uri) } catch (e: Exception) { Log.w(TAG, "copy failed: " + e.message); null }
+            val ours = try { copyToCache(uri) } catch (e: Exception) {
+                Log.w(TAG, "copy failed: " + e.message); null
+            }
             out.add(ours ?: uri)
         }
         return out.toTypedArray()
@@ -277,7 +241,7 @@ class MainActivity : Activity() {
         contentResolver.openInputStream(uri)?.use { input ->
             target.outputStream().use { output -> input.copyTo(output) }
         } ?: return null
-        Log.i(TAG, "copied " + rawName + " (" + target.length() + " bytes) into the app cache")
+        Log.i(TAG, "copied " + rawName + " (" + target.length() + " bytes)")
         return FileProvider.getUriForFile(this, packageName + ".fileprovider", target)
     }
 
@@ -287,6 +251,55 @@ class MainActivity : Activity() {
         }
     } catch (e: Exception) {
         null
+    }
+
+    private fun cleanupCache() {
+        try {
+            val dir = File(cacheDir, "picked")
+            val cutoff = System.currentTimeMillis() - 24L * 60 * 60 * 1000
+            dir.listFiles()?.forEach { if (it.lastModified() < cutoff) it.delete() }
+        } catch (e: Exception) {
+            // never worth failing a launch over
+        }
+    }
+
+    /* ------------------------------------------------------- owned folder --- */
+
+    /**
+     * Android/media/<package>/files — the folder this app owns.
+     *
+     * getExternalMediaDirs() needs no permission on any supported version, the folder is
+     * visible to the user in a file manager, and the app can list it. That last part is
+     * what a picker can never do.
+     */
+    private fun mediaDir(): File {
+        val dirs = getExternalMediaDirs()
+        val base = if (dirs.isNotEmpty() && dirs[0] != null) dirs[0]!! else File(filesDir, "media")
+        val dir = File(base, "files")
+        if (!dir.exists()) dir.mkdirs()
+        return dir
+    }
+
+    private fun writeToOwnFolder(name: String, bytes: ByteArray): Uri? {
+        val target = File(mediaDir(), name)
+        target.writeBytes(bytes)
+        Log.i(TAG, "saved " + name + " (" + target.length() + " bytes) to " + target.absolutePath)
+        return FileProvider.getUriForFile(this, packageName + ".fileprovider", target)
+    }
+
+    private fun jsonEscape(value: String): String =
+        value.replace("\\", "\\\\").replace("\"", "\\\"")
+
+    private fun openFile(uri: Uri?, mime: String) {
+        if (uri == null) return
+        try {
+            startActivity(Intent(Intent.ACTION_VIEW).apply {
+                setDataAndType(uri, mime)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            })
+        } catch (e: Exception) {
+            // No viewer installed: the file is saved regardless and the toast said so.
+        }
     }
 
     private fun mimeOf(p: String): String = when (p.substringAfterLast('.', "").lowercase()) {
@@ -301,12 +314,23 @@ class MainActivity : Activity() {
         "ico" -> "image/x-icon"
         "woff2" -> "font/woff2"
         "wasm" -> "application/wasm"
+        "pdf" -> "application/pdf"
+        "zip" -> "application/zip"
         "txt", "xml" -> "text/plain"
         else -> "application/octet-stream"
     }
 
+    /* --------------------------------------------------------- the bridge --- */
+
+    /**
+     * Every method here is declared on the Activity, not nested inside another function:
+     * a @JavascriptInterface that ends up nested is invisible to the page.
+     */
     private inner class Bridge {
-        /** Called by the welcome flow's last screen. */
+
+        @JavascriptInterface
+        fun appVersion(): String = "1.3"
+
         @JavascriptInterface
         fun finishOnboarding() {
             prefs.edit().putBoolean("onboarded", true).apply()
@@ -320,79 +344,106 @@ class MainActivity : Activity() {
         }
 
         @JavascriptInterface
-        fun appVersion(): String = "1.3"
+        fun requestAccess(): String = askForAccess()
 
-        /**
-         * Open the document browser directly, whatever the tool asked for. Offered as a
-         * fallback when a picker returns nothing, which on some OEM file managers is a
-         * question of which provider answered rather than of permissions.
-         */
+        @JavascriptInterface
+        fun requestAccessAgain(): String = askForAccess()
+
+        @JavascriptInterface
+        fun accessState(): String {
+            val permission = mediaPermission()
+            return if (ContextCompat.checkSelfPermission(this@MainActivity, permission)
+                == PackageManager.PERMISSION_GRANTED) "granted" else "not-granted"
+        }
+
+        /** Open the document browser directly, whatever the tool asked for. */
         @JavascriptInterface
         fun openDocuments(): Boolean = try {
-            runOnUiThread {
-                pendingFileCallback = null
-                startActivityForResult(documentsIntent(true), REQUEST_FILES)
-            }
+            runOnUiThread { startActivityForResult(documentsIntent(true), REQUEST_FILES) }
             true
         } catch (e: Exception) {
             Log.e(TAG, "fallback document browser failed", e)
             false
         }
 
-        /** Offered from the settings drawer when access was declined earlier. */
+        /** Write the finished file into the app's own folder and open it. */
         @JavascriptInterface
-        fun requestAccessAgain(): String = requestAccess()
-
-        /**
-         * Ask for what is genuinely needed — and nothing more.
-         *
-         * On Android 13 and later the system picker hands the app one file at a time
-         * with the user's explicit choice, so NO permission is required at all, and
-         * asking for one is both unnecessary and a common reason for a store review
-         * to be rejected. Older versions are asked for read access, which is what
-         * their pickers expect.
-         */
-        @JavascriptInterface
-        fun requestAccess(): String {
-            val permission = if (Build.VERSION.SDK_INT >= 33) {
-                Manifest.permission.READ_MEDIA_IMAGES
-            } else {
-                Manifest.permission.READ_EXTERNAL_STORAGE
+        fun saveBase64(name: String, base64: String, mime: String): String = try {
+            val bytes = Base64.decode(base64, Base64.DEFAULT)
+            val uri = writeToOwnFolder(name, bytes)
+            runOnUiThread {
+                Toast.makeText(this@MainActivity, "Saved: " + name, Toast.LENGTH_LONG).show()
+                openFile(uri, mime)
             }
-            val granted = ContextCompat.checkSelfPermission(
-                this@MainActivity, permission,
-            ) == PackageManager.PERMISSION_GRANTED
-            if (granted) return "granted"
-            runOnUiThread { requestPermissions(arrayOf(permission), REQUEST_PERMISSION) }
-            return "asked"
+            uri?.toString() ?: name
+        } catch (e: Exception) {
+            "error: " + (e.message ?: "save failed")
         }
 
-        /** Whether the gallery permission has been granted, for the welcome screen. */
+        /** The app's own files, newest first, as JSON. */
         @JavascriptInterface
-        fun accessState(): String {
-            val permission = if (Build.VERSION.SDK_INT >= 33) {
-                Manifest.permission.READ_MEDIA_IMAGES
-            } else {
-                Manifest.permission.READ_EXTERNAL_STORAGE
-            }
-            return if (ContextCompat.checkSelfPermission(this@MainActivity, permission)
-                == PackageManager.PERMISSION_GRANTED) "granted" else "not-granted"
-        }
-
-        @JavascriptInterface
-        fun saveBase64(name: String, base64: String, mime: String): String {
-            return try {
-                val bytes = Base64.decode(base64, Base64.DEFAULT)
-                val uri = writeToDocuments(name, bytes, mime)
-                runOnUiThread {
-                    Toast.makeText(this@MainActivity, "Saved: " + name, Toast.LENGTH_LONG).show()
-                    openFile(uri, mime)
+        fun listMyFiles(): String = try {
+            val files = mediaDir().listFiles() ?: emptyArray()
+            val items = files.filter { it.isFile }
+                .sortedByDescending { it.lastModified() }
+                .joinToString(",") { f ->
+                    // Kotlin ends an expression at a newline, so the operator stays at the
+                    // end of the line: a leading '+' is read as a unary plus instead.
+                    "{\"name\":\"" + jsonEscape(f.name) + "\",\"size\":" + f.length() +
+                        ",\"time\":" + f.lastModified() + "}"
                 }
-                uri?.toString() ?: name
-            } catch (e: Exception) {
-                "error: " + (e.message ?: "save failed")
-            }
+            "[" + items + "]"
+        } catch (e: Exception) {
+            "error: " + (e.message ?: "list failed")
         }
+
+        /** Base64 of one of our own files, so the page can rebuild it as a File. */
+        @JavascriptInterface
+        fun readMyFile(name: String): String = try {
+            val file = File(mediaDir(), File(name).name)
+            if (!file.isFile) "error: not found"
+            else Base64.encodeToString(file.readBytes(), Base64.NO_WRAP)
+        } catch (e: Exception) {
+            "error: " + (e.message ?: "read failed")
+        }
+
+        @JavascriptInterface
+        fun openMyFile(name: String): Boolean = try {
+            val file = File(mediaDir(), File(name).name)
+            val uri = FileProvider.getUriForFile(this@MainActivity, packageName + ".fileprovider", file)
+            val mime = mimeOf(file.name)
+            runOnUiThread { openFile(uri, mime) }
+            true
+        } catch (e: Exception) {
+            false
+        }
+
+        @JavascriptInterface
+        fun deleteMyFile(name: String): Boolean = try {
+            File(mediaDir(), File(name).name).delete()
+        } catch (e: Exception) {
+            false
+        }
+
+        @JavascriptInterface
+        fun myFilesPath(): String = try {
+            mediaDir().absolutePath
+        } catch (e: Exception) {
+            "error: " + (e.message ?: "no folder")
+        }
+    }
+
+    private fun mediaPermission(): String =
+        if (Build.VERSION.SDK_INT >= 33) Manifest.permission.READ_MEDIA_IMAGES
+        else Manifest.permission.READ_EXTERNAL_STORAGE
+
+    private fun askForAccess(): String {
+        val permission = mediaPermission()
+        if (ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED) {
+            return "granted"
+        }
+        runOnUiThread { requestPermissions(arrayOf(permission), REQUEST_PERMISSION) }
+        return "asked"
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -405,58 +456,6 @@ class MainActivity : Activity() {
                 null,
             )
         }
-    }
-
-    /**
-     * The folder this app owns: Android/media/<package>/files.
-     *
-     * No permission is needed for it on any supported version, the user can see it in
-     * any file manager, and — the point of the whole exercise — the app can LIST it. A
-     * picker can only ever hand over one file at a time; a folder it owns can be
-     * browsed, which is what makes reusing a result in the next tool possible.
-     */
-    private fun mediaDir(): File {
-        val dirs = getExternalMediaDirs()
-        val base = if (dirs.isNotEmpty() && dirs[0] != null) dirs[0]!! else File(filesDir, "media")
-        val dir = File(base, "files")
-        dir.mkdirs()
-        return dir
-    }
-
-    private fun jsonEscape(s: String): String =
-        s.replace("\\", "\\\\").replace("\"", "\\\"")
-
-    private fun writeToDocuments(name: String, bytes: ByteArray, mime: String): Uri? {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val values = ContentValues().apply {
-                put(MediaStore.MediaColumns.DISPLAY_NAME, name)
-                put(MediaStore.MediaColumns.MIME_TYPE, mime)
-                put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOCUMENTS)
-            }
-            val uri = contentResolver.insert(MediaStore.Files.getContentUri("external"), values) ?: return null
-            contentResolver.openOutputStream(uri)?.use { it.write(bytes) }
-            return uri
-        }
-        val dir = getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS) ?: filesDir
-        val out = File(dir, name)
-        out.writeBytes(bytes)
-        return Uri.fromFile(out)
-    }
-
-    private fun openFile(uri: Uri?, mime: String) {
-        if (uri == null) return
-        try {
-            startActivity(Intent(Intent.ACTION_VIEW).apply {
-                setDataAndType(uri, mime)
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            })
-        } catch (e: Exception) {
-            // No viewer installed: the file is saved anyway and the toast said so.
-        }
-    }
-
-    override fun onBackPressed() {
-        if (webView.canGoBack()) webView.goBack() else super.onBackPressed()
     }
 
     companion object {
